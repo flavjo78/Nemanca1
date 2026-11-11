@@ -59,7 +59,8 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 
 - *Facoltativo*: **copia delle email di supporto@ anche su Tophost**. Provato l'11/11: Tophost non accetta una seconda destinazione per lo stesso indirizzo ("già esistente"). Se servirà, ticket all'assistenza Tophost; intanto supporto@ arriva solo alla Gmail
 
-- In anteprima, da unire dopo l'ok: candidatura con preferenza di squadra, icona campetto nella chat, nome di chi si candida, termometro, cambio ruolo che sposta il giocatore, **in campo sempre i giocatori del formato** (calcio a 5 = portiere + 4: i contatori del modulo non superano il totale, si aggiungono/tolgono solo riserve in panchina; migrazione 0014 applicata)
+- In anteprima, da unire al prossimo "unisci": **icona nera "Ne manca 1 Admin"** per l'app installata da https://nemanca1.pages.dev (account amministratore; il giocatore usa www con le notifiche). Dopo l'unione: disinstallare e reinstallare l'icona Admin
+- ~~In anteprima, da unire dopo l'ok~~ unito l'11/11 notte: candidatura con preferenza di squadra, icona campetto nella chat, nome di chi si candida, termometro, cambio ruolo che sposta il giocatore, **in campo sempre i giocatori del formato** (calcio a 5 = portiere + 4: i contatori del modulo non superano il totale, si aggiungono/tolgono solo riserve in panchina; migrazione 0014 applicata)
 - ~~Da unire su www~~ fatto l'11/11 sera: www.nemanca1.com ha tribuna, panchine, modulo, trascinamento, vice, selettore a passi, copia link.
 
 
