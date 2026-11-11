@@ -47,6 +47,8 @@ Aggiornato: 11 novembre 2026, sera: le email arrivano a chiunque. Questo file si
 7. [ ] **Pagina amministratore** per Flavio dentro l'app: utenti attivi, partite, campi, blocca/elimina, statistiche
 8. [ ] **Avviso a Flavio a ogni nuovo iscritto** (richiesto l'11/11): prima via email (trigger DB → Resend), poi come notifica push con OneSignal (Tappa 3) e lista "ultimi iscritti" nella pagina amministratore
 
+9. [ ] **Entra con Google** (richiesto l'11/11, da fare per ultimo): login con un tocco accanto al codice via email; serve una configurazione OAuth su Google Cloud
+
 ## Richieste di Flavio in sospeso
 
 - ~~Mittente delle email automatiche~~ deciso: `benvenuto@nemanca1.com`; quando si crea la casella `info@`, aggiungere l'alias `benvenuto@` → `info@`
