@@ -49,6 +49,7 @@ Aggiornato: 11 novembre 2026, dominio verificato su Resend. Questo file si aggio
 ## Richieste di Flavio in sospeso
 
 - ~~Mittente delle email automatiche~~ deciso: `benvenuto@nemanca1.com`; quando si crea la casella `info@`, aggiungere l'alias `benvenuto@` → `info@`
+- **Backup del database** (richiesto l'11/11): script per scaricare tutte le tabelle Supabase in locale, da lanciare a piacere (il piano Free non ha backup automatici)
 - **Pannello amministratore dentro l'app** (richiesto l'11/11): utenti, campi, partite, elimina/blocca, statistiche, accesso riservato a Flavio (flag `profili.admin`). Da fare dopo la Tappa 2. Nel frattempo si usa il pannello Supabase (Authentication → Users, Table Editor).
 
 ## Decisioni prese oggi
