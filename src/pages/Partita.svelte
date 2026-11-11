@@ -5,7 +5,7 @@
   import { auth } from '../lib/auth.svelte.js'
   import { router, indietro, naviga } from '../lib/router.svelte.js'
   import { etichettaDataOra, etichettaFormato, nomeBreve, chipPosti, euro, etichettaRuolo, iniziali, RUOLI } from '../lib/formato.js'
-  import { conta } from '../lib/formazione.js'
+  import { conta, MODULI, moduloDi } from '../lib/formazione.js'
   import Icona from '../components/Icona.svelte'
   import CampoDisegnato from '../components/CampoDisegnato.svelte'
   import Caricamento from '../components/Caricamento.svelte'
@@ -15,6 +15,8 @@
   let partita = $state(null)
   let richieste = $state([])
   let tribuna = $state([])
+  let vice = $state([])
+  let moduloSquadra = $state('A')
   let inviti = $state([])
   let caricamento = $state(true)
   let errore = $state('')
@@ -31,7 +33,13 @@
   const posizioni = $derived(partita?.posizioni ?? [])
   const numeri = $derived(conta(posizioni))
   const chip = $derived(chipPosti(posizioni))
-  const sonoOrganizzatore = $derived(!!uid && partita?.organizzatore_id === uid)
+  const sonoTitolare = $derived(!!uid && partita?.organizzatore_id === uid)
+  const miaViceSquadra = $derived(vice.find((v) => v.giocatore_id === uid)?.squadra ?? null)
+  // chi gestisce la formazione: organizzatore (entrambe le squadre) o vice (solo la sua)
+  const sonoOrganizzatore = $derived(sonoTitolare || !!miaViceSquadra)
+  const gestisco = (squadra) => sonoTitolare || miaViceSquadra === squadra
+  const eVice = (giocatoreId) => vice.some((v) => v.giocatore_id === giocatoreId)
+  const viceDi = (giocatoreId) => vice.find((v) => v.giocatore_id === giocatoreId)?.squadra ?? null
   const mioPosto = $derived(posizioni.find((p) => p.giocatore_id === uid) ?? null)
   const miaRichiesta = $derived(richieste.find((r) => r.giocatore_id === uid) ?? null)
   const sonoInTribuna = $derived(!!uid && tribuna.some((t) => t.giocatore_id === uid))
@@ -57,6 +65,7 @@
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'partite', filter: `id=eq.${id}` }, pianificaRicarica)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tribuna', filter: `partita_id=eq.${id}` }, pianificaRicarica)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'inviti', filter: `partita_id=eq.${id}` }, pianificaRicarica)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'vice', filter: `partita_id=eq.${id}` }, pianificaRicarica)
       .subscribe()
   })
   onDestroy(() => { if (canale) supabase.removeChannel(canale); clearTimeout(timerRicarica) })
@@ -71,6 +80,8 @@
     if (error || !data) { errore = 'Partita non trovata.'; return }
     data.posizioni.sort((a, b) => a.squadra.localeCompare(b.squadra) || a.y - b.y || a.x - b.x || a.creato_il.localeCompare(b.creato_il))
     partita = data
+    const { data: v } = await supabase.from('vice').select('giocatore_id, squadra').eq('partita_id', id)
+    vice = v ?? []
     if (uid) {
       const [{ data: r }, { data: t }, { data: inv }] = await Promise.all([
         supabase.from('richieste').select('*, giocatore:profili(id, nome, iniziali)')
@@ -126,6 +137,18 @@
   const esciTribuna = () => esegui('esci_tribuna', { p_partita: id }, 'Sei uscito dalla tribuna.')
   const chiedi = (p, giocatoreId) => esegui('chiedi_di_giocare', { p_posizione: p.id, p_giocatore: giocatoreId }, 'Richiesta inviata: deve accettare.')
   const rispondiInvito = (accetta) => esegui('rispondi_invito', { p_partita: id, p_accetta: accetta }, accetta ? 'Sei in campo!' : 'Resti in tribuna.')
+  const sposta = (da, a) => esegui('sposta_giocatore', { p_da: da.id, p_a: a.id }, a.giocatore_id ? 'Posti scambiati.' : 'Giocatore spostato.')
+  const cambiaModulo = (squadra, modulo) => esegui('cambia_modulo', { p_partita: id, p_squadra: squadra, p_modulo: modulo }, `Squadra ${squadra}: modulo ${modulo}.`)
+  const nominaVice = (giocatoreId, squadra, si) => esegui('nomina_vice', { p_partita: id, p_giocatore: giocatoreId, p_squadra: squadra, p_si: si }, si ? `Ora è vice della squadra ${squadra}.` : 'Non è più vice.')
+  let copiato = $state(false)
+  async function copiaLink() {
+    const url = `${window.location.origin}/partita/${id}`
+    try { await navigator.clipboard.writeText(url) } catch {
+      const t = document.createElement('textarea'); t.value = url; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove()
+    }
+    copiato = true; setTimeout(() => (copiato = false), 2500)
+  }
+  const altriPosti = (p) => posizioni.filter((x) => x.id !== p.id && gestisco(x.squadra)).sort((a, b) => (a.ruolo === 'panchina') - (b.ruolo === 'panchina') || a.squadra.localeCompare(b.squadra) || (a.giocatore_id ? 1 : 0) - (b.giocatore_id ? 1 : 0))
   const postiLiberi = $derived(posizioni.filter((p) => p.stato === 'libera').sort((a, b) => (a.ruolo === 'panchina') - (b.ruolo === 'panchina') || a.squadra.localeCompare(b.squadra)))
 
   async function annulla() {
@@ -185,6 +208,7 @@
         <span class="chip leggero">{euro(partita.quota)}</span>
         {#if numeri.panchinaTotale}<span class="chip leggero">Panchina {numeri.panchinaTotale - numeri.panchinaLiberi}/{numeri.panchinaTotale}</span>{/if}
         {#if approvazione}<span class="chip leggero">Posti assegnati dall'organizzatore</span>{/if}
+        <span class="chip leggero">A {moduloDi(posizioni, 'A')} · B {moduloDi(posizioni, 'B')}</span>
       </div>
 
       {#if partita.descrizione}
@@ -280,13 +304,19 @@
 
       {#if sonoOrganizzatore && modificabile}
         <section class="sezione">
-          <div class="sezione-titolo">Sei l'organizzatore</div>
+          <div class="sezione-titolo">{sonoTitolare ? "Sei l'organizzatore" : `Sei vice · squadra ${miaViceSquadra}`}</div>
           <div class="card" style="gap: 8px">
             <div class="sotto">Tocca un posto per cambiarne il ruolo, toglierlo o proporre un cambio a chi lo occupa. Il totale ora è {numeri.totale} posti.</div>
-            <button type="button" class="btn bianco piccolo" onclick={() => { ruoloScelto = null; squadraScelta = 'A'; foglio = { tipo: 'aggiungi' } }}>
+            <button type="button" class="btn bianco piccolo" onclick={() => { moduloSquadra = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'modulo' } }}>Cambia modulo</button>
+            <button type="button" class="btn bianco piccolo" onclick={() => { ruoloScelto = null; squadraScelta = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'aggiungi' } }}>
               <Icona nome="piu" dimensione={18} spessore={2.4} /> Aggiungi un posto
             </button>
-            <button type="button" class="btn bianco piccolo" style="color: var(--errore)" onclick={annulla}>Annulla la partita</button>
+            {#if sonoTitolare}
+              <p class="aiuto">Tocca un giocatore per spostarlo o per dargli il permesso di gestire la formazione.</p>
+              <button type="button" class="btn bianco piccolo" style="color: var(--errore)" onclick={annulla}>Annulla la partita</button>
+            {:else}
+              <p class="aiuto">Sei vice della squadra {miaViceSquadra}: gestisci modulo e posizioni solo lì.</p>
+            {/if}
           </div>
         </section>
       {/if}
@@ -314,8 +344,12 @@
           {numeri.liberi > 0 ? 'Candidati per un ruolo' : 'Al completo · mettiti in lista'}
         </button>
       {/if}
+      <button type="button" class="btn bianco quadrato" aria-label="Copia il link della partita" onclick={copiaLink}>
+        {#if copiato}<Icona nome="spunta" dimensione={20} spessore={2.4} />{:else}<Icona nome="link" dimensione={20} spessore={2.2} />{/if}
+      </button>
       <button type="button" class="btn bianco quadrato" aria-label="Condividi la partita" onclick={condividi}><Icona nome="condividi" dimensione={20} spessore={2.2} /></button>
     </div>
+    {#if copiato}<div class="toast">Link copiato: incollalo dove vuoi</div>{/if}
 
     <!-- Fogli delle scelte -->
     {#if foglio?.tipo === 'posto-libero'}
@@ -335,7 +369,7 @@
         {:else}
           <button type="button" class="btn" disabled={occupato} onclick={() => prendi(p)}>{mioPosto ? 'Spostati qui' : `Siediti come ${etichettaRuolo(p.ruolo).toLowerCase()}`}</button>
         {/if}
-        {#if sonoOrganizzatore && disponibili.length}
+        {#if gestisco(p.squadra) && disponibili.length}
           <div class="campo-form" style="margin-top: 6px">
             <span class="aiuto" style="font-weight:600">Chiedi a qualcuno di giocare qui</span>
             {#each disponibili as d (d.id)}
@@ -346,7 +380,7 @@
             {/each}
           </div>
         {/if}
-        {#if sonoOrganizzatore}
+        {#if gestisco(p.squadra)}
           <div class="campo-form" style="margin-top: 6px">
             <span class="aiuto" style="font-weight:600">Cambia il ruolo di questo posto</span>
             <div class="scelte">
@@ -360,25 +394,34 @@
       </Foglio>
     {:else if foglio?.tipo === 'posto-occupato'}
       {@const p = foglio.posizione}
-      <Foglio aperto titolo={p.giocatore?.nome ?? 'Giocatore'} sotto={`${etichettaRuolo(p.ruolo)} · squadra ${p.squadra}${p.stato === 'cambio_proposto' ? ` · cambio proposto: ${etichettaRuolo(p.nuovo_ruolo_proposto)}` : ''}`} chiudi={() => (foglio = null)}>
-        {#if sonoOrganizzatore}
+      <Foglio aperto titolo={p.giocatore?.nome ?? 'Giocatore'} sotto={`${etichettaRuolo(p.ruolo)} · squadra ${p.squadra}${p.giocatore_id === partita.organizzatore_id ? ' · organizzatore' : viceDi(p.giocatore_id) ? ` · vice squadra ${viceDi(p.giocatore_id)}` : ''}${p.stato === 'cambio_proposto' ? ` · cambio proposto: ${etichettaRuolo(p.nuovo_ruolo_proposto)}` : ''}`} chiudi={() => (foglio = null)}>
+        {#if gestisco(p.squadra)}
+          <button type="button" class="btn" disabled={occupato} onclick={() => (foglio = { tipo: 'sposta', posizione: p })}>Sposta in un altro posto</button>
           <div class="campo-form">
-            <span class="aiuto" style="font-weight:600">Proponi un cambio di ruolo (deve accettare)</span>
+            <span class="aiuto" style="font-weight:600">{approvazione ? 'Cambia ruolo' : 'Proponi un cambio di ruolo (deve accettare)'}</span>
             <div class="scelte">
               {#each ruoliCambio.filter((r) => r !== p.ruolo) as r}
                 <button type="button" class="scelta" disabled={occupato} onclick={() => proponi(p, r)}>{etichettaRuolo(r)}</button>
               {/each}
             </div>
           </div>
+          {#if sonoTitolare && p.giocatore_id !== uid}
+            {#if eVice(p.giocatore_id)}
+              <button type="button" class="btn bianco" disabled={occupato} onclick={() => nominaVice(p.giocatore_id, p.squadra, false)}>Togli il ruolo di vice</button>
+            {:else}
+              <button type="button" class="btn bianco" disabled={occupato} onclick={() => nominaVice(p.giocatore_id, p.squadra, true)}>Nomina vice della squadra {p.squadra}</button>
+            {/if}
+          {/if}
           <button type="button" class="btn bianco" style="color: var(--errore)" disabled={occupato} onclick={() => libera(p)}>Manda in tribuna</button>
         {:else}
-          <p class="aiuto">Solo l'organizzatore può spostare gli altri giocatori.</p>
+          <p class="aiuto">{sonoOrganizzatore ? `Gestisci solo la squadra ${miaViceSquadra}.` : 'Solo chi organizza la partita può spostare gli altri giocatori.'}</p>
         {/if}
       </Foglio>
     {:else if foglio?.tipo === 'mio-posto'}
       {@const p = foglio.posizione}
       <Foglio aperto titolo={`Il tuo posto · ${etichettaRuolo(p.ruolo)}`} sotto={`Squadra ${p.squadra}. Per spostarti, tocca un altro posto libero sul campo.`} chiudi={() => (foglio = null)}>
         {#if sonoOrganizzatore}
+          <button type="button" class="btn" disabled={occupato} onclick={() => (foglio = { tipo: 'sposta', posizione: p })}>Sposta o scambia con un altro</button>
           <div class="campo-form">
             <span class="aiuto" style="font-weight:600">Cambia il tuo ruolo</span>
             <div class="scelte">
@@ -407,8 +450,9 @@
       <Foglio aperto titolo="Aggiungi un posto" sotto="Il posto nasce libero: chiunque potrà sedersi." chiudi={() => (foglio = null)}>
         <span class="aiuto" style="font-weight:600">Squadra</span>
         <div class="scelte">
-          <button type="button" class="scelta" class:attiva={squadraScelta === 'A'} onclick={() => (squadraScelta = 'A')}>Squadra A</button>
-          <button type="button" class="scelta" class:attiva={squadraScelta === 'B'} onclick={() => (squadraScelta = 'B')}>Squadra B</button>
+          {#each ['A', 'B'].filter(gestisco) as sq}
+            <button type="button" class="scelta" class:attiva={squadraScelta === sq} onclick={() => (squadraScelta = sq)}>Squadra {sq}</button>
+          {/each}
         </div>
         <span class="aiuto" style="font-weight:600">Ruolo</span>
         <div class="scelte">
@@ -418,10 +462,33 @@
         </div>
         <button type="button" class="btn" disabled={occupato || !ruoloScelto} onclick={aggiungi}>Aggiungi</button>
       </Foglio>
+    {:else if foglio?.tipo === 'sposta'}
+      {@const p = foglio.posizione}
+      <Foglio aperto titolo={`Sposta ${p.giocatore_id === uid ? 'te' : (p.giocatore?.nome ?? 'il giocatore')}`} sotto="Su un posto libero si sposta; su un posto occupato i due si scambiano." chiudi={() => (foglio = null)}>
+        {#each altriPosti(p) as a (a.id)}
+          <button type="button" class="btn bianco piccolo" style="justify-content:flex-start" disabled={occupato} onclick={() => sposta(p, a)}>
+            {etichettaRuolo(a.ruolo)} · squadra {a.squadra}
+            <span class="aiuto">· {a.giocatore_id ? `scambia con ${a.giocatore_id === uid ? 'te' : nomeBreve(a.giocatore)}` : 'libero'}</span>
+          </button>
+        {/each}
+      </Foglio>
+    {:else if foglio?.tipo === 'modulo'}
+      <Foglio aperto titolo="Cambia modulo" sotto="Chi è già in campo resta in campo: cambia solo il posto." chiudi={() => (foglio = null)}>
+        <div class="scelte">
+          {#each ['A', 'B'].filter(gestisco) as sq}
+            <button type="button" class="scelta" class:attiva={moduloSquadra === sq} onclick={() => (moduloSquadra = sq)}>Squadra {sq} · {moduloDi(posizioni, sq)}</button>
+          {/each}
+        </div>
+        <div class="scelte">
+          {#each MODULI[partita.formato] ?? [] as m}
+            <button type="button" class="scelta" class:attiva={moduloDi(posizioni, moduloSquadra) === m} disabled={occupato} onclick={() => cambiaModulo(moduloSquadra, m)}>{m}</button>
+          {/each}
+        </div>
+      </Foglio>
     {:else if foglio?.tipo === 'tribuna-membro'}
       {@const d = foglio.persona}
       <Foglio aperto titolo={d.profilo?.nome ?? 'Giocatore'} sotto="È in tribuna. Scegli il posto che gli proponi: deve accettare." chiudi={() => (foglio = null)}>
-        {#each postiLiberi as p (p.id)}
+        {#each postiLiberi.filter((x) => gestisco(x.squadra)) as p (p.id)}
           <button type="button" class="btn bianco piccolo" disabled={occupato} onclick={() => chiedi(p, d.id)}>
             {etichettaRuolo(p.ruolo)} · squadra {p.squadra}
           </button>
@@ -432,3 +499,10 @@
     {/if}
   {/if}
 </div>
+
+<style>
+  .toast {
+    position: fixed; left: 50%; bottom: calc(90px + var(--safe-bottom)); transform: translateX(-50%); z-index: 50;
+    background: var(--testo); color: #fff; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 999px;
+  }
+</style>

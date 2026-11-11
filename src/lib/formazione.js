@@ -39,3 +39,25 @@ export function conta(posizioni) {
     panchinaLiberi: panchina.filter((p) => p.stato === 'libera').length
   }
 }
+
+// Moduli proposti per formato: il primo numero è sempre il portiere.
+export const MODULI = {
+  5: ['1-2-2', '1-1-3', '1-1-2-1', '1-2-1-1', '1-3-1'],
+  8: ['1-3-3-1', '1-2-3-2', '1-3-2-2', '1-2-4-1', '1-3-1-3'],
+  11: ['1-4-4-2', '1-4-3-3', '1-3-5-2', '1-5-3-2', '1-3-4-3', '1-4-5-1']
+}
+
+/** "1-1-2-1" → { portiere: 1, difesa: 1, centro: 2, attacco: 1 } */
+export function ruoliDaModulo(modulo) {
+  const n = modulo.split('-').map(Number)
+  return n.length === 4
+    ? { portiere: n[0], difesa: n[1], centro: n[2], attacco: n[3] }
+    : { portiere: n[0], difesa: n[1], centro: 0, attacco: n[2] }
+}
+
+/** Modulo attuale di una squadra letto dai posti in campo, es. "1-2-2" o "1-1-2-1". */
+export function moduloDi(posizioni, squadra) {
+  const c = { portiere: 0, difesa: 0, centro: 0, attacco: 0 }
+  for (const p of posizioni) if (p.squadra === squadra && c[p.ruolo] !== undefined) c[p.ruolo]++
+  return c.centro ? `${c.portiere}-${c.difesa}-${c.centro}-${c.attacco}` : `${c.portiere}-${c.difesa}-${c.attacco}`
+}

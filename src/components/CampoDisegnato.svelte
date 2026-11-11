@@ -66,6 +66,7 @@
 {/snippet}
 
 <div class="insieme" class:con-panchine={conPanchine}>
+{#if conPanchine}<div class="area-pA">{@render panchina(panchinaA, 'A')}</div>{/if}
 <div class="campo" role="group" aria-label="Formazione delle due squadre">
   <div class="meta"></div>
   <div class="cerchio"></div>
@@ -81,18 +82,17 @@
     </div>
   {/each}
 </div>
-{#if conPanchine}
-  <div class="colonna-panchine">
-    {@render panchina(panchinaA, 'A')}
-    {@render panchina(panchinaB, 'B')}
-  </div>
-{/if}
+{#if conPanchine}<div class="area-pB">{@render panchina(panchinaB, 'B')}</div>{/if}
 </div>
 
 <style>
-  .insieme { display: flex; gap: 8px; max-width: 420px; margin: 0 auto; width: 100%; }
-  .insieme.con-panchine { max-width: 480px; }
-  .campo { flex: 1 1 0; min-width: 0;
+  .insieme { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; max-width: 420px; margin: 0 auto; width: 100%; }
+  /* schermi larghi: panchine a lato del campo, A in alto e B in basso */
+  .insieme.con-panchine { max-width: 500px; grid-template-columns: minmax(0, 1fr) 62px; grid-template-areas: "campo pA" "campo pB"; }
+  .insieme.con-panchine .campo { grid-area: campo; }
+  .area-pA { grid-area: pA; align-self: start; }
+  .area-pB { grid-area: pB; align-self: end; }
+  .campo { min-width: 0;
     position: relative; width: 100%; aspect-ratio: 350 / 520; border-radius: 14px;
     background: repeating-linear-gradient(180deg, var(--campo) 0px, var(--campo) 12.5%, var(--campo-2) 12.5%, var(--campo-2) 25%);
     border: 3px solid #fff; overflow: hidden;
@@ -121,7 +121,6 @@
     background: var(--da-confermare); color: #fff; font-size: 10px; font-weight: 700;
     display: flex; align-items: center; justify-content: center; border: 2px solid #fff;
   }
-  .colonna-panchine { flex: 0 0 62px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
   .panchina {
     background: #24694a; border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; gap: 6px;
     border: 2px solid rgba(255,255,255,0.5);
@@ -133,4 +132,11 @@
   .targhetta { font-size: 10px; font-weight: 600; color: #fff; background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius: 999px; white-space: nowrap; pointer-events: none; }
   .targhetta.libera { font-weight: 700; }
   .targhetta.portiere { color: var(--testo); background: var(--portiere); }
+  /* cellulare: panchina A sopra il campo, B sotto, in orizzontale */
+  @media (max-width: 479px) {
+    .insieme.con-panchine { grid-template-columns: minmax(0, 1fr); grid-template-areas: "pA" "campo" "pB"; }
+    .area-pA, .area-pB { align-self: stretch; }
+    .panchina { flex-direction: row; justify-content: flex-start; padding: 6px 10px; gap: 10px; overflow-x: auto; }
+    .titolo-panchina { writing-mode: horizontal-tb; min-width: 52px; }
+  }
 </style>

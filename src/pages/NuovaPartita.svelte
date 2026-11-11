@@ -5,6 +5,7 @@
   import { naviga } from '../lib/router.svelte.js'
   import { RUOLI, perInputDataOra } from '../lib/formato.js'
   import Intestazione from '../components/Intestazione.svelte'
+  import { MODULI, ruoliDaModulo } from '../lib/formazione.js'
 
   let { id } = $props()
   let campo = $state(null)
@@ -17,6 +18,10 @@
   let giocoAnchio = $state(true)
   let modalita = $state('libera')
   let panchina = $state(0)
+  let modulo = $state('1-2-2')
+  const ruoliModulo = $derived(Object.entries(ruoliDaModulo(modulo)).filter(([, n]) => n > 0).map(([r]) => r))
+  $effect(() => { if (!MODULI[formato].includes(modulo)) modulo = MODULI[formato][0] })
+  $effect(() => { if (!ruoliModulo.includes(ruolo)) ruolo = ruoliModulo.includes('attacco') ? 'attacco' : ruoliModulo[ruoliModulo.length - 1] })
   let errore = $state('')
   let occupato = $state(false)
 
@@ -47,7 +52,8 @@
       p_squadra: squadra,
       p_ruolo: giocoAnchio ? ruolo : null,
       p_modalita: modalita,
-      p_panchina: panchina
+      p_panchina: panchina,
+      p_modulo: modulo
     })
     occupato = false
     if (error) { errore = error.message; return }
@@ -65,7 +71,16 @@
           <button type="button" class="scelta" class:attiva={formato === f} onclick={() => (formato = f)}>Calcio a {f}</button>
         {/each}
       </div>
-      <p class="aiuto">{formato * 2} posti in tutto, {formato} per squadra. Lo schema lo puoi cambiare dopo.</p>
+      <p class="aiuto">{formato * 2} posti in tutto, {formato} per squadra.</p>
+    </div>
+    <div class="campo-form">
+      <span class="aiuto" style="font-weight:600">Modulo (portiere-difesa-centro-attacco)</span>
+      <div class="scelte">
+        {#each MODULI[formato] as m}
+          <button type="button" class="scelta" class:attiva={modulo === m} onclick={() => (modulo = m)}>{m}</button>
+        {/each}
+      </div>
+      <p class="aiuto">Vale per entrambe le squadre; dopo lo puoi cambiare per ciascuna.</p>
     </div>
     <div class="campo-form">
       <span class="aiuto" style="font-weight:600">Chi sceglie il posto?</span>
@@ -110,10 +125,8 @@
         </div>
         <span class="aiuto" style="font-weight:600">Il tuo ruolo</span>
         <div class="scelte">
-          {#each Object.entries(RUOLI) as [chiave, testo]}
-            {#if formato !== 5 || chiave !== 'centro'}
-              <button type="button" class="scelta" class:attiva={ruolo === chiave} onclick={() => (ruolo = chiave)}>{testo}</button>
-            {/if}
+          {#each ruoliModulo as chiave}
+            <button type="button" class="scelta" class:attiva={ruolo === chiave} onclick={() => (ruolo = chiave)}>{RUOLI[chiave]}</button>
           {/each}
         </div>
       {/if}
