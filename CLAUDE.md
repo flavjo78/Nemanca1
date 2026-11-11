@@ -71,6 +71,7 @@ RLS: tutti leggono campi e partite aperte; messaggi leggibili/scrivibili solo da
 - Commit piccoli con messaggi in italiano.
 - Non mettere dati personali di Flavio (indirizzo, codice fiscale) in file o pagine pubbliche.
 - Aggiornare ROADMAP.md a fine sessione: cosa è fatto, cosa resta, decisioni prese.
+- **`docs/PUNTO.md`** è l'elenco vivo di cosa è fatto, in corso e da fare, comprese le richieste di Flavio: aggiornarlo a ogni passaggio, committarlo e riproporlo in chat quando serve.
 
 ## Decisioni
 
