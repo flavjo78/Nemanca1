@@ -43,7 +43,6 @@ Aggiornato: 11 novembre 2026, sera: le email arrivano a chiunque. Questo file si
 2. [ ] Cloudflare: cancellare la zona `nemanca1.com` rimasta "pending" (o tenerla per il trasferimento)
 3. [ ] Casella `info@nemanca1.com` e alias su Tophost
 4. [ ] **Resend**: verificare il dominio (SPF + DKIM su Cloudflare), mittente `noreply@nemanca1.com`, rigenerare la API key e cancellare quella mostrata in chat
-5. [ ] Dopo 60 giorni dalla registrazione: valutare il **trasferimento** del dominio a Cloudflare Registrar per avere `nemanca1.com` senza www
 6. [ ] Tappa 2: prendere un posto libero, candidarsi, accettare, cambio ruolo
 
 ## Richieste di Flavio in sospeso
@@ -57,4 +56,4 @@ Aggiornato: 11 novembre 2026, sera: le email arrivano a chiunque. Questo file si
 - Nome app "Ne manca 1", logo variante 5, slogan "Trova chi manca in campo"
 - Email automatiche con Resend; Gmail, Tophost, Amazon SES e Lambda scartati (motivi in chat e in CLAUDE.md)
 - Regione Supabase: Irlanda invece di Francoforte (non disponibile sul Free)
-- Dominio: Tophost blocca i nameserver → DNS resta su Tophost, app su **www.nemanca1.com**, redirect dal dominio nudo. Fonti: [record NS non modificabili](https://www.tophost.it/assistenza/supporto/domande-tecniche/dns/e-possibile-modificare-i-record-dns-del-dominio-ed-i-record-ns/), [Cloudflare con Tophost](https://www.tophost.it/assistenza/supporto/domande-tecniche/dns/posso-usare-cloudflare-con-tophost/)
+- Dominio: Tophost blocca i nameserver → DNS resta su Tophost, app su **www.nemanca1.com**, redirect dal dominio nudo. Flavio ha deciso di **non trasferire** il dominio: www è definitivo. Fonti: [record NS non modificabili](https://www.tophost.it/assistenza/supporto/domande-tecniche/dns/e-possibile-modificare-i-record-dns-del-dominio-ed-i-record-ns/), [Cloudflare con Tophost](https://www.tophost.it/assistenza/supporto/domande-tecniche/dns/posso-usare-cloudflare-con-tophost/)
