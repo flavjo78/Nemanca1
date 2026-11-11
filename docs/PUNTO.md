@@ -52,7 +52,7 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 
 ## Richieste di Flavio in sospeso
 
-- **Copia delle email di supporto@ anche su Tophost** (11/11): provare ad aggiungere una seconda riga `supporto` → Mailbox locale `nemanca1.com` in Email → Gestione avanzata; se Tophost non lo permette, ticket all'assistenza Tophost
+- *Facoltativo*: **copia delle email di supporto@ anche su Tophost**. Provato l'11/11: Tophost non accetta una seconda destinazione per lo stesso indirizzo ("già esistente"). Se servirà, ticket all'assistenza Tophost; intanto supporto@ arriva solo alla Gmail
 
 - ~~Da unire su www~~ fatto l'11/11 sera: www.nemanca1.com ha tribuna, panchine, modulo, trascinamento, vice, selettore a passi, copia link.
 
