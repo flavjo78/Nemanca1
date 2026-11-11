@@ -55,7 +55,7 @@
       </div>
     </div>
 
-    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px">
+    <div style="display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
       {#each [[virgola(voti?.complessivo), 'Voto'], [giocate, 'Partite'], [vinte, 'Vinte']] as [n, t]}
         <div class="card" style="align-items:center; gap:2px; padding: 14px 8px">
           <div style="font-family: var(--font-titoli); font-size: 26px; font-weight: 700">{n}</div>
@@ -106,6 +106,9 @@
       </section>
     {/if}
 
+    {#if p?.admin}
+      <a href="/admin" class="btn scuro"><Icona nome="utenti" dimensione={18} /> Area amministratore</a>
+    {/if}
     <button type="button" class="btn bianco" onclick={logout}><Icona nome="esci" dimensione={18} /> Esci</button>
     <p class="aiuto" style="text-align:center">{auth.utente?.email}</p>
   </div>

@@ -43,16 +43,16 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 2. [ ] Cloudflare: cancellare la zona `nemanca1.com` rimasta "pending" (o tenerla per il trasferimento)
 3. [ ] Casella `info@nemanca1.com` e alias su Tophost
 4. [ ] **Resend**: verificare il dominio (SPF + DKIM su Cloudflare), mittente `noreply@nemanca1.com`, rigenerare la API key e cancellare quella mostrata in chat
-6. [ ] Tappa 2: prendere un posto libero, candidarsi, accettare, cambio ruolo
-7. [ ] **Pagina amministratore** per Flavio dentro l'app: utenti attivi, partite, campi, blocca/elimina, statistiche
-8. [ ] **Avviso a Flavio a ogni nuovo iscritto** (richiesto l'11/11): prima via email (trigger DB → Resend), poi come notifica push con OneSignal (Tappa 3) e lista "ultimi iscritti" nella pagina amministratore
+6. [x] **Tappa 2 scritta e provata** (ramo `tappa-2`): prendere/lasciare/spostarsi di posto toccando il campo, candidature con accetta/rifiuta, cambio ruolo da confermare, aggiungere/togliere posti, partita "completa" automatica, aggiornamento in tempo reale. **Per attivarla**: eseguire `supabase/migrations/0002_tappa2.sql` nell'SQL Editor, poi unire il ramo su `main`
+7. [x] **Pagina amministratore** `/admin` (ramo `tappa-2`): numeri, ultimi iscritti con email e badge "nuovi", prossime partite con annulla, campi con verifica/elimina. Accesso dal Profilo, solo per `profili.admin` (il primo iscritto, Flavio)
+8. [ ] **Avviso a Flavio a ogni nuovo iscritto** (richiesto l'11/11). Già fatto: badge "nuovi" nella pagina amministratore. Manca: email automatica (serve mettere la chiave Resend nei segreti di Supabase) e (trigger DB → Resend), poi come notifica push con OneSignal (Tappa 3) e lista "ultimi iscritti" nella pagina amministratore
 
 9. [ ] **Entra con Google** (richiesto l'11/11, da fare per ultimo): login con un tocco accanto al codice via email; serve una configurazione OAuth su Google Cloud
 
 ## Richieste di Flavio in sospeso
 
 - ~~Mittente delle email automatiche~~ deciso: `benvenuto@nemanca1.com`; quando si crea la casella `info@`, aggiungere l'alias `benvenuto@` → `info@`
-- **Backup del database** (richiesto l'11/11): script per scaricare tutte le tabelle Supabase in locale, da lanciare a piacere (il piano Free non ha backup automatici)
+- ~~Backup del database~~ fatto: `scripts/backup.sh` scarica tutte le tabelle in CSV (serve la stringa di connessione dal bottone Connect di Supabase)
 - **Pannello amministratore dentro l'app** (richiesto l'11/11): utenti, campi, partite, elimina/blocca, statistiche, accesso riservato a Flavio (flag `profili.admin`). Da fare dopo la Tappa 2. Nel frattempo si usa il pannello Supabase (Authentication → Users, Table Editor).
 
 ## Decisioni prese oggi

@@ -15,6 +15,7 @@
   import Partita from './pages/Partita.svelte'
   import Chat from './pages/Chat.svelte'
   import Profilo from './pages/Profilo.svelte'
+  import Admin from './pages/Admin.svelte'
 
   // privata = serve il login; pubblica = visibile anche dal QR senza account
   const rotte = [
@@ -28,7 +29,8 @@
     { pattern: '/chat', componente: Chat, privata: true },
     { pattern: '/chat/:id', componente: Chat, privata: true },
     { pattern: '/profilo', componente: Profilo, privata: true },
-    { pattern: '/profilo/modifica', componente: CompletaProfilo, privata: true }
+    { pattern: '/profilo/modifica', componente: CompletaProfilo, privata: true },
+    { pattern: '/admin', componente: Admin, privata: true }
   ]
 
   const corrente = $derived.by(() => {

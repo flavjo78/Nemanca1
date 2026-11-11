@@ -89,9 +89,11 @@
   }
 
   async function rispondi(r, stato) {
-    const { error } = await supabase.from('richieste').update({ stato }).eq('id', r.id)
+    errore = ''
+    const { error } = await supabase.rpc('rispondi_richiesta', { p_richiesta: r.id, p_accetta: stato === 'accettata' })
     if (error) { errore = error.message; return }
     daApprovare = daApprovare.filter((x) => x.id !== r.id)
+    if (stato === 'accettata') caricaProssima()
   }
 
   function partecipanti(p) { return p.posizioni.filter((x) => x.giocatore_id) }

@@ -20,12 +20,14 @@ Legenda: ✅ fatto · 🟡 fatto nel codice, da provare online · 🔴 da fare
 - 🔴 Dominio nemanca1.com agganciato a Pages (dopo il DNS su Cloudflare)
 - 🔴 Resend: verificare il dominio nemanca1.com (dopo il DNS su Cloudflare) e passare il mittente a `noreply@nemanca1.com`; rigenerare la API key
 
-## Tappa 2 – Campo disegnato
-- 🔴 Prendere un posto libero toccandolo (la policy RLS "prendi posto" c'è già)
-- 🔴 Candidatura per un ruolo + accettazione/rifiuto dell'organizzatore (tabella `richieste` pronta; la Home già mostra "Da approvare")
-- 🔴 L'organizzatore modifica lo schema (aggiunge/sposta/toglie posti)
-- 🔴 Cambio ruolo proposto → accetta/rifiuta (`stato = cambio_proposto`, `nuovo_ruolo_proposto`)
-- 🔴 Partita → `completa` quando non ci sono più posti liberi
+## Tappa 2 – Campo disegnato (🟡 scritta e provata, da attivare con la migrazione 0002)
+- 🟡 Prendere, lasciare, spostarsi di posto toccando il campo (`prendi_posto`, `lascia_posto`)
+- 🟡 Candidatura per un ruolo + accetta/rifiuta dell'organizzatore, con assegnazione automatica del posto (`candidati`, `rispondi_richiesta`)
+- 🟡 Schema modificabile: aggiungi/togli posti, cambia ruolo di un posto libero (`aggiungi_posto`, `rimuovi_posto`); disposizione automatica in righe per ruolo
+- 🟡 Cambio ruolo proposto → il giocatore accetta o rifiuta (`proponi_cambio`, `rispondi_cambio`)
+- 🟡 Partita `completa`/`aperta` automatica (trigger), aggiornamento in tempo reale della schermata
+- 🟡 Messaggi di sistema in `messaggi` per ogni evento (pronti per la chat della tappa 3)
+- 🟡 Pagina amministratore `/admin` e script `scripts/backup.sh`
 
 ## Tappa 3 – Chat realtime e push
 - 🔴 Chat per partita (tabella `messaggi` già in `supabase_realtime`), card richiesta nella chat
