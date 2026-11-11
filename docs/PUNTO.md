@@ -24,11 +24,11 @@ Aggiornato: 11 novembre 2026, sera: le email arrivano a chiunque. Questo file si
 - [x] **www.nemanca1.com attivo**: CNAME su Tophost, dominio verificato su Cloudflare Pages, HTTPS funzionante
 - [x] **Resend: dominio nemanca1.com verificato** (DKIM, SPF, DMARC inseriti su Tophost): può spedire a chiunque
 - [x] **Mittente `benvenuto@nemanca1.com` attivo**: login provato da un secondo indirizzo, email arrivata. **Gli amici possono entrare.**
+- [x] Supabase → URL Configuration: Site URL `https://www.nemanca1.com`, Redirect URLs www e pages.dev
 - [x] **Login provato per davvero**: email arrivata via Resend, codice (8 cifre) accettato, profilo creato in automatico
 
 ## In corso
 
-- [ ] Supabase → URL Configuration: Site URL `https://www.nemanca1.com`, Redirect URLs `https://www.nemanca1.com/**` e `https://nemanca1.pages.dev/**`
 - [ ] Prima prova dal telefono di Flavio (con flavjo@gmail.com: unico indirizzo che riceve finché Resend non ha il dominio)
 - [ ] **Dominio, piano B** (Tophost non permette di cambiare i nameserver):
   1. ~~Tophost DNS: CNAME `www`~~ fatto
