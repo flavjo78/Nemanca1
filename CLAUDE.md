@@ -67,6 +67,7 @@ RLS: tutti leggono campi e partite aperte; messaggi leggibili/scrivibili solo da
 
 ## Regole di lavoro
 
+- **Anteprime**: pubblicare sempre le novità da provare sul ramo **`anteprima`** (indirizzo fisso `https://anteprima.nemanca1.pages.dev`), così Flavio fa il login una volta sola. Dopo l'ok ("unisci") si porta il ramo su `main`.
 - **Migrazioni del database**: le applica Claude con `scripts/applica-migrazione.sh <file>` (Management API di Supabase; il token è un segreto dell'ambiente cloud "nemanca1", iniettato dal proxy su api.supabase.com). Non chiedere a Flavio di incollare SQL. Ogni nuovo file va in `supabase/migrations/` con numero progressivo e deve essere rieseguibile senza errori.
 
 - Ogni tappa termina con qualcosa di provabile sul telefono (deploy su Cloudflare Pages).
