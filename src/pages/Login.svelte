@@ -40,6 +40,7 @@
 
   function traduci(m = '') {
     if (/rate limit|too many/i.test(m)) return 'Troppi tentativi: aspetta un minuto e riprova.'
+    if (/error sending/i.test(m)) return 'Non riusciamo a inviare l\'email a questo indirizzo. Controlla che sia scritto bene e riprova tra poco.'
     if (/expired|invalid/i.test(m)) return 'Codice non valido o scaduto. Richiedine uno nuovo.'
     if (/invalid.*email|valid email/i.test(m)) return 'Controlla l\'indirizzo email.'
     return m || 'Qualcosa non ha funzionato. Riprova.'
