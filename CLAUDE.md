@@ -67,6 +67,8 @@ RLS: tutti leggono campi e partite aperte; messaggi leggibili/scrivibili solo da
 
 ## Regole di lavoro
 
+- **Migrazioni del database**: le applica Claude con `scripts/applica-migrazione.sh <file>` (Management API di Supabase; il token è un segreto dell'ambiente cloud "nemanca1", iniettato dal proxy su api.supabase.com). Non chiedere a Flavio di incollare SQL. Ogni nuovo file va in `supabase/migrations/` con numero progressivo e deve essere rieseguibile senza errori.
+
 - Ogni tappa termina con qualcosa di provabile sul telefono (deploy su Cloudflare Pages).
 - Commit piccoli con messaggi in italiano.
 - Non mettere dati personali di Flavio (indirizzo, codice fiscale) in file o pagine pubbliche.

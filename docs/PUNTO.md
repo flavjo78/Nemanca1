@@ -46,15 +46,18 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 6. [x] **Migrazione 0002 eseguita su Supabase l'11/11 sera** (verificato: le funzioni rispondono).
    [x] **Tappa 2 scritta e provata** (ramo `tappa-2`): prendere/lasciare/spostarsi di posto toccando il campo, candidature con accetta/rifiuta, cambio ruolo da confermare, aggiungere/togliere posti, partita "completa" automatica, aggiornamento in tempo reale. **Per attivarla**: eseguire `supabase/migrations/0002_tappa2.sql` nell'SQL Editor, poi unire il ramo su `main`
 6b. [x] **Tappa 2 pubblicata su www.nemanca1.com** (unita su `main` l'11/11 sera)
-6c. [x] **Tribuna, "decido io chi gioca", panchine** (richiesto l'11/11, ramo `tribuna`, scritto e provato). **Per attivarlo**: eseguire `supabase/migrations/0003_tribuna_panchina.sql` nell'SQL Editor, poi unire il ramo
+6c. [x] **Tribuna, "decido io chi gioca", panchine** (richiesto l'11/11, ramo `tribuna`, scritto e provato). Migrazione 0003 **applicata da Claude** l'11/11 sera tramite token Supabase. Da unire su `main` dopo la prova di Flavio
 7. [x] **Pagina amministratore** `/admin` (ramo `tappa-2`): numeri, ultimi iscritti con email e badge "nuovi", prossime partite con annulla, campi con verifica/elimina. Accesso dal Profilo, solo per `profili.admin` (il primo iscritto, Flavio)
 8. [ ] **Avviso a Flavio a ogni nuovo iscritto** (richiesto l'11/11). Già fatto: badge "nuovi" nella pagina amministratore. Manca: email automatica (serve mettere la chiave Resend nei segreti di Supabase) e (trigger DB → Resend), poi come notifica push con OneSignal (Tappa 3) e lista "ultimi iscritti" nella pagina amministratore
 
 9. [ ] **Entra con Google** (richiesto l'11/11, da fare per ultimo): login con un tocco accanto al codice via email; serve una configurazione OAuth su Google Cloud
 
-10. [ ] **Database automatico da GitHub** (richiesto l'11/11, da fare più avanti): collegare Supabase a GitHub, rinominare le migrazioni nel formato Supabase CLI e marcare 0001/0002 come già applicate
+10. [x] **Niente più copia-incolla SQL**: token Supabase (solo progetto nemanca1, permesso Database read-write, 90 giorni) salvato nell'ambiente cloud "nemanca1"; Claude applica le migrazioni con `scripts/applica-migrazione.sh`. Il collegamento GitHub-Supabase resta facoltativo.
+    ~~Database automatico da GitHub~~ (richiesto l'11/11, da fare più avanti): collegare Supabase a GitHub, rinominare le migrazioni nel formato Supabase CLI e marcare 0001/0002 come già applicate
 
 ## Richieste di Flavio in sospeso
+
+- **Sicurezza**: il primo token Supabase `claude-nemanca1` è comparso in uno screenshot: revocarlo su supabase.com, Account, Access Tokens, se non già fatto. Stessa cosa per la chiave Resend.
 
 - ~~Mittente delle email automatiche~~ deciso: `benvenuto@nemanca1.com`; quando si crea la casella `info@`, aggiungere l'alias `benvenuto@` → `info@`
 - ~~Backup del database~~ fatto: `scripts/backup.sh` scarica tutte le tabelle in CSV (serve la stringa di connessione dal bottone Connect di Supabase)
