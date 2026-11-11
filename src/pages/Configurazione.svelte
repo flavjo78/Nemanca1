@@ -1,6 +1,9 @@
 <!-- Mostrata quando manca il file .env: spiega cosa fare invece di una pagina bianca -->
+<script>
+  import Logo from '../components/Logo.svelte'
+</script>
 <div class="pagina">
-  <div class="intestazione-verde"><h1>Ne manca 1</h1><p class="sotto">Manca la configurazione di Supabase</p></div>
+  <div class="intestazione-verde"><h1><Logo dimensione={28} chiaro /></h1><p class="sotto">Manca la configurazione di Supabase</p></div>
   <div class="contenuto spazio-sopra">
     <div class="card" style="gap:10px; font-size:14px">
       <p>L'app non trova <strong>VITE_SUPABASE_URL</strong> e <strong>VITE_SUPABASE_ANON_KEY</strong>.</p>

@@ -2,6 +2,7 @@
   import { supabase } from '../lib/supabase.js'
   import { naviga, router } from '../lib/router.svelte.js'
   import Icona from '../components/Icona.svelte'
+  import Logo from '../components/Logo.svelte'
 
   let email = $state('')
   let codice = $state('')
@@ -47,10 +48,7 @@
 
 <div class="pagina">
   <div class="intestazione-verde" style="padding-bottom: 32px; border-radius: 0 0 28px 28px">
-    <div style="display:flex; align-items:center; gap:12px">
-      <img src="/icona.svg" alt="" width="44" height="44" style="border-radius:12px" />
-      <h1 style="font-size: 26px">Ne manca 1</h1>
-    </div>
+    <h1 style="font-size: 32px; margin-top: 8px"><Logo dimensione={32} chiaro /></h1>
     <p class="sotto">Trova giocatori per le partite nei campi vicino a te.</p>
   </div>
 

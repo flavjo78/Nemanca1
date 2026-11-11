@@ -28,8 +28,8 @@ Il piano gratuito limita le email di autenticazione inviate da Supabase a poche 
 Il dominio è **nemanca1.com**. L'app risponde su `https://nemanca1.com` (e `www`), così il QR dei campi è corto: `nemanca1.com/campo/<id>`.
 
 1. Su Cloudflare: **Add a site → nemanca1.com**, piano Free. Cloudflare mostra due nameserver.
-2. Nel pannello dove hai comprato il dominio, sostituisci i nameserver con quelli di Cloudflare (se l'hai comprato su Cloudflare è già fatto). La propagazione richiede da pochi minuti a 24 ore.
-3. Se le caselle email (`info@nemanca1.com`) stanno su Tophost, prima del cambio copia su Cloudflare i record **MX** e il record SPF esistente: altrimenti la posta si ferma.
+2. Il dominio è su **Tophost**: entra nel pannello Tophost, apri la gestione del dominio e sostituisci i nameserver con i due di Cloudflare. La propagazione richiede da pochi minuti a 24 ore; finché non è completa Cloudflare mostra "Pending nameserver update".
+3. Se usi le caselle email di Tophost (`info@nemanca1.com`), **prima** del cambio copia su Cloudflare i record **MX** e il record SPF che Tophost mostra nella gestione DNS, altrimenti la posta si ferma. Anche l'eventuale sito o webmail su Tophost va ricreato come record A/CNAME su Cloudflare. Il record SPF finale dovrà includere sia Tophost sia Resend, per esempio `v=spf1 include:<spf di Tophost> include:amazonses.com ~all` (Resend ti indica il valore esatto).
 
 ## 3. Resend (email automatiche)
 
