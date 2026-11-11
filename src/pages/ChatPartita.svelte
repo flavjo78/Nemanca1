@@ -59,7 +59,7 @@
 
   async function caricaStati() {
     const [{ data: r }, { data: po }, { data: inv }] = await Promise.all([
-      supabase.from('richieste').select('id, stato, giocatore_id').eq('partita_id', id),
+      supabase.from('richieste').select('id, stato, giocatore_id, ruolo_richiesto, giocatore:profili(id, nome)').eq('partita_id', id),
       supabase.from('posizioni').select('id, stato, ruolo, squadra, giocatore_id, nuovo_ruolo_proposto').eq('partita_id', id),
       supabase.from('inviti').select('*, posizione:posizioni(ruolo, squadra)').eq('partita_id', id).eq('a_id', uid).eq('stato', 'in_attesa').maybeSingle()
     ])
@@ -191,7 +191,9 @@
         {:else if m.tipo === 'richiesta'}
           {@const r = richieste[m.riferimento_id]}
           <div class="card-msg">
-            <div class="testo-card"><Icona nome="utenti" dimensione={18} /> {m.testo}</div>
+            <div class="testo-card"><Icona nome="utenti" dimensione={18} />
+              {#if r?.giocatore?.nome}{r.giocatore.nome} si candida{r.ruolo_richiesto ? ` come ${etichettaRuolo(r.ruolo_richiesto).toLowerCase()}` : ''}{:else}{m.testo}{/if}
+            </div>
             {#if r?.stato === 'in_attesa' && gestisco}
               <div class="azioni">
                 <button type="button" class="btn bianco piccolo" onclick={() => rpc('rispondi_richiesta', { p_richiesta: r.id, p_accetta: false })}>Rifiuta</button>
