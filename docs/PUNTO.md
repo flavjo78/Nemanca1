@@ -1,6 +1,6 @@
 # Il punto della situazione – Ne manca 1
 
-Aggiornato: 11 novembre 2026, pomeriggio. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
+Aggiornato: 11 novembre 2026, dopo la prova del login. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 ## Fatto
 
@@ -20,15 +20,15 @@ Aggiornato: 11 novembre 2026, pomeriggio. Questo file si aggiorna a ogni passagg
 - [x] Supabase: SMTP collegato a Resend (mittente provvisorio onboarding@resend.dev)
 - [x] Supabase: template email "Confirm sign up" e "Magic link or OTP" con il codice a 6 cifre
 - [x] App configurata con URL e chiave publishable; lettura e sicurezza verificate sul database vero
+- [x] **Login provato per davvero**: email arrivata via Resend, codice (8 cifre) accettato, profilo creato in automatico
 
 ## In corso
 
-- [ ] **Prova del login**: codice inviato alla Gmail di Flavio, in attesa del codice per completare la verifica
+- [ ] **Cloudflare Pages**: collegare GitHub e pubblicare l'app
 
 ## Da fare, in ordine
 
-1. [ ] **Cloudflare Pages**: collegare GitHub, pubblicare l'app su un indirizzo `.pages.dev`, mettere le due variabili di Supabase
-2. [ ] Supabase → URL Configuration: mettere l'indirizzo dell'app pubblicata
+1. [ ] Supabase → URL Configuration: mettere l'indirizzo dell'app pubblicata
 3. [ ] Prima prova dal telefono: login, profilo, registrare un campo, stampare il QR, creare una partita
 4. [ ] **Dominio**: nameserver di nemanca1.com da Tophost a Cloudflare (prima copiare i record della posta)
 5. [ ] Casella `info@nemanca1.com` e alias su Tophost
