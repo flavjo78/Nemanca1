@@ -348,10 +348,10 @@
         <section class="sezione">
           <div class="sezione-titolo">{sonoTitolare ? "Sei l'organizzatore" : `Sei vice · squadra ${miaViceSquadra}`}</div>
           <div class="card" style="gap: 8px">
-            <div class="sotto">Tocca un posto per cambiarne il ruolo, toglierlo o proporre un cambio a chi lo occupa. Il totale ora è {numeri.totale} posti.</div>
+            <div class="sotto">Tocca un posto per cambiarne il ruolo o spostare chi lo occupa. In campo restano sempre {partita.formato} per squadra.</div>
             <button type="button" class="btn bianco piccolo" onclick={() => apriModulo(sonoTitolare ? 'A' : miaViceSquadra)}>Cambia modulo</button>
-            <button type="button" class="btn bianco piccolo" onclick={() => { ruoloScelto = null; squadraScelta = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'aggiungi' } }}>
-              <Icona nome="piu" dimensione={18} spessore={2.4} /> Aggiungi un posto
+            <button type="button" class="btn bianco piccolo" onclick={() => { ruoloScelto = 'panchina'; squadraScelta = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'aggiungi' } }}>
+              <Icona nome="piu" dimensione={18} spessore={2.4} /> Aggiungi una riserva in panchina
             </button>
             {#if sonoTitolare}
               <p class="aiuto">Tocca un giocatore per spostarlo o per dargli il permesso di gestire la formazione.</p>
@@ -431,7 +431,9 @@
               {/each}
             </div>
           </div>
-          <button type="button" class="btn bianco" style="color: var(--errore)" disabled={occupato} onclick={() => rimuovi(p)}>Togli questo posto dallo schema</button>
+          {#if p.ruolo === 'panchina'}
+            <button type="button" class="btn bianco" style="color: var(--errore)" disabled={occupato} onclick={() => rimuovi(p)}>Togli questo posto dalla panchina</button>
+          {/if}
         {/if}
       </Foglio>
     {:else if foglio?.tipo === 'posto-occupato'}
@@ -496,20 +498,14 @@
         {/if}
       </Foglio>
     {:else if foglio?.tipo === 'aggiungi'}
-      <Foglio aperto titolo="Aggiungi un posto" sotto="Il posto nasce libero: chiunque potrà sedersi." chiudi={() => (foglio = null)}>
+      <Foglio aperto titolo="Aggiungi una riserva" sotto={`In campo restano sempre ${partita.formato} per squadra: in più si aggiungono solo riserve in panchina.`} chiudi={() => (foglio = null)}>
         <span class="aiuto" style="font-weight:600">Squadra</span>
         <div class="scelte">
           {#each ['A', 'B'].filter(gestisco) as sq}
             <button type="button" class="scelta" class:attiva={squadraScelta === sq} onclick={() => (squadraScelta = sq)}>Squadra {sq}</button>
           {/each}
         </div>
-        <span class="aiuto" style="font-weight:600">Ruolo</span>
-        <div class="scelte">
-          {#each [...Object.keys(RUOLI), 'panchina'] as r}
-            <button type="button" class="scelta" class:attiva={ruoloScelto === r} onclick={() => (ruoloScelto = r)}>{etichettaRuolo(r)}</button>
-          {/each}
-        </div>
-        <button type="button" class="btn" disabled={occupato || !ruoloScelto} onclick={aggiungi}>Aggiungi</button>
+        <button type="button" class="btn" disabled={occupato} onclick={aggiungi}>Aggiungi in panchina</button>
       </Foglio>
     {:else if foglio?.tipo === 'scegli' && scelta}
       {@const squadre = [...new Set(scelta.posti.map((x) => x.squadra))].sort()}
@@ -568,9 +564,11 @@
             {/each}
           </div>
         {/if}
-        <Contatori bind:difesa={nuovo.difesa} bind:centro={nuovo.centro} bind:attacco={nuovo.attacco} massimo={10} />
-        <p class="aiuto">{totNuovo} giocatori più il portiere{totNuovo !== partita.formato - 1 ? ` (nel calcio a ${partita.formato} di solito sono ${partita.formato - 1})` : ''}.</p>
-        <button type="button" class="btn" disabled={occupato || totNuovo === 0 || testoModulo(nuovo) === testoModulo(attuale)} onclick={() => cambiaModulo(moduloSquadra, nuovo)}>Applica alla squadra {moduloSquadra}</button>
+        <Contatori bind:difesa={nuovo.difesa} bind:centro={nuovo.centro} bind:attacco={nuovo.attacco} massimo={partita.formato - 1} />
+        <p class="aiuto" style={totNuovo !== partita.formato - 1 ? 'color: var(--avviso-testo)' : ''}>{totNuovo === partita.formato - 1
+          ? `${totNuovo} giocatori più il portiere: giusto per il calcio a ${partita.formato}.`
+          : `Nel calcio a ${partita.formato} servono ${partita.formato - 1} giocatori più il portiere: ${totNuovo < partita.formato - 1 ? `ne mancano ${partita.formato - 1 - totNuovo}` : `ce ne sono ${totNuovo - (partita.formato - 1)} di troppo`}.`}</p>
+        <button type="button" class="btn" disabled={occupato || totNuovo !== partita.formato - 1 || testoModulo(nuovo) === testoModulo(attuale)} onclick={() => cambiaModulo(moduloSquadra, nuovo)}>Applica alla squadra {moduloSquadra}</button>
       </Foglio>
     {:else if foglio?.tipo === 'tribuna-membro'}
       {@const d = foglio.persona}
