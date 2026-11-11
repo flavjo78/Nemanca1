@@ -39,7 +39,7 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 ## Da fare, in ordine
 
 1. [~] **Nome senza www**: repository `flavjo78/nemanca1-redirect` creato e caricato, GitHub Pages attivo con dominio `nemanca1.com`, 4 record `A` di `@` su Tophost verso GitHub (185.199.108-111.153), AAAA tolto. DNS già propagato l'11/11 sera. **Manca**: il controllo DNS di GitHub resta rosso finché scade la memoria del vecchio indirizzo (TTL Tophost 6 ore). Il 12/11: GitHub → Settings → Pages "Check again", poi spuntare **Enforce HTTPS**; Claude verifica che https://nemanca1.com porti su www con certificato valido
-2. [ ] **Casella `supporto@nemanca1.com`** su Tophost (nome scelto da Flavio al posto di info@), inoltro automatico alla Gmail di Flavio, alias `benvenuto@` → `supporto@`; facoltativo "Invia come supporto@" in Gmail. Promemoria programmato per il 12/11 alle 9
+2. [ ] **Casella `supporto@nemanca1.com`** su Tophost (nome scelto da Flavio al posto di info@) con inoltro automatico alla Gmail di Flavio. Niente alias da `benvenuto@` (deciso da Flavio)
 3. [ ] **Tappa 3 – Chat** della partita in tempo reale (giocatori, organizzatore, vice e tribuna), con card richiesta/invito e messaggi di sistema già generati dal DB
 4. [ ] **Autonomia via git** (richiesto l'11/11, subito dopo la chat): Claude fa tutte le modifiche da solo, senza copia-incolla di Flavio. Comprende: collegamento Supabase-GitHub per applicare le migrazioni a ogni unione su `main`; regola di permesso in Claude Code per pubblicare su `main` dopo il "unisci" senza blocchi; controlli automatici (build + test) su GitHub prima di ogni pubblicazione; nessun passaggio che chieda a Flavio di copiare codice o testo
 5. [ ] **Tappa 3 – Notifiche push** (OneSignal) e **avviso a Flavio a ogni nuovo iscritto** (prima via email, poi push)
@@ -47,7 +47,8 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 7. [ ] **Tappa 5 – Dopo la partita**: risultato, recensioni anonime, voti, storico
 8. [ ] **Tappa 6**: PWA installabile completa, QR stampabili, prova con 10 persone su un campo vero
 9. [ ] **Entra con Google**
-10. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
+10. [ ] *Facoltativo, alla fine*: in Gmail "Invia come supporto@nemanca1.com" (SMTP di Tophost), per rispondere agli utenti dall'indirizzo del supporto
+11. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
 
 ## Richieste di Flavio in sospeso
 
