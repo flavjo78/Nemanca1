@@ -38,7 +38,7 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 
 ## Da fare, in ordine
 
-1. [~] **Nome senza www**: repository `flavjo78/nemanca1-redirect` creato e caricato, GitHub Pages attivo con dominio `nemanca1.com`, 4 record `A` di `@` su Tophost verso GitHub (185.199.108-111.153), AAAA tolto. DNS già propagato l'11/11 sera. **Manca**: su GitHub → Settings → Pages "Check again" e spuntare **Enforce HTTPS** quando GitHub ha emesso il certificato (fino a 1 ora)
+1. [~] **Nome senza www**: repository `flavjo78/nemanca1-redirect` creato e caricato, GitHub Pages attivo con dominio `nemanca1.com`, 4 record `A` di `@` su Tophost verso GitHub (185.199.108-111.153), AAAA tolto. DNS già propagato l'11/11 sera. **Manca**: il controllo DNS di GitHub resta rosso finché scade la memoria del vecchio indirizzo (TTL Tophost 6 ore). Il 12/11: GitHub → Settings → Pages "Check again", poi spuntare **Enforce HTTPS**; Claude verifica che https://nemanca1.com porti su www con certificato valido
 2. [ ] **Casella `info@nemanca1.com`** su Tophost, con alias `benvenuto@` → `info@`
 3. [ ] **Tappa 3 – Chat** della partita in tempo reale (giocatori, organizzatore, vice e tribuna), con card richiesta/invito e messaggi di sistema già generati dal DB
 4. [ ] **Autonomia via git** (richiesto l'11/11, subito dopo la chat): Claude fa tutte le modifiche da solo, senza copia-incolla di Flavio. Comprende: collegamento Supabase-GitHub per applicare le migrazioni a ogni unione su `main`; regola di permesso in Claude Code per pubblicare su `main` dopo il "unisci" senza blocchi; controlli automatici (build + test) su GitHub prima di ogni pubblicazione; nessun passaggio che chieda a Flavio di copiare codice o testo
