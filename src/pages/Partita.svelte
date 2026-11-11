@@ -5,7 +5,7 @@
   import { auth } from '../lib/auth.svelte.js'
   import { router, indietro, naviga } from '../lib/router.svelte.js'
   import { etichettaDataOra, etichettaFormato, nomeBreve, chipPosti, euro, etichettaRuolo, iniziali, RUOLI } from '../lib/formato.js'
-  import { conta, contaRuoli, testoModulo, moduloPerDb } from '../lib/formazione.js'
+  import { conta, contaRuoli, testoModulo, moduloPerDb, disponi } from '../lib/formazione.js'
   import Contatori from '../components/Contatori.svelte'
   import Icona from '../components/Icona.svelte'
   import CampoDisegnato from '../components/CampoDisegnato.svelte'
@@ -140,6 +140,17 @@
   const esciTribuna = () => esegui('esci_tribuna', { p_partita: id }, 'Sei uscito dalla tribuna.')
   const chiedi = (p, giocatoreId) => esegui('chiedi_di_giocare', { p_posizione: p.id, p_giocatore: giocatoreId }, 'Richiesta inviata: deve accettare.')
   const rispondiInvito = (accetta) => esegui('rispondi_invito', { p_partita: id, p_accetta: accetta }, accetta ? 'Sei in campo!' : 'Resti in tribuna.')
+  // trascinamento: alla prima volta fisso anche gli altri posti della squadra dove sono, così non si rimescolano
+  async function trascina(p, x, y) {
+    errore = ''; avviso = ''
+    const fissi = disponi(posizioni)
+    const daFissare = Object.fromEntries(posizioni.filter((q) => q.squadra === p.squadra && q.ruolo !== 'panchina' && !q.manuale && q.id !== p.id).map((q) => [q.id, fissi[q.id]]))
+    if (Object.keys(daFissare).length) {
+      const { error } = await supabase.rpc('fissa_posti', { p_partita: id, p_squadra: p.squadra, p_coordinate: daFissare })
+      if (error) { errore = pulisci(error.message); return }
+    }
+    await esegui('trascina_posto', { p_posizione: p.id, p_x: x, p_y: y })
+  }
   const sposta = (da, a) => esegui('sposta_giocatore', { p_da: da.id, p_a: a.id }, a.giocatore_id ? 'Posti scambiati.' : 'Giocatore spostato.')
   const cambiaModulo = (squadra, m) => esegui('cambia_modulo', { p_partita: id, p_squadra: squadra, p_modulo: moduloPerDb(m) }, `Squadra ${squadra}: modulo ${testoModulo(m)}.`)
   const nominaVice = (giocatoreId, squadra, si) => esegui('nomina_vice', { p_partita: id, p_giocatore: giocatoreId, p_squadra: squadra, p_si: si }, si ? `Ora è vice della squadra ${squadra}.` : 'Non è più vice.')
@@ -256,7 +267,11 @@
         </section>
       {/if}
 
-      <CampoDisegnato {posizioni} mioId={uid} alClick={modificabile ? tocca : null} />
+      <CampoDisegnato {posizioni} mioId={uid} alClick={modificabile ? tocca : null}
+        trascinabile={modificabile ? (p) => gestisco(p.squadra) : null} alTrascina={trascina} />
+      {#if modificabile && sonoOrganizzatore}
+        <p class="aiuto" style="text-align:center">Tieni premuto un cerchio e trascinalo: vicino alla porta è difesa, in mezzo centrocampo, avanti attacco. Il modulo si aggiorna da solo.</p>
+      {/if}
 
       <div class="legenda">
         <div><span class="pallino" style="background: var(--portiere)"></span>Portiere</div>

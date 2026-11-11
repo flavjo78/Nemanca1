@@ -49,6 +49,7 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 6c. [x] **Tribuna, "decido io chi gioca", panchine** (richiesto l'11/11, ramo `tribuna`, scritto e provato). Migrazione 0003 **applicata da Claude** l'11/11 sera tramite token Supabase. Da unire su `main` dopo la prova di Flavio
 6d. [x] **Modulo, sposta/scambia, vice di squadra, cambio ruolo diretto con "decido io", panchina sul cellulare, copia link** (richiesti l'11/11 sera): migrazioni 0004-0006 applicate da Claude, in anteprima su anteprima.nemanca1.pages.dev
 6e. [x] **Modulo con tre contatori, senza portiere, mostrato sul campo** (richiesto l'11/11 sera), in anteprima
+6f. [x] **Formazione trascinando i cerchi** con ruolo e modulo automatici (richiesto l'11/11 sera), in anteprima
 7. [x] **Pagina amministratore** `/admin` (ramo `tappa-2`): numeri, ultimi iscritti con email e badge "nuovi", prossime partite con annulla, campi con verifica/elimina. Accesso dal Profilo, solo per `profili.admin` (il primo iscritto, Flavio)
 8. [ ] **Avviso a Flavio a ogni nuovo iscritto** (richiesto l'11/11). Già fatto: badge "nuovi" nella pagina amministratore. Manca: email automatica (serve mettere la chiave Resend nei segreti di Supabase) e (trigger DB → Resend), poi come notifica push con OneSignal (Tappa 3) e lista "ultimi iscritti" nella pagina amministratore
 
@@ -58,6 +59,8 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
     ~~Database automatico da GitHub~~ (richiesto l'11/11, da fare più avanti): collegare Supabase a GitHub, rinominare le migrazioni nel formato Supabase CLI e marcare 0001/0002 come già applicate
 
 ## Richieste di Flavio in sospeso
+
+- **Da unire su www**: il sito vero ha la versione vecchia e mostra male le panchine (il database le contiene già). Serve il "unisci" di Flavio.
 
 - **Sicurezza, per ultima** (deciso da Flavio l'11/11): revocare il primo token Supabase `claude-nemanca1` e rigenerare la chiave Resend, entrambi finiti in screenshot.
 

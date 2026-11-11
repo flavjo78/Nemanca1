@@ -5,11 +5,18 @@ const RIGHE = { portiere: 8, difesa: 34, centro: 60, attacco: 86 }
 const COLONNE = { 1: [50], 2: [30, 70], 3: [22, 50, 78], 4: [15, 38, 62, 85] }
 const ORDINE = ['portiere', 'difesa', 'centro', 'attacco']
 
-/** Ritorna una mappa id → {x, y} (percentuali nella metà campo, y=0 porta propria). */
+/** Ruolo dedotto dall'altezza nella metà campo (0 = propria porta, 100 = metà campo); stesse soglie del DB. */
+export function ruoloDaAltezza(y) {
+  return y < 47 ? 'difesa' : y < 73 ? 'centro' : 'attacco'
+}
+
+/** Ritorna una mappa id → {x, y} (percentuali nella metà campo, y=0 porta propria).
+ *  I posti spostati a mano (manuale) restano dove sono; gli altri si dispongono in righe per ruolo. */
 export function disponi(posizioni) {
   const coordinate = {}
+  for (const p of posizioni) if (p.manuale && p.ruolo !== 'panchina') coordinate[p.id] = { x: p.x, y: p.y }
   for (const squadra of ['A', 'B']) {
-    const mie = posizioni.filter((p) => p.squadra === squadra && p.ruolo !== 'panchina')
+    const mie = posizioni.filter((p) => p.squadra === squadra && p.ruolo !== 'panchina' && !p.manuale)
     const ruoliPresenti = ORDINE.filter((r) => mie.some((p) => p.ruolo === r))
     // se mancano i centrocampisti, difesa e attacco si allontanano un po'
     const righe = { ...RIGHE }
