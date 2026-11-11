@@ -1,6 +1,6 @@
 # Il punto della situazione – Ne manca 1
 
-Aggiornato: 11 novembre 2026, dominio: piano B. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
+Aggiornato: 11 novembre 2026, www.nemanca1.com attivo. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 ## Fatto
 
@@ -21,15 +21,16 @@ Aggiornato: 11 novembre 2026, dominio: piano B. Questo file si aggiorna a ogni p
 - [x] Supabase: template email "Confirm sign up" e "Magic link or OTP" con il codice a 6 cifre
 - [x] App configurata con URL e chiave publishable; lettura e sicurezza verificate sul database vero
 - [x] **Cloudflare Pages**: app pubblicata su https://nemanca1.pages.dev, deploy automatico da GitHub, variabili Supabase impostate
+- [x] **www.nemanca1.com attivo**: CNAME su Tophost, dominio verificato su Cloudflare Pages, HTTPS funzionante
 - [x] **Login provato per davvero**: email arrivata via Resend, codice (8 cifre) accettato, profilo creato in automatico
 
 ## In corso
 
-- [ ] Supabase → URL Configuration: Site URL `https://nemanca1.pages.dev` (poi `https://www.nemanca1.com`)
+- [ ] Supabase → URL Configuration: Site URL `https://www.nemanca1.com`, Redirect URLs `https://www.nemanca1.com/**` e `https://nemanca1.pages.dev/**`
 - [ ] Prima prova dal telefono di Flavio (con flavjo@gmail.com: unico indirizzo che riceve finché Resend non ha il dominio)
 - [ ] **Dominio, piano B** (Tophost non permette di cambiare i nameserver):
-  1. Tophost DNS: togliere A/AAAA di `www`, aggiungere CNAME `www` → `nemanca1.pages.dev`
-  2. Cloudflare Pages → Custom domains → `www.nemanca1.com`
+  1. ~~Tophost DNS: CNAME `www`~~ fatto
+  2. ~~Cloudflare Pages → Custom domains → `www.nemanca1.com`~~ fatto
   3. Tophost → Redirect dominio: `nemanca1.com` → `https://www.nemanca1.com`
   4. Resend → Domains → `nemanca1.com`, righe DKIM/SPF da copiare su Tophost
 

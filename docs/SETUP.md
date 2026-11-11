@@ -13,7 +13,7 @@
    <p>Scade tra un'ora. Se non l'hai richiesto, ignora questa email.</p>
    ```
 
-5. **Authentication → URL Configuration**: Site URL = `https://nemanca1.com`; aggiungi anche `http://localhost:5173` ai Redirect URLs.
+5. **Authentication → URL Configuration**: Site URL = `https://www.nemanca1.com` (aggiungi ai Redirect URLs anche `https://nemanca1.pages.dev/**`); aggiungi anche `http://localhost:5173` ai Redirect URLs.
 6. **Project Settings → API**: copia `Project URL` e `anon public key` nel file `.env`:
 
    ```
@@ -25,15 +25,16 @@ Il piano gratuito limita le email di autenticazione inviate da Supabase a poche 
 
 ## 2. Dominio nemanca1.com
 
-Il dominio è **nemanca1.com**. L'app risponde su `https://nemanca1.com` (e `www`), così il QR dei campi è corto: `nemanca1.com/campo/<id>`.
+Il dominio è **nemanca1.com**, comprato su Tophost (TopName). **Tophost non permette di cambiare i nameserver**, quindi il DNS resta nel pannello Tophost (Utility → Gestione DNS) e le righe si aggiungono lì a mano.
 
-1. Su Cloudflare: **Add a site → nemanca1.com**, piano Free. Cloudflare mostra due nameserver.
-2. Il dominio è su **Tophost**: entra nel pannello Tophost, apri la gestione del dominio e sostituisci i nameserver con i due di Cloudflare. La propagazione richiede da pochi minuti a 24 ore; finché non è completa Cloudflare mostra "Pending nameserver update".
-3. Se usi le caselle email di Tophost (`info@nemanca1.com`), **prima** del cambio copia su Cloudflare i record **MX** e il record SPF che Tophost mostra nella gestione DNS, altrimenti la posta si ferma. Anche l'eventuale sito o webmail su Tophost va ricreato come record A/CNAME su Cloudflare. Il record SPF finale dovrà includere sia Tophost sia Resend, per esempio `v=spf1 include:<spf di Tophost> include:amazonses.com ~all` (Resend ti indica il valore esatto).
+1. **App su www**: su Tophost togli i record A/AAAA di `www` e aggiungi `CNAME www → nemanca1.pages.dev`. Su Cloudflare Pages → progetto → Custom domains → `www.nemanca1.com` → "My DNS provider" → Check DNS records. Fatto l'11/11/2026: `https://www.nemanca1.com` risponde con HTTPS.
+2. **Dominio nudo**: Tophost → Utility → Redirect dominio: `nemanca1.com` → `https://www.nemanca1.com`.
+3. **Posta**: i record MX di Tophost restano com'erano; la casella `info@` si crea da Tophost → Email.
+4. Tra 60 giorni dalla registrazione si può trasferire il dominio a Cloudflare Registrar: a quel punto il DNS passa a Cloudflare e anche `nemanca1.com` senza www può puntare all'app.
 
 ## 3. Resend (email automatiche)
 
-1. Crea un account su resend.com, aggiungi il dominio `nemanca1.com` e inserisci i record **SPF e DKIM** che ti dà nel DNS su Cloudflare (la casella `info@` continua a funzionare, Resend invia solo da `noreply@`).
+1. Su resend.com → Domains → aggiungi `nemanca1.com` (regione Europe) e inserisci i record **DKIM e SPF** che ti dà nel pannello DNS di **Tophost** (la casella `info@` continua a funzionare, Resend invia solo da `noreply@`).
 2. Crea una API key.
 3. In Supabase, **Project Settings → Authentication → SMTP Settings**: attiva Custom SMTP con
    - Host `smtp.resend.com`, porta `465`
@@ -55,7 +56,7 @@ Il dominio è **nemanca1.com**. L'app risponde su `https://nemanca1.com` (e `www
    - Build output directory: `dist`
    - Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (anche per Preview)
 3. Ogni push su `main` rifà il deploy. Il file `public/_redirects` fa funzionare i link diretti tipo `/campo/<id>`.
-4. Dominio: in Pages → **Custom domains** aggiungi `nemanca1.com` e `www.nemanca1.com`; Cloudflare crea da solo i record DNS e il certificato.
+4. Dominio: vedi sezione 2 (solo `www.nemanca1.com`, con CNAME su Tophost).
 
 ## 5. Prova sul telefono
 
