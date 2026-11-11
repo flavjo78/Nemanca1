@@ -16,7 +16,8 @@ Legenda: ✅ fatto · 🟡 fatto nel codice, da provare online · 🔴 da fare
 - ✅ Schermata partita con campo disegnato e formazione (sola lettura), condivisione, annulla
 - ✅ Profilo con voto, partite, vinte, barre per categoria, storico (vuoti finché non ci sono dati)
 - ✅ Progetto Supabase vero creato (Irlanda), migrazione eseguita, SMTP Resend + template OTP configurati, lettura e RLS verificate dall'app
-- 🔴 Repo GitHub + deploy su Cloudflare Pages con dominio nemanca1.com (vedi `docs/SETUP.md`)
+- ✅ Repo GitHub flavjo78/Nemanca1 + deploy automatico su Cloudflare Pages: https://nemanca1.pages.dev
+- 🔴 Dominio nemanca1.com agganciato a Pages (dopo il DNS su Cloudflare)
 - 🔴 Resend: verificare il dominio nemanca1.com (dopo il DNS su Cloudflare) e passare il mittente a `noreply@nemanca1.com`; rigenerare la API key
 
 ## Tappa 2 – Campo disegnato

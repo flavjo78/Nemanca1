@@ -1,6 +1,6 @@
 # Il punto della situazione – Ne manca 1
 
-Aggiornato: 11 novembre 2026, dopo la prova del login. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
+Aggiornato: 11 novembre 2026, app pubblicata. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 ## Fatto
 
@@ -20,25 +20,27 @@ Aggiornato: 11 novembre 2026, dopo la prova del login. Questo file si aggiorna a
 - [x] Supabase: SMTP collegato a Resend (mittente provvisorio onboarding@resend.dev)
 - [x] Supabase: template email "Confirm sign up" e "Magic link or OTP" con il codice a 6 cifre
 - [x] App configurata con URL e chiave publishable; lettura e sicurezza verificate sul database vero
+- [x] **Cloudflare Pages**: app pubblicata su https://nemanca1.pages.dev, deploy automatico da GitHub, variabili Supabase impostate
 - [x] **Login provato per davvero**: email arrivata via Resend, codice (8 cifre) accettato, profilo creato in automatico
 
 ## In corso
 
-- [ ] **Cloudflare Pages**: collegare GitHub e pubblicare l'app
+- [ ] Supabase → URL Configuration: Site URL `https://nemanca1.pages.dev`
+- [ ] Prima prova dal telefono di Flavio
 
 ## Da fare, in ordine
 
 1. [ ] Supabase → URL Configuration: mettere l'indirizzo dell'app pubblicata
 3. [ ] Prima prova dal telefono: login, profilo, registrare un campo, stampare il QR, creare una partita
-4. [ ] **Dominio**: nameserver di nemanca1.com da Tophost a Cloudflare (prima copiare i record della posta)
-5. [ ] Casella `info@nemanca1.com` e alias su Tophost
-6. [ ] **Resend**: verificare il dominio (SPF + DKIM su Cloudflare), mittente `noreply@nemanca1.com`, rigenerare la API key e cancellare quella mostrata in chat
-7. [ ] Cloudflare Pages: agganciare nemanca1.com e www
-8. [ ] Tappa 2: prendere un posto libero, candidarsi, accettare, cambio ruolo
+2. [ ] **Dominio**: nameserver di nemanca1.com da Tophost a Cloudflare (prima copiare i record della posta)
+3. [ ] Casella `info@nemanca1.com` e alias su Tophost
+4. [ ] **Resend**: verificare il dominio (SPF + DKIM su Cloudflare), mittente `noreply@nemanca1.com`, rigenerare la API key e cancellare quella mostrata in chat
+5. [ ] Cloudflare Pages: agganciare nemanca1.com e www
+6. [ ] Tappa 2: prendere un posto libero, candidarsi, accettare, cambio ruolo
 
 ## Richieste di Flavio in sospeso
 
-- (nessuna)
+- Decidere il mittente delle email automatiche quando creiamo la casella: `noreply@` con alias verso `info@`, oppure `ciao@nemanca1.com`
 
 ## Decisioni prese oggi
 
