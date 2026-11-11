@@ -72,5 +72,5 @@
 </div>
 
 <style>
-  .cornice { max-width: 640px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; }
+  .cornice { width: 100%; max-width: 640px; margin: 0 auto; min-height: 100dvh; display: flex; flex-direction: column; }
 </style>
