@@ -181,7 +181,7 @@
               <div class="avatar">{iniziali(r.giocatore)}</div>
               <div class="riempi">
                 <div class="nome">{nomeBreve(r.giocatore)} vuole entrare</div>
-                <div class="sotto">{r.ruolo_richiesto ? etichettaRuolo(r.ruolo_richiesto) : 'Qualsiasi ruolo'} · {etichettaFormato(r.partita.formato)} {ora(r.partita.data_ora)}</div>
+                <div class="sotto taglia">{r.ruolo_richiesto ? etichettaRuolo(r.ruolo_richiesto) : 'Qualsiasi ruolo'}{r.squadra_preferita ? ` · squadra ${r.squadra_preferita}` : ''} · {etichettaFormato(r.partita.formato)} {ora(r.partita.data_ora)}</div>
               </div>
               <button type="button" class="btn-tondo piccolo bordo" aria-label="Rifiuta" onclick={() => rispondi(r, 'rifiutata')}><Icona nome="x" dimensione={18} spessore={2.2} /></button>
               <button type="button" class="btn-tondo piccolo verde" aria-label="Accetta" onclick={() => rispondi(r, 'accettata')}><Icona nome="spunta" dimensione={18} spessore={2.4} /></button>

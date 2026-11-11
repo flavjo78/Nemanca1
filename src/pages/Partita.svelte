@@ -51,6 +51,7 @@
   let foglio = $state(null)          // { tipo, posizione }
   let ruoloScelto = $state(null)
   let squadraScelta = $state('A')
+  let squadraPreferita = $state(null)
   let canale = null
   let timerRicarica = null
 
@@ -155,7 +156,7 @@
   const rimuovi = (p) => esegui('rimuovi_posto', { p_posizione: p.id }, 'Posto tolto dallo schema.')
   const proponi = (p, ruolo) => esegui('proponi_cambio', { p_posizione: p.id, p_nuovo_ruolo: ruolo }, p.giocatore_id ? 'Proposta inviata: il giocatore deve accettare.' : 'Ruolo cambiato.')
   const rispondiCambio = (accetta) => esegui('rispondi_cambio', { p_posizione: mioPosto.id, p_accetta: accetta }, accetta ? 'Ruolo aggiornato.' : 'Hai rifiutato il cambio.')
-  const candidati = () => esegui('candidati', { p_partita: id, p_ruolo: ruoloScelto }, 'Candidatura inviata: l\'organizzatore riceve la richiesta.')
+  const candidati = () => esegui('candidati', { p_partita: id, p_ruolo: ruoloScelto, p_squadra: squadraPreferita }, 'Candidatura inviata: l\'organizzatore riceve la richiesta.')
   const ritira = () => esegui('ritira_candidatura', { p_richiesta: miaRichiesta.id }, 'Candidatura ritirata.')
   const rispondiRichiesta = (r, accetta) => esegui('rispondi_richiesta', { p_richiesta: r.id, p_accetta: accetta }, accetta ? `${nomeBreve(r.giocatore)} è in squadra.` : 'Candidatura rifiutata.')
   const aggiungi = () => esegui('aggiungi_posto', { p_partita: id, p_squadra: squadraScelta, p_ruolo: ruoloScelto ?? 'centro' }, 'Posto aggiunto.')
@@ -282,7 +283,7 @@
               <div class="avatar">{iniziali(r.giocatore)}</div>
               <div class="riempi">
                 <div class="nome">{nomeBreve(r.giocatore)} vuole entrare</div>
-                <div class="sotto">{r.ruolo_richiesto ? etichettaRuolo(r.ruolo_richiesto) : 'Qualsiasi ruolo'}</div>
+                <div class="sotto">{r.ruolo_richiesto ? etichettaRuolo(r.ruolo_richiesto) : 'Qualsiasi ruolo'} · {r.squadra_preferita ? `squadra ${r.squadra_preferita}` : 'qualsiasi squadra'}</div>
               </div>
               <button type="button" class="btn-tondo piccolo bordo" aria-label="Rifiuta" disabled={occupato} onclick={() => rispondiRichiesta(r, false)}><Icona nome="x" dimensione={18} spessore={2.2} /></button>
               <button type="button" class="btn-tondo piccolo verde" aria-label="Accetta" disabled={occupato} onclick={() => rispondiRichiesta(r, true)}><Icona nome="spunta" dimensione={18} spessore={2.4} /></button>
@@ -381,7 +382,7 @@
       {:else if miaRichiesta}
         <button type="button" class="btn bianco" disabled={occupato} onclick={ritira}>Candidatura inviata · tocca per ritirarla</button>
       {:else}
-        <button type="button" class="btn" onclick={() => { ruoloScelto = null; foglio = { tipo: 'candidati' } }}>
+        <button type="button" class="btn" onclick={() => { ruoloScelto = null; squadraPreferita = null; foglio = { tipo: 'candidati' } }}>
           {numeri.liberi > 0 ? 'Candidati per un ruolo' : 'Al completo · mettiti in lista'}
         </button>
       {/if}
@@ -402,7 +403,7 @@
         {#if approvazione && !sonoOrganizzatore}
           <p class="aiuto">In questa partita i posti li assegna l'organizzatore.</p>
           {#if !miaRichiesta}
-            <button type="button" class="btn" disabled={occupato} onclick={() => { ruoloScelto = p.ruolo; candidati() }}>Candidati come {etichettaRuolo(p.ruolo).toLowerCase()}</button>
+            <button type="button" class="btn" disabled={occupato} onclick={() => { ruoloScelto = p.ruolo; squadraPreferita = p.squadra; candidati() }}>Candidati come {etichettaRuolo(p.ruolo).toLowerCase()}</button>
           {/if}
           {#if !sonoInTribuna}
             <button type="button" class="btn bianco" disabled={occupato} onclick={entraTribuna}>Entra in tribuna</button>
@@ -476,6 +477,13 @@
       </Foglio>
     {:else if foglio?.tipo === 'candidati'}
       <Foglio aperto titolo="Candidati" sotto="L'organizzatore riceve la richiesta e ti assegna un posto." chiudi={() => (foglio = null)}>
+        <span class="aiuto" style="font-weight:600">Squadra</span>
+        <div class="scelte">
+          <button type="button" class="scelta" class:attiva={squadraPreferita === null} onclick={() => (squadraPreferita = null)}>Qualsiasi</button>
+          <button type="button" class="scelta" class:attiva={squadraPreferita === 'A'} onclick={() => (squadraPreferita = 'A')}>Squadra A</button>
+          <button type="button" class="scelta" class:attiva={squadraPreferita === 'B'} onclick={() => (squadraPreferita = 'B')}>Squadra B</button>
+        </div>
+        <span class="aiuto" style="font-weight:600">Ruolo</span>
         <div class="scelte">
           <button type="button" class="scelta" class:attiva={ruoloScelto === null} onclick={() => (ruoloScelto = null)}>Qualsiasi ruolo</button>
           {#each (haPanchina ? ruoliCambio : ruoliDisponibili) as r}

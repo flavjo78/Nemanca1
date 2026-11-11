@@ -48,6 +48,10 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 8. [ ] **Tappa 6**: PWA installabile completa, QR stampabili, prova con 10 persone su un campo vero
 9. [ ] **Entra con Google**
 10. [ ] *Facoltativo*: filtro in Gmail (dal computer) per le email a `supporto@nemanca1.com`: etichetta "Ne manca 1", "Non inviare mai in Spam", eventualmente "importante"
+    [x] **Termometro dello spazio** nella pagina amministratore (richiesto l'11/11): barra su 500 MB, verde/gialla 60%/rossa 80%, peso di chat, partite, utenti
+    [ ] **Scarica archivio** dalla pagina amministratore (richiesto l'11/11): chat, partite, utenti in un file da conservare prima della pulizia
+    [ ] **Passare a Supabase Pro** quando arrivano utenti regolari (più connessioni in tempo reale, niente pausa per inattività, backup giornalieri)
+    [ ] *Facoltativo*: pulizia automatica delle chat di partite vecchie (es. oltre 6 mesi), se il database si avvicina ai 500 MB del piano gratuito (l'11/11: 12 MB in tutto, 48 kB di messaggi)
     [ ] *Facoltativo, alla fine*: in Gmail "Invia come supporto@nemanca1.com" (SMTP di Tophost), per rispondere agli utenti dall'indirizzo del supporto
 11. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
 
