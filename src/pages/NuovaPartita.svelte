@@ -15,6 +15,8 @@
   let squadra = $state('A')
   let ruolo = $state(auth.profilo?.ruoli_preferiti?.[0] ?? 'attacco')
   let giocoAnchio = $state(true)
+  let modalita = $state('libera')
+  let panchina = $state(0)
   let errore = $state('')
   let occupato = $state(false)
 
@@ -43,7 +45,9 @@
       p_quota: quota === '' ? 0 : Number(String(quota).replace(',', '.')),
       p_sport: 'calcio',
       p_squadra: squadra,
-      p_ruolo: giocoAnchio ? ruolo : null
+      p_ruolo: giocoAnchio ? ruolo : null,
+      p_modalita: modalita,
+      p_panchina: panchina
     })
     occupato = false
     if (error) { errore = error.message; return }
@@ -62,6 +66,24 @@
         {/each}
       </div>
       <p class="aiuto">{formato * 2} posti in tutto, {formato} per squadra. Lo schema lo puoi cambiare dopo.</p>
+    </div>
+    <div class="campo-form">
+      <span class="aiuto" style="font-weight:600">Chi sceglie il posto?</span>
+      <div class="scelte">
+        <button type="button" class="scelta" class:attiva={modalita === 'libera'} onclick={() => (modalita = 'libera')}>Ognuno sceglie il suo</button>
+        <button type="button" class="scelta" class:attiva={modalita === 'approvazione'} onclick={() => (modalita = 'approvazione')}>Decido io chi gioca</button>
+      </div>
+      <p class="aiuto">{modalita === 'libera'
+        ? 'Chi apre la partita tocca un posto libero e si siede subito.'
+        : 'Gli altri entrano in tribuna o si candidano; tu scegli chi mettere in campo.'}</p>
+    </div>
+    <div class="campo-form">
+      <span class="aiuto" style="font-weight:600">Panchina: riserve per squadra</span>
+      <div class="scelte">
+        {#each [0, 1, 2, 3] as n}
+          <button type="button" class="scelta" class:attiva={panchina === n} onclick={() => (panchina = n)}>{n === 0 ? 'Nessuna' : n}</button>
+        {/each}
+      </div>
     </div>
     <div class="campo-form">
       <label for="quando">Giorno e ora</label>

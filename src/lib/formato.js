@@ -12,7 +12,7 @@ export const RUOLI = {
   attacco: 'Attacco'
 }
 
-export function etichettaRuolo(r) { return RUOLI[r] ?? r }
+export function etichettaRuolo(r) { return r === 'panchina' ? 'Panchina' : (RUOLI[r] ?? r) }
 
 export function etichettaFormato(f) { return `Calcio a ${f}` }
 
@@ -79,7 +79,7 @@ export function iniziali(p) {
 
 /** Testo del chip posti: "Manca 1 portiere" · "2 posti" · "Al completo" */
 export function chipPosti(posizioni) {
-  const liberi = posizioni.filter((p) => p.stato === 'libera')
+  const liberi = posizioni.filter((p) => p.stato === 'libera' && p.ruolo !== 'panchina')
   if (liberi.length === 0) return { testo: 'Al completo', classe: 'neutro' }
   const portieri = liberi.filter((p) => p.ruolo === 'portiere').length
   if (portieri === liberi.length) return { testo: portieri === 1 ? 'Manca 1 portiere' : `Mancano ${portieri} portieri`, classe: 'avviso' }

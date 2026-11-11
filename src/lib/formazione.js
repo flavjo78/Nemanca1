@@ -9,7 +9,7 @@ const ORDINE = ['portiere', 'difesa', 'centro', 'attacco']
 export function disponi(posizioni) {
   const coordinate = {}
   for (const squadra of ['A', 'B']) {
-    const mie = posizioni.filter((p) => p.squadra === squadra)
+    const mie = posizioni.filter((p) => p.squadra === squadra && p.ruolo !== 'panchina')
     const ruoliPresenti = ORDINE.filter((r) => mie.some((p) => p.ruolo === r))
     // se mancano i centrocampisti, difesa e attacco si allontanano un po'
     const righe = { ...RIGHE }
@@ -27,11 +27,15 @@ export function disponi(posizioni) {
 }
 
 export function conta(posizioni) {
-  const liberi = posizioni.filter((p) => p.stato === 'libera')
+  const campo = posizioni.filter((p) => p.ruolo !== 'panchina')
+  const panchina = posizioni.filter((p) => p.ruolo === 'panchina')
+  const liberi = campo.filter((p) => p.stato === 'libera')
   return {
-    totale: posizioni.length,
-    occupati: posizioni.length - liberi.length,
+    totale: campo.length,
+    occupati: campo.length - liberi.length,
     liberi: liberi.length,
-    ruoliLiberi: [...new Set(liberi.map((p) => p.ruolo))]
+    ruoliLiberi: [...new Set(liberi.map((p) => p.ruolo))],
+    panchinaTotale: panchina.length,
+    panchinaLiberi: panchina.filter((p) => p.stato === 'libera').length
   }
 }

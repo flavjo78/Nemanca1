@@ -2,7 +2,7 @@
   // Card di una partita nell'elenco del campo (dal mockup campo.html)
   import { etichettaDataOra, etichettaFormato, nomeBreve, chipPosti } from '../lib/formato.js'
   let { partita, evidenziata = false } = $props()
-  const posizioni = $derived(partita.posizioni ?? [])
+  const posizioni = $derived((partita.posizioni ?? []).filter((p) => p.ruolo !== 'panchina'))
   const totale = $derived(posizioni.length || partita.formato * 2)
   const occupati = $derived(posizioni.filter((p) => p.stato !== 'libera').length)
   const chip = $derived(partita.stato === 'annullata'

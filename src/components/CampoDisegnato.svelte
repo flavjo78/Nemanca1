@@ -7,6 +7,10 @@
   let { posizioni = [], mioId = null, alClick = null, evidenzia = null } = $props()
 
   const coordinate = $derived(disponi(posizioni))
+  const inCampo = $derived(posizioni.filter((p) => p.ruolo !== 'panchina'))
+  const panchinaA = $derived(posizioni.filter((p) => p.ruolo === 'panchina' && p.squadra === 'A'))
+  const panchinaB = $derived(posizioni.filter((p) => p.ruolo === 'panchina' && p.squadra === 'B'))
+  const conPanchine = $derived(panchinaA.length + panchinaB.length > 0)
 
   function stile(p) {
     const c = coordinate[p.id] ?? { x: p.x, y: p.y }
@@ -23,6 +27,7 @@
     return c
   }
   function etichetta(p) {
+    if (p.ruolo === 'panchina') return p.stato === 'libera' ? 'Libero' : (p.giocatore_id === mioId ? 'Tu' : (p.giocatore?.nome ?? '').split(' ')[0])
     if (p.stato === 'libera') return `${etichettaRuolo(p.ruolo)} libero`
     if (p.stato === 'cambio_proposto') return 'Cambio proposto'
     const base = etichettaRuolo(p.ruolo)
@@ -34,6 +39,33 @@
   }
 </script>
 
+{#snippet posto(p, classeExtra = '')}
+  {#if alClick}
+    <button type="button" class="{classiPallino(p)} {classeExtra}" aria-label={ariaLabel(p)} onclick={() => alClick(p)}>
+      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else}{iniziali(p.giocatore)}{/if}
+      {#if p.stato === 'cambio_proposto'}<span class="badge-domanda">?</span>{/if}
+    </button>
+  {:else}
+    <div class="{classiPallino(p)} {classeExtra}">
+      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else}{iniziali(p.giocatore)}{/if}
+      {#if p.stato === 'cambio_proposto'}<span class="badge-domanda">?</span>{/if}
+    </div>
+  {/if}
+{/snippet}
+
+{#snippet panchina(lista, squadra)}
+  <div class="panchina" class:basso={squadra === 'B'} aria-label={`Panchina squadra ${squadra}`}>
+    <div class="titolo-panchina">PANCH. {squadra}</div>
+    {#each lista as p (p.id)}
+      <div class="posto-panchina">
+        {@render posto(p, 'piccolo')}
+        <div class="targhetta" class:libera={p.stato === 'libera'}>{etichetta(p)}</div>
+      </div>
+    {/each}
+  </div>
+{/snippet}
+
+<div class="insieme" class:con-panchine={conPanchine}>
 <div class="campo" role="group" aria-label="Formazione delle due squadre">
   <div class="meta"></div>
   <div class="cerchio"></div>
@@ -42,29 +74,28 @@
   <div class="nome-squadra alto">SQUADRA A</div>
   <div class="nome-squadra basso">SQUADRA B</div>
 
-  {#each posizioni as p (p.id)}
+  {#each inCampo as p (p.id)}
     <div class="posto" style={stile(p)}>
-      {#if alClick}
-        <button type="button" class={classiPallino(p)} aria-label={ariaLabel(p)} onclick={() => alClick(p)}>
-          {#if p.stato === 'libera'}<Icona nome="piu" dimensione={20} spessore={2.6} />{:else}{iniziali(p.giocatore)}{/if}
-          {#if p.stato === 'cambio_proposto'}<span class="badge-domanda">?</span>{/if}
-        </button>
-      {:else}
-        <div class={classiPallino(p)}>
-          {#if p.stato === 'libera'}<Icona nome="piu" dimensione={20} spessore={2.6} />{:else}{iniziali(p.giocatore)}{/if}
-          {#if p.stato === 'cambio_proposto'}<span class="badge-domanda">?</span>{/if}
-        </div>
-      {/if}
+      {@render posto(p)}
       <div class="targhetta" class:libera={p.stato === 'libera'} class:portiere={p.stato === 'libera' && p.ruolo === 'portiere'}>{etichetta(p)}</div>
     </div>
   {/each}
 </div>
+{#if conPanchine}
+  <div class="colonna-panchine">
+    {@render panchina(panchinaA, 'A')}
+    {@render panchina(panchinaB, 'B')}
+  </div>
+{/if}
+</div>
 
 <style>
-  .campo {
+  .insieme { display: flex; gap: 8px; max-width: 420px; margin: 0 auto; width: 100%; }
+  .insieme.con-panchine { max-width: 480px; }
+  .campo { flex: 1 1 0; min-width: 0;
     position: relative; width: 100%; aspect-ratio: 350 / 520; border-radius: 14px;
     background: repeating-linear-gradient(180deg, var(--campo) 0px, var(--campo) 12.5%, var(--campo-2) 12.5%, var(--campo-2) 25%);
-    border: 3px solid #fff; overflow: hidden; max-width: 420px; margin: 0 auto; flex: none;
+    border: 3px solid #fff; overflow: hidden;
   }
   .meta { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgba(255,255,255,0.85); }
   .cerchio { position: absolute; left: 50%; top: 50%; width: 26%; aspect-ratio: 1; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.85); border-radius: 50%; }
@@ -90,6 +121,15 @@
     background: var(--da-confermare); color: #fff; font-size: 10px; font-weight: 700;
     display: flex; align-items: center; justify-content: center; border: 2px solid #fff;
   }
+  .colonna-panchine { flex: 0 0 62px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
+  .panchina {
+    background: #24694a; border-radius: 12px; padding: 8px 4px; display: flex; flex-direction: column; align-items: center; gap: 6px;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+  .titolo-panchina { font-size: 9px; font-weight: 700; color: #fff; letter-spacing: .4px; }
+  .posto-panchina { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .pallino-posto.piccolo { width: 36px; height: 36px; border-radius: 18px; font-size: 11px; border-width: 2px; }
+  .posto-panchina .targhetta { font-size: 9px; padding: 1px 5px; max-width: 58px; overflow: hidden; text-overflow: ellipsis; }
   .targhetta { font-size: 10px; font-weight: 600; color: #fff; background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius: 999px; white-space: nowrap; pointer-events: none; }
   .targhetta.libera { font-weight: 700; }
   .targhetta.portiere { color: var(--testo); background: var(--portiere); }

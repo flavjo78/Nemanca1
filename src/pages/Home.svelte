@@ -12,6 +12,7 @@
 
   let prossima = $state(null)
   let daApprovare = $state([])
+  let inviti = $state([])
   let vicine = $state([])
   let caricamento = $state(true)
   let errore = $state('')
@@ -25,7 +26,7 @@
     caricamento = true
     errore = ''
     try {
-      await Promise.all([caricaProssima(), caricaDaApprovare(), caricaVicine()])
+      await Promise.all([caricaProssima(), caricaDaApprovare(), caricaVicine(), caricaInviti()])
     } catch (e) {
       errore = e.message
     }
@@ -64,6 +65,13 @@
     daApprovare = data ?? []
   }
 
+  async function caricaInviti() {
+    const { data } = await supabase.from('inviti')
+      .select('*, da:profili!inviti_da_id_fkey(nome, iniziali), posizione:posizioni(ruolo, squadra), partita:partite(id, data_ora, formato, stato, campo:campi(nome))')
+      .eq('a_id', auth.utente.id).eq('stato', 'in_attesa').order('creato_il', { ascending: false })
+    inviti = (data ?? []).filter((i) => i.partita && ['aperta', 'completa'].includes(i.partita.stato))
+  }
+
   async function caricaVicine() {
     let lat = auth.profilo?.lat, lng = auth.profilo?.lng
     if (lat == null) {
@@ -97,6 +105,7 @@
   }
 
   function partecipanti(p) { return p.posizioni.filter((x) => x.giocatore_id) }
+  function postiCampo(p) { return p.posizioni.filter((x) => x.ruolo !== 'panchina').length }
 </script>
 
 <div class="pagina">
@@ -134,7 +143,7 @@
                     <div class="avatar mini piu">+{partecipanti(prossima).length - 3}</div>
                   {/if}
                 </div>
-                <div class="sotto">{partecipanti(prossima).length} di {prossima.posizioni.length}</div>
+                <div class="sotto">{partecipanti(prossima).filter((x) => x.ruolo !== 'panchina').length} di {postiCampo(prossima)}</div>
               </div>
               {#if chip.classe !== 'neutro'}
                 <span class="chip portiere">{chip.testo}</span>
@@ -147,6 +156,22 @@
           <div class="vuoto">Nessuna partita in programma. Trova un campo e organizzane una.</div>
         {/if}
       </section>
+
+      {#if inviti.length}
+        <section class="sezione">
+          <div class="sezione-titolo">Ti chiedono di giocare</div>
+          {#each inviti as i (i.id)}
+            <a href={`/partita/${i.partita.id}`} class="card riga" style="border: 2px solid var(--portiere)">
+              <div class="data-box"><div class="g">{giornoBreve(i.partita.data_ora)}</div><div class="n">{giornoNumero(i.partita.data_ora)}</div></div>
+              <div class="riempi">
+                <div class="nome taglia">{nomeBreve(i.da)} ti vuole in campo</div>
+                <div class="sotto taglia">{i.posizione ? `${etichettaRuolo(i.posizione.ruolo)} · squadra ${i.posizione.squadra} · ` : ''}{i.partita.campo?.nome} · {ora(i.partita.data_ora)}</div>
+              </div>
+              <Icona nome="avanti" dimensione={18} />
+            </a>
+          {/each}
+        </section>
+      {/if}
 
       {#if daApprovare.length}
         <section class="sezione">
