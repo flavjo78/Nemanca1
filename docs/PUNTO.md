@@ -1,6 +1,6 @@
 # Il punto della situazione – Ne manca 1
 
-Aggiornato: 11 novembre 2026, sera: le email arrivano a chiunque. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
+Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il rimbalzo https del nome nudo. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 ## Fatto
 
@@ -24,16 +24,16 @@ Aggiornato: 11 novembre 2026, sera: le email arrivano a chiunque. Questo file si
 - [x] **www.nemanca1.com attivo**: CNAME su Tophost, dominio verificato su Cloudflare Pages, HTTPS funzionante
 - [x] **Resend: dominio nemanca1.com verificato** (DKIM, SPF, DMARC inseriti su Tophost): può spedire a chiunque
 - [x] **Mittente `benvenuto@nemanca1.com` attivo**: login provato da un secondo indirizzo, email arrivata. **Gli amici possono entrare.**
+- [x] Prova completa dal telefono di Flavio: tutto funziona (login, profilo, campi, partita)
 - [x] Supabase → URL Configuration: Site URL `https://www.nemanca1.com`, Redirect URLs www e pages.dev
 - [x] **Login provato per davvero**: email arrivata via Resend, codice (8 cifre) accettato, profilo creato in automatico
 
 ## In corso
 
-- [ ] Prima prova dal telefono di Flavio (con flavjo@gmail.com: unico indirizzo che riceve finché Resend non ha il dominio)
 - [ ] **Dominio, piano B** (Tophost non permette di cambiare i nameserver):
   1. ~~Tophost DNS: CNAME `www`~~ fatto
   2. ~~Cloudflare Pages → Custom domains → `www.nemanca1.com`~~ fatto
-  3. Tophost → Redirect dominio: `nemanca1.com` → `https://www.nemanca1.com`. **Bloccato l'11/11 sera**: Tophost dice "dominio puntato su un altro server, aspetta qualche ora". Riprovare il 12/11; in alternativa assistenza Tophost o servizio di redirect esterno. Priorità bassa: QR e link hanno già il www.
+  3. Nome nudo `nemanca1.com`: Tophost lo rimanda già a www in **http** (301). In **https** il server Tophost presenta un certificato di un altro dominio, quindi alcuni browser mostrano un avviso. La funzione "Redirect dominio" di Tophost non è usabile (richiede `www` su Tophost). Soluzione pulita pronta: sito di rimbalzo su **GitHub Pages** (file già preparati in `/home/user/nemanca1-redirect`), serve il repo `flavjo78/nemanca1-redirect` + record `A` di `@` verso gli IP GitHub. Priorità bassa.
   4. ~~Resend → Domains → `nemanca1.com`~~ fatto
 
 ## Da fare, in ordine
