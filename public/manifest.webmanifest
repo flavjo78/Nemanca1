@@ -1,0 +1,13 @@
+{
+  "name": "Calcetto",
+  "short_name": "Calcetto",
+  "description": "Trova giocatori per le partite di calcetto nei campi vicino a te.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F2F5F1",
+  "theme_color": "#1E7B4E",
+  "lang": "it",
+  "icons": [
+    { "src": "/icona.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
