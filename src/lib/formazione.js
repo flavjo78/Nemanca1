@@ -40,24 +40,26 @@ export function conta(posizioni) {
   }
 }
 
-// Moduli proposti per formato: il primo numero è sempre il portiere.
-export const MODULI = {
-  5: ['1-2-2', '1-1-3', '1-1-2-1', '1-2-1-1', '1-3-1'],
-  8: ['1-3-3-1', '1-2-3-2', '1-3-2-2', '1-2-4-1', '1-3-1-3'],
-  11: ['1-4-4-2', '1-4-3-3', '1-3-5-2', '1-5-3-2', '1-3-4-3', '1-4-5-1']
+// Modulo senza portiere (è sempre 1): "2-2", "1-2-1", "3-3-1"...
+export const PREDEFINITI = { 5: { difesa: 2, centro: 0, attacco: 2 }, 8: { difesa: 3, centro: 3, attacco: 1 }, 11: { difesa: 4, centro: 4, attacco: 2 } }
+
+export function testoModulo({ difesa, centro, attacco }) {
+  return centro ? `${difesa}-${centro}-${attacco}` : `${difesa}-${attacco}`
 }
 
-/** "1-1-2-1" → { portiere: 1, difesa: 1, centro: 2, attacco: 1 } */
-export function ruoliDaModulo(modulo) {
-  const n = modulo.split('-').map(Number)
-  return n.length === 4
-    ? { portiere: n[0], difesa: n[1], centro: n[2], attacco: n[3] }
-    : { portiere: n[0], difesa: n[1], centro: 0, attacco: n[2] }
+/** Stringa per il database: sempre con il portiere davanti, es. "1-2-0-2". */
+export function moduloPerDb({ difesa, centro, attacco }) {
+  return `1-${difesa}-${centro}-${attacco}`
 }
 
-/** Modulo attuale di una squadra letto dai posti in campo, es. "1-2-2" o "1-1-2-1". */
-export function moduloDi(posizioni, squadra) {
-  const c = { portiere: 0, difesa: 0, centro: 0, attacco: 0 }
+/** Conteggio dei ruoli in campo di una squadra (portiere escluso). */
+export function contaRuoli(posizioni, squadra) {
+  const c = { difesa: 0, centro: 0, attacco: 0 }
   for (const p of posizioni) if (p.squadra === squadra && c[p.ruolo] !== undefined) c[p.ruolo]++
-  return c.centro ? `${c.portiere}-${c.difesa}-${c.centro}-${c.attacco}` : `${c.portiere}-${c.difesa}-${c.attacco}`
+  return c
+}
+
+/** Modulo attuale di una squadra, es. "2-2" o "1-2-1". */
+export function moduloDi(posizioni, squadra) {
+  return testoModulo(contaRuoli(posizioni, squadra))
 }

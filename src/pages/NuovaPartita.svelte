@@ -5,7 +5,8 @@
   import { naviga } from '../lib/router.svelte.js'
   import { RUOLI, perInputDataOra } from '../lib/formato.js'
   import Intestazione from '../components/Intestazione.svelte'
-  import { MODULI, ruoliDaModulo } from '../lib/formazione.js'
+  import { PREDEFINITI, testoModulo, moduloPerDb } from '../lib/formazione.js'
+  import Contatori from '../components/Contatori.svelte'
 
   let { id } = $props()
   let campo = $state(null)
@@ -18,9 +19,17 @@
   let giocoAnchio = $state(true)
   let modalita = $state('libera')
   let panchina = $state(0)
-  let modulo = $state('1-2-2')
-  const ruoliModulo = $derived(Object.entries(ruoliDaModulo(modulo)).filter(([, n]) => n > 0).map(([r]) => r))
-  $effect(() => { if (!MODULI[formato].includes(modulo)) modulo = MODULI[formato][0] })
+  let difesa = $state(2), centro = $state(0), attacco = $state(2)
+  let formatoPrecedente = 5
+  $effect(() => {
+    if (formato !== formatoPrecedente) {
+      formatoPrecedente = formato
+      ;({ difesa, centro, attacco } = PREDEFINITI[formato])
+    }
+  })
+  const movimento = $derived(formato - 1)
+  const mancano = $derived(movimento - (difesa + centro + attacco))
+  const ruoliModulo = $derived(['portiere', ...['difesa', 'centro', 'attacco'].filter((r) => ({ difesa, centro, attacco })[r] > 0)])
   $effect(() => { if (!ruoliModulo.includes(ruolo)) ruolo = ruoliModulo.includes('attacco') ? 'attacco' : ruoliModulo[ruoliModulo.length - 1] })
   let errore = $state('')
   let occupato = $state(false)
@@ -41,6 +50,7 @@
     errore = ''
     const quando = new Date(dataOra)
     if (isNaN(quando) || quando < new Date()) { errore = 'Scegli una data e un\'ora future.'; return }
+    if (mancano !== 0) { errore = `Completa il modulo: servono ${movimento} giocatori più il portiere.`; return }
     occupato = true
     const { data, error } = await supabase.rpc('crea_partita', {
       p_campo_id: id,
@@ -53,7 +63,7 @@
       p_ruolo: giocoAnchio ? ruolo : null,
       p_modalita: modalita,
       p_panchina: panchina,
-      p_modulo: modulo
+      p_modulo: moduloPerDb({ difesa, centro, attacco })
     })
     occupato = false
     if (error) { errore = error.message; return }
@@ -74,13 +84,11 @@
       <p class="aiuto">{formato * 2} posti in tutto, {formato} per squadra.</p>
     </div>
     <div class="campo-form">
-      <span class="aiuto" style="font-weight:600">Modulo (portiere-difesa-centro-attacco)</span>
-      <div class="scelte">
-        {#each MODULI[formato] as m}
-          <button type="button" class="scelta" class:attiva={modulo === m} onclick={() => (modulo = m)}>{m}</button>
-        {/each}
-      </div>
-      <p class="aiuto">Vale per entrambe le squadre; dopo lo puoi cambiare per ciascuna.</p>
+      <span class="aiuto" style="font-weight:600">Modulo: {testoModulo({ difesa, centro, attacco })} <span style="font-weight:400">(più il portiere)</span></span>
+      <Contatori bind:difesa bind:centro bind:attacco massimo={movimento} />
+      <p class="aiuto" style={mancano ? 'color: var(--avviso-testo)' : ''}>{mancano > 0
+        ? `Mancano ${mancano} ${mancano === 1 ? 'giocatore' : 'giocatori'} per arrivare a ${movimento} più il portiere.`
+        : `${movimento} giocatori più il portiere, per entrambe le squadre. Dopo puoi cambiarlo per ciascuna.`}</p>
     </div>
     <div class="campo-form">
       <span class="aiuto" style="font-weight:600">Chi sceglie il posto?</span>

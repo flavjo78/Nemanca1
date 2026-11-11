@@ -5,7 +5,8 @@
   import { auth } from '../lib/auth.svelte.js'
   import { router, indietro, naviga } from '../lib/router.svelte.js'
   import { etichettaDataOra, etichettaFormato, nomeBreve, chipPosti, euro, etichettaRuolo, iniziali, RUOLI } from '../lib/formato.js'
-  import { conta, MODULI, moduloDi } from '../lib/formazione.js'
+  import { conta, contaRuoli, testoModulo, moduloPerDb } from '../lib/formazione.js'
+  import Contatori from '../components/Contatori.svelte'
   import Icona from '../components/Icona.svelte'
   import CampoDisegnato from '../components/CampoDisegnato.svelte'
   import Caricamento from '../components/Caricamento.svelte'
@@ -17,6 +18,8 @@
   let tribuna = $state([])
   let vice = $state([])
   let moduloSquadra = $state('A')
+  let nuovo = $state({ difesa: 0, centro: 0, attacco: 0 })
+  function apriModulo(sq) { moduloSquadra = sq; nuovo = contaRuoli(posizioni, sq); foglio = { tipo: 'modulo' } }
   let inviti = $state([])
   let caricamento = $state(true)
   let errore = $state('')
@@ -138,7 +141,7 @@
   const chiedi = (p, giocatoreId) => esegui('chiedi_di_giocare', { p_posizione: p.id, p_giocatore: giocatoreId }, 'Richiesta inviata: deve accettare.')
   const rispondiInvito = (accetta) => esegui('rispondi_invito', { p_partita: id, p_accetta: accetta }, accetta ? 'Sei in campo!' : 'Resti in tribuna.')
   const sposta = (da, a) => esegui('sposta_giocatore', { p_da: da.id, p_a: a.id }, a.giocatore_id ? 'Posti scambiati.' : 'Giocatore spostato.')
-  const cambiaModulo = (squadra, modulo) => esegui('cambia_modulo', { p_partita: id, p_squadra: squadra, p_modulo: modulo }, `Squadra ${squadra}: modulo ${modulo}.`)
+  const cambiaModulo = (squadra, m) => esegui('cambia_modulo', { p_partita: id, p_squadra: squadra, p_modulo: moduloPerDb(m) }, `Squadra ${squadra}: modulo ${testoModulo(m)}.`)
   const nominaVice = (giocatoreId, squadra, si) => esegui('nomina_vice', { p_partita: id, p_giocatore: giocatoreId, p_squadra: squadra, p_si: si }, si ? `Ora è vice della squadra ${squadra}.` : 'Non è più vice.')
   let copiato = $state(false)
   async function copiaLink() {
@@ -208,7 +211,6 @@
         <span class="chip leggero">{euro(partita.quota)}</span>
         {#if numeri.panchinaTotale}<span class="chip leggero">Panchina {numeri.panchinaTotale - numeri.panchinaLiberi}/{numeri.panchinaTotale}</span>{/if}
         {#if approvazione}<span class="chip leggero">Posti assegnati dall'organizzatore</span>{/if}
-        <span class="chip leggero">A {moduloDi(posizioni, 'A')} · B {moduloDi(posizioni, 'B')}</span>
       </div>
 
       {#if partita.descrizione}
@@ -307,7 +309,7 @@
           <div class="sezione-titolo">{sonoTitolare ? "Sei l'organizzatore" : `Sei vice · squadra ${miaViceSquadra}`}</div>
           <div class="card" style="gap: 8px">
             <div class="sotto">Tocca un posto per cambiarne il ruolo, toglierlo o proporre un cambio a chi lo occupa. Il totale ora è {numeri.totale} posti.</div>
-            <button type="button" class="btn bianco piccolo" onclick={() => { moduloSquadra = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'modulo' } }}>Cambia modulo</button>
+            <button type="button" class="btn bianco piccolo" onclick={() => apriModulo(sonoTitolare ? 'A' : miaViceSquadra)}>Cambia modulo</button>
             <button type="button" class="btn bianco piccolo" onclick={() => { ruoloScelto = null; squadraScelta = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'aggiungi' } }}>
               <Icona nome="piu" dimensione={18} spessore={2.4} /> Aggiungi un posto
             </button>
@@ -473,17 +475,19 @@
         {/each}
       </Foglio>
     {:else if foglio?.tipo === 'modulo'}
-      <Foglio aperto titolo="Cambia modulo" sotto="Chi è già in campo resta in campo: cambia solo il posto." chiudi={() => (foglio = null)}>
-        <div class="scelte">
-          {#each ['A', 'B'].filter(gestisco) as sq}
-            <button type="button" class="scelta" class:attiva={moduloSquadra === sq} onclick={() => (moduloSquadra = sq)}>Squadra {sq} · {moduloDi(posizioni, sq)}</button>
-          {/each}
-        </div>
-        <div class="scelte">
-          {#each MODULI[partita.formato] ?? [] as m}
-            <button type="button" class="scelta" class:attiva={moduloDi(posizioni, moduloSquadra) === m} disabled={occupato} onclick={() => cambiaModulo(moduloSquadra, m)}>{m}</button>
-          {/each}
-        </div>
+      {@const attuale = contaRuoli(posizioni, moduloSquadra)}
+      {@const totNuovo = nuovo.difesa + nuovo.centro + nuovo.attacco}
+      <Foglio aperto titolo={`Modulo squadra ${moduloSquadra}: ${testoModulo(nuovo)}`} sotto="Il portiere è sempre uno. Chi è già in campo resta in campo: cambia solo il posto." chiudi={() => (foglio = null)}>
+        {#if ['A', 'B'].filter(gestisco).length > 1}
+          <div class="scelte">
+            {#each ['A', 'B'] as sq}
+              <button type="button" class="scelta" class:attiva={moduloSquadra === sq} onclick={() => apriModulo(sq)}>Squadra {sq} · {testoModulo(contaRuoli(posizioni, sq))}</button>
+            {/each}
+          </div>
+        {/if}
+        <Contatori bind:difesa={nuovo.difesa} bind:centro={nuovo.centro} bind:attacco={nuovo.attacco} massimo={10} />
+        <p class="aiuto">{totNuovo} giocatori più il portiere{totNuovo !== partita.formato - 1 ? ` (nel calcio a ${partita.formato} di solito sono ${partita.formato - 1})` : ''}.</p>
+        <button type="button" class="btn" disabled={occupato || totNuovo === 0 || testoModulo(nuovo) === testoModulo(attuale)} onclick={() => cambiaModulo(moduloSquadra, nuovo)}>Applica alla squadra {moduloSquadra}</button>
       </Foglio>
     {:else if foglio?.tipo === 'tribuna-membro'}
       {@const d = foglio.persona}

@@ -3,7 +3,7 @@
   // Squadra A in alto, squadra B in basso. Ogni posto è toccabile se c'è `alClick`.
   import Icona from './Icona.svelte'
   import { etichettaRuolo, iniziali } from '../lib/formato.js'
-  import { disponi } from '../lib/formazione.js'
+  import { disponi, moduloDi } from '../lib/formazione.js'
   let { posizioni = [], mioId = null, alClick = null, evidenzia = null } = $props()
 
   const coordinate = $derived(disponi(posizioni))
@@ -74,6 +74,8 @@
   <div class="area basso"></div>
   <div class="nome-squadra alto">SQUADRA A</div>
   <div class="nome-squadra basso">SQUADRA B</div>
+  <div class="modulo alto" aria-label={`Modulo squadra A ${moduloDi(posizioni, 'A')}`}>{moduloDi(posizioni, 'A')}</div>
+  <div class="modulo basso" aria-label={`Modulo squadra B ${moduloDi(posizioni, 'B')}`}>{moduloDi(posizioni, 'B')}</div>
 
   {#each inCampo as p (p.id)}
     <div class="posto" style={stile(p)}>
@@ -104,6 +106,8 @@
   .area.basso { bottom: 0; border-bottom: none; }
   .nome-squadra { position: absolute; left: 10px; font-size: 11px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.28); padding: 4px 8px; border-radius: 999px; pointer-events: none; }
   .nome-squadra.alto { top: 10px; } .nome-squadra.basso { bottom: 10px; }
+  .modulo { position: absolute; right: 10px; font-family: var(--font-titoli); font-size: 13px; font-weight: 700; color: var(--testo); background: rgba(255,255,255,0.9); padding: 3px 9px; border-radius: 999px; pointer-events: none; }
+  .modulo.alto { top: 10px; } .modulo.basso { bottom: 10px; }
   .posto { position: absolute; width: 64px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; transition: left .25s, top .25s; }
   .pallino-posto {
     width: 44px; height: 44px; border-radius: 22px; background: #fff; color: var(--testo);
