@@ -42,7 +42,7 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 2. [x] **`supporto@nemanca1.com`** creato l'11/11 sera su Tophost (Email → Gestione avanzata) come **inoltro esterno** alla Gmail di Flavio. Tophost ha una sola MAILBOX (`nemanca1.com`, indirizzi di base webmaster@ e postmaster@); `info@` eliminato su richiesta di Flavio. Niente alias da `benvenuto@`
 3. [x] **Tappa 3 – Chat** della partita in tempo reale (giocatori, organizzatore, vice, tribuna e chi ha un invito): elenco chat con pallino "nuovo", bolle, messaggi di sistema, card Accetta/Rifiuta per candidature e cambi ruolo, avviso invito. Migrazione 0009 applicata. Voce "Aiuto e supporto" nel Profilo e nel login. In anteprima
 4. [ ] **Autonomia via git** (richiesto l'11/11, subito dopo la chat): Claude fa tutte le modifiche da solo, senza copia-incolla di Flavio. Comprende: collegamento Supabase-GitHub per applicare le migrazioni a ogni unione su `main`; regola di permesso in Claude Code per pubblicare su `main` dopo il "unisci" senza blocchi; controlli automatici (build + test) su GitHub prima di ogni pubblicazione; nessun passaggio che chieda a Flavio di copiare codice o testo
-5. [ ] **Tappa 3 – Notifiche push** (OneSignal) e **avviso a Flavio a ogni nuovo iscritto** (prima via email, poi push)
+5. [~] **Tappa 3 – Notifiche push** (OneSignal) e **avviso a Flavio a ogni nuovo iscritto** (prima via email, poi push). 11/11: Flavio sta creando l'account OneSignal (canale Push, sito Web https://www.nemanca1.com); poi App ID (pubblico) e chiave REST tramite modulo sicuro
 6. [ ] **Tappa 4 – Social**: lista amici, giocatori vicini, inviti, mappa campi
 7. [ ] **Tappa 5 – Dopo la partita**: risultato, recensioni anonime, voti, storico
 8. [ ] **Tappa 6**: PWA installabile completa, QR stampabili, prova con 10 persone su un campo vero
@@ -59,6 +59,7 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 
 - *Facoltativo*: **copia delle email di supporto@ anche su Tophost**. Provato l'11/11: Tophost non accetta una seconda destinazione per lo stesso indirizzo ("già esistente"). Se servirà, ticket all'assistenza Tophost; intanto supporto@ arriva solo alla Gmail
 
+- In anteprima, da unire dopo l'ok: candidatura con preferenza di squadra, icona campetto nella chat, nome di chi si candida, termometro, cambio ruolo che sposta il giocatore, **in campo sempre i giocatori del formato** (calcio a 5 = portiere + 4: i contatori del modulo non superano il totale, si aggiungono/tolgono solo riserve in panchina; migrazione 0014 applicata)
 - ~~Da unire su www~~ fatto l'11/11 sera: www.nemanca1.com ha tribuna, panchine, modulo, trascinamento, vice, selettore a passi, copia link.
 
 
