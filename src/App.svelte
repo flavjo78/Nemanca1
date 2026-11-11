@@ -14,6 +14,7 @@
   import NuovaPartita from './pages/NuovaPartita.svelte'
   import Partita from './pages/Partita.svelte'
   import Chat from './pages/Chat.svelte'
+  import ChatPartita from './pages/ChatPartita.svelte'
   import Profilo from './pages/Profilo.svelte'
   import Admin from './pages/Admin.svelte'
 
@@ -27,7 +28,7 @@
     { pattern: '/campo/:id/nuova', componente: NuovaPartita, privata: true },
     { pattern: '/partita/:id', componente: Partita },
     { pattern: '/chat', componente: Chat, privata: true },
-    { pattern: '/chat/:id', componente: Chat, privata: true },
+    { pattern: '/chat/:id', componente: ChatPartita, privata: true },
     { pattern: '/profilo', componente: Profilo, privata: true },
     { pattern: '/profilo/modifica', componente: CompletaProfilo, privata: true },
     { pattern: '/admin', componente: Admin, privata: true }

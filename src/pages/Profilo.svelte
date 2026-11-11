@@ -106,6 +106,14 @@
       </section>
     {/if}
 
+    <a class="card riga" href="mailto:supporto@nemanca1.com?subject=Aiuto%20Ne%20manca%201" style="text-decoration:none">
+      <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="mail" dimensione={20} /></div>
+      <div class="riempi">
+        <div class="nome">Aiuto e supporto</div>
+        <div class="sotto taglia">Scrivici a supporto@nemanca1.com</div>
+      </div>
+      <Icona nome="avanti" dimensione={18} />
+    </a>
     {#if p?.admin}
       <a href="/admin" class="btn scuro"><Icona nome="utenti" dimensione={18} /> Area amministratore</a>
     {/if}

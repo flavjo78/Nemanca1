@@ -40,7 +40,7 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 
 1. [~] **Nome senza www**: repository `flavjo78/nemanca1-redirect` creato e caricato, GitHub Pages attivo con dominio `nemanca1.com`, 4 record `A` di `@` su Tophost verso GitHub (185.199.108-111.153), AAAA tolto. DNS già propagato l'11/11 sera. **Manca**: il controllo DNS di GitHub resta rosso finché scade la memoria del vecchio indirizzo (TTL Tophost 6 ore). Il 12/11: GitHub → Settings → Pages "Check again", poi spuntare **Enforce HTTPS**; Claude verifica che https://nemanca1.com porti su www con certificato valido
 2. [x] **`supporto@nemanca1.com`** creato l'11/11 sera su Tophost (Email → Gestione avanzata) come **inoltro esterno** alla Gmail di Flavio. Tophost ha una sola MAILBOX (`nemanca1.com`, indirizzi di base webmaster@ e postmaster@); `info@` eliminato su richiesta di Flavio. Niente alias da `benvenuto@`
-3. [ ] **Tappa 3 – Chat** della partita in tempo reale (giocatori, organizzatore, vice e tribuna), con card richiesta/invito e messaggi di sistema già generati dal DB
+3. [x] **Tappa 3 – Chat** della partita in tempo reale (giocatori, organizzatore, vice, tribuna e chi ha un invito): elenco chat con pallino "nuovo", bolle, messaggi di sistema, card Accetta/Rifiuta per candidature e cambi ruolo, avviso invito. Migrazione 0009 applicata. Voce "Aiuto e supporto" nel Profilo e nel login. In anteprima
 4. [ ] **Autonomia via git** (richiesto l'11/11, subito dopo la chat): Claude fa tutte le modifiche da solo, senza copia-incolla di Flavio. Comprende: collegamento Supabase-GitHub per applicare le migrazioni a ogni unione su `main`; regola di permesso in Claude Code per pubblicare su `main` dopo il "unisci" senza blocchi; controlli automatici (build + test) su GitHub prima di ogni pubblicazione; nessun passaggio che chieda a Flavio di copiare codice o testo
 5. [ ] **Tappa 3 – Notifiche push** (OneSignal) e **avviso a Flavio a ogni nuovo iscritto** (prima via email, poi push)
 6. [ ] **Tappa 4 – Social**: lista amici, giocatori vicini, inviti, mappa campi
@@ -51,6 +51,8 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 11. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
 
 ## Richieste di Flavio in sospeso
+
+- **Copia delle email di supporto@ anche su Tophost** (11/11): provare ad aggiungere una seconda riga `supporto` → Mailbox locale `nemanca1.com` in Email → Gestione avanzata; se Tophost non lo permette, ticket all'assistenza Tophost
 
 - ~~Da unire su www~~ fatto l'11/11 sera: www.nemanca1.com ha tribuna, panchine, modulo, trascinamento, vice, selettore a passi, copia link.
 
