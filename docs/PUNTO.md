@@ -45,6 +45,7 @@ Aggiornato: 11 novembre 2026, sera: le email arrivano a chiunque. Questo file si
 4. [ ] **Resend**: verificare il dominio (SPF + DKIM su Cloudflare), mittente `noreply@nemanca1.com`, rigenerare la API key e cancellare quella mostrata in chat
 6. [ ] Tappa 2: prendere un posto libero, candidarsi, accettare, cambio ruolo
 7. [ ] **Pagina amministratore** per Flavio dentro l'app: utenti attivi, partite, campi, blocca/elimina, statistiche
+8. [ ] **Avviso a Flavio a ogni nuovo iscritto** (richiesto l'11/11): prima via email (trigger DB → Resend), poi come notifica push con OneSignal (Tappa 3) e lista "ultimi iscritti" nella pagina amministratore
 
 ## Richieste di Flavio in sospeso
 
