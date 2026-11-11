@@ -3,7 +3,7 @@
   import { supabase } from '../lib/supabase.js'
   import { auth, caricaProfilo } from '../lib/auth.svelte.js'
   import { cercaComune } from '../lib/geo.js'
-  import { naviga } from '../lib/router.svelte.js'
+  import { naviga, router } from '../lib/router.svelte.js'
   import { RUOLI } from '../lib/formato.js'
 
   let nome = $state(auth.profilo?.nome ?? '')
@@ -38,7 +38,8 @@
     occupato = false
     if (error) { errore = error.message; return }
     await caricaProfilo()
-    naviga('/', { sostituisci: true })
+    // dal link di una partita o di un campo si resta lì; solo dalla modifica profilo si torna al profilo
+    if (router.percorso === '/profilo/modifica') naviga('/profilo', { sostituisci: true })
   }
 </script>
 
