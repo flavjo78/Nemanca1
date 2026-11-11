@@ -15,9 +15,9 @@ Legenda: ✅ fatto · 🟡 fatto nel codice, da provare online · 🔴 da fare
 - ✅ Home personale: prossima partita, richieste da approvare, partite vicine con posti liberi
 - ✅ Schermata partita con campo disegnato e formazione (sola lettura), condivisione, annulla
 - ✅ Profilo con voto, partite, vinte, barre per categoria, storico (vuoti finché non ci sono dati)
-- 🟡 Provato solo con un Supabase simulato (Playwright, screenshot in `docs/screenshot/`): manca la prova con il progetto Supabase vero
+- ✅ Progetto Supabase vero creato (Irlanda), migrazione eseguita, SMTP Resend + template OTP configurati, lettura e RLS verificate dall'app
 - 🔴 Repo GitHub + deploy su Cloudflare Pages con dominio nemanca1.com (vedi `docs/SETUP.md`)
-- 🔴 Supabase: creare il progetto, eseguire la migrazione, template email OTP con `{{ .Token }}`, SMTP Resend
+- 🔴 Resend: verificare il dominio nemanca1.com (dopo il DNS su Cloudflare) e passare il mittente a `noreply@nemanca1.com`; rigenerare la API key
 
 ## Tappa 2 – Campo disegnato
 - 🔴 Prendere un posto libero toccandolo (la policy RLS "prendi posto" c'è già)

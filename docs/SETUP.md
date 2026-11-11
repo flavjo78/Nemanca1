@@ -4,8 +4,8 @@
 
 1. Crea un progetto su supabase.com, regione **eu-central-1 (Francoforte)**.
 2. Apri **SQL Editor → New query**, incolla tutto `supabase/migrations/0001_schema.sql` ed esegui.
-3. **Authentication → Providers → Email**: lascia attivo Email, disattiva "Confirm email" se vuoi evitare il doppio passaggio, e imposta la lunghezza OTP a 6.
-4. **Authentication → Email Templates → Magic Link**: il corpo deve contenere il codice, non il link. Esempio:
+3. **Attenzione**: senza un SMTP personalizzato Supabase non permette di modificare i template email, e il template di default manda un link, non il codice. Quindi prima configura Resend (sezione 3) in **Authentication → Emails → SMTP Settings**.
+4. **Authentication → Emails → Templates**: sia in "Confirm sign up" sia in "Magic link or OTP" il corpo deve contenere il codice, non il link:
 
    ```html
    <h2>Il tuo codice per Ne manca 1</h2>
@@ -38,7 +38,7 @@ Il dominio è **nemanca1.com**. L'app risponde su `https://nemanca1.com` (e `www
 3. In Supabase, **Project Settings → Authentication → SMTP Settings**: attiva Custom SMTP con
    - Host `smtp.resend.com`, porta `465`
    - Username `resend`, password = la API key
-   - Sender `noreply@nemanca1.com`, nome `Ne manca 1`
+   - Sender `noreply@nemanca1.com`, nome `Ne manca 1`. Finché il dominio non è verificato su Resend usa `onboarding@resend.dev`: le email arrivano solo all'indirizzo dell'account Resend.
 
 ## 4. GitHub e Cloudflare Pages
 

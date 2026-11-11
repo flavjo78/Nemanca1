@@ -22,7 +22,7 @@ Monetizzazione futura (l'app resta gratuita per i giocatori): campi "verificati"
 ## Stack scelto
 
 - **Frontend**: HTML/CSS/JS in Vite + framework leggero (Svelte o React, scegliere nella prima sessione) come PWA; mobile-first 390px.
-- **Backend**: **Supabase** (Postgres, Auth, Realtime, Storage, RLS). Regione eu-central (Francoforte). Login: email con codice OTP; Google OAuth in seguito.
+- **Backend**: **Supabase** (Postgres, Auth, Realtime, Storage, RLS). Progetto `nemanca1`, regione **eu-west-1 (Irlanda)** (il pannello non offriva Francoforte sul piano Free). Login: email con codice OTP; Google OAuth in seguito.
 - **Hosting**: **Cloudflare Pages**, deploy automatico da GitHub.
 - **Dominio**: **nemanca1.com** (acquistato), DNS su Cloudflare. L'app risponde su `https://nemanca1.com`; email `noreply@nemanca1.com` (Resend) e `info@nemanca1.com` (casella umana).
 - **Email transazionali**: **Resend** (SMTP custom in Supabase Auth); dominio autenticato con SPF/DKIM. Non usare Gmail né Amazon SES.
@@ -30,7 +30,7 @@ Monetizzazione futura (l'app resta gratuita per i giocatori): campi "verificati"
 - **Mappe**: **OpenStreetMap + Leaflet**; geocoding con Nominatim; distanza calcolata lato DB (PostGIS o formula haversine).
 - **QR**: libreria `qrcode` lato client; il QR codifica l'URL `https://nemanca1.com/campo/<id>?qr=1`.
 
-Chiavi e URL vanno in `.env` (mai nel repo). Variabili attese: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_ONESIGNAL_APP_ID`.
+Chiavi e URL vanno in `.env` (mai nel repo). Variabili attese: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (si usa la chiave **publishable** `sb_publishable_...`, pubblica per design), `VITE_ONESIGNAL_APP_ID`.
 
 ## Schema dati (Supabase)
 
@@ -82,3 +82,4 @@ RLS: tutti leggono campi e partite aperte; messaggi leggibili/scrivibili solo da
 - 2026-11-11: la pagina `/campo/<id>` e `/partita/<id>` sono pubbliche (si aprono dal QR senza login); tutto il resto richiede il login. Il QR codifica `/campo/<id>?qr=1`.
 - 2026-11-11: dominio su Tophost con DNS su Cloudflare; casella `info@` su Tophost, invii automatici con Resend da `noreply@`.
 - 2026-11-11: dominio acquistato **nemanca1.com**; nome dell'app "Ne manca 1" (da confermare con Flavio), usato in titolo, manifest e schermata di login.
+- 2026-11-11: Supabase creato (Irlanda), migrazione eseguita, SMTP Resend attivo con mittente provvisorio `onboarding@resend.dev` (consegna solo alla mail di Flavio finché il dominio non è su Resend). Template "Confirm sign up" e "Magic link or OTP" con `{{ .Token }}`. Senza SMTP custom Supabase non lascia modificare i template.
