@@ -51,7 +51,7 @@
   async function carica() {
     const { data, error } = await supabase
       .from('partite')
-      .select('*, campo:campi(id, nome, indirizzo), organizzatore:profili(id, nome, iniziali), posizioni(*, giocatore:profili(id, nome, iniziali))')
+      .select('*, campo:campi(id, nome, indirizzo), organizzatore:profili!partite_organizzatore_id_fkey(id, nome, iniziali), posizioni(*, giocatore:profili(id, nome, iniziali))')
       .eq('id', id).maybeSingle()
     if (error || !data) { errore = 'Partita non trovata.'; return }
     data.posizioni.sort((a, b) => a.squadra.localeCompare(b.squadra) || a.y - b.y || a.x - b.x || a.creato_il.localeCompare(b.creato_il))
