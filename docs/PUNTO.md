@@ -33,7 +33,7 @@ Aggiornato: 11 novembre 2026, sera: le email arrivano a chiunque. Questo file si
 - [ ] **Dominio, piano B** (Tophost non permette di cambiare i nameserver):
   1. ~~Tophost DNS: CNAME `www`~~ fatto
   2. ~~Cloudflare Pages → Custom domains → `www.nemanca1.com`~~ fatto
-  3. Tophost → Redirect dominio: `nemanca1.com` → `https://www.nemanca1.com`
+  3. Tophost → Redirect dominio: `nemanca1.com` → `https://www.nemanca1.com`. **Bloccato l'11/11 sera**: Tophost dice "dominio puntato su un altro server, aspetta qualche ora". Riprovare il 12/11; in alternativa assistenza Tophost o servizio di redirect esterno. Priorità bassa: QR e link hanno già il www.
   4. ~~Resend → Domains → `nemanca1.com`~~ fatto
 
 ## Da fare, in ordine
