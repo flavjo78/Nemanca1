@@ -40,7 +40,7 @@ Legenda: ✅ fatto · 🟡 fatto nel codice, da provare online · 🔴 da fare
 - 🔴 Inserimento risultato, recensioni anonime (vista `profili_voti` pronta), storico (vista `storico_partite` pronta)
 
 ## Tappa 6 – PWA e test sul campo
-- ✅ Manifest presente; manca il service worker per l'installazione offline
+- 🟡 Manifest presente; manca il service worker per l'installazione offline
 - 🔴 Test con 10 persone su un campo vero; poi padel/tennis
 
 ## Decisioni prese in questa sessione
