@@ -7,6 +7,7 @@
   import { iniziali, etichettaRuolo, etichettaFormato } from '../lib/formato.js'
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Icona from '../components/Icona.svelte'
+  import { notifiche, attivaNotifiche, disattivaNotifiche } from '../lib/notifiche.svelte.js'
 
   let voti = $state(null)
   let storico = $state([])
@@ -37,6 +38,15 @@
   }
   function esitoTesto(s) { return { vinta: 'Vittoria', persa: 'Sconfitta', pareggio: 'Pareggio' }[s.esito] ?? (s.stato === 'annullata' ? 'Annullata' : 'Da giocare') }
   function dataBreve(d) { d = new Date(d); return `${d.getDate()} ${['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'][d.getMonth()]}` }
+  const testoNotifiche = $derived({
+    attive: 'Attive su questo dispositivo',
+    spente: 'Ti avvisiamo quando ti accettano, ti invitano o ti scrivono',
+    bloccate: 'Bloccate dal browser: riattivale dalle impostazioni del sito (lucchetto accanto all\'indirizzo)',
+    installa_iphone: 'Su iPhone: tocca Condividi e poi "Aggiungi alla schermata Home", apri l\'app da lì e attivale',
+    altro_sito: 'Funzionano su www.nemanca1.com',
+    non_supportate: 'Questo browser non supporta le notifiche',
+    sconosciuto: 'Controllo in corso…'
+  }[notifiche.stato])
   async function logout() { await esci(); naviga('/login', { sostituisci: true }) }
 </script>
 
@@ -106,6 +116,27 @@
       </section>
     {/if}
 
+    <div class="card riga">
+      <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="campanella" dimensione={20} /></div>
+      <div class="riempi">
+        <div class="nome">Notifiche</div>
+        <div class="sotto">{testoNotifiche}</div>
+      </div>
+      {#if notifiche.stato === 'spente'}
+        <button type="button" class="btn piccolo" style="width:auto; flex:0 0 auto" disabled={notifiche.occupato} onclick={attivaNotifiche}>Attiva</button>
+      {:else if notifiche.stato === 'attive'}
+        <button type="button" class="btn piccolo bianco" style="width:auto; flex:0 0 auto" disabled={notifiche.occupato} onclick={disattivaNotifiche}>Spegni</button>
+      {/if}
+    </div>
+
+    <a class="card riga" href="mailto:supporto@nemanca1.com?subject=Aiuto%20Ne%20manca%201" style="text-decoration:none">
+      <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="mail" dimensione={20} /></div>
+      <div class="riempi">
+        <div class="nome">Aiuto e supporto</div>
+        <div class="sotto taglia">Scrivici a supporto@nemanca1.com</div>
+      </div>
+      <Icona nome="avanti" dimensione={18} />
+    </a>
     {#if p?.admin}
       <a href="/admin" class="btn scuro"><Icona nome="utenti" dimensione={18} /> Area amministratore</a>
     {/if}

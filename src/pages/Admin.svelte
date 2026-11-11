@@ -9,6 +9,9 @@
   import Icona from '../components/Icona.svelte'
 
   let numeri = $state(null)
+  let spazio = $state(null)
+  const LIMITE = 500 * 1024 * 1024   // piano gratuito Supabase
+  const mb = (b) => (b / 1024 / 1024).toLocaleString('it-IT', { maximumFractionDigits: 1 })
   let utenti = $state([])
   let partite = $state([])
   let campi = $state([])
@@ -27,13 +30,15 @@
 
   async function carica() {
     errore = ''
-    const [n, u, p, c] = await Promise.all([
+    const [n, u, p, c, sp] = await Promise.all([
       supabase.rpc('admin_numeri'),
       supabase.rpc('admin_utenti', { p_limite: 50 }),
       supabase.from('partite').select('*, campo:campi(nome), organizzatore:profili!partite_organizzatore_id_fkey(nome), posizioni(stato)')
         .gte('data_ora', new Date(Date.now() - 86400000).toISOString()).order('data_ora').limit(30),
-      supabase.from('campi').select('*, partite(count)').order('creato_il', { ascending: false }).limit(50)
+      supabase.from('campi').select('*, partite(count)').order('creato_il', { ascending: false }).limit(50),
+      supabase.rpc('admin_spazio')
     ])
+    spazio = sp.data?.[0] ?? null
     const e = n.error || u.error || p.error || c.error
     if (e) errore = /does not exist|schema cache/i.test(e.message) ? 'Il database non è ancora aggiornato alla tappa 2 (manca la migrazione 0002).' : e.message
     numeri = n.data?.[0] ?? null
@@ -96,6 +101,19 @@
           {/each}
         </div>
         <p class="aiuto">{numeri.partite_settimana} partite nei prossimi 7 giorni · {numeri.partite_totali} create in tutto</p>
+      {/if}
+
+      {#if spazio}
+        {@const perc = Math.min(100, (spazio.database_byte / LIMITE) * 100)}
+        <section class="sezione">
+          <div class="sezione-titolo">Spazio del database</div>
+          <div class="card" style="gap:10px">
+            <div style="display:flex; justify-content:space-between; font-size:14px"><strong>{mb(spazio.database_byte)} MB su 500 MB</strong><span>{perc.toFixed(1).replace('.', ',')}%</span></div>
+            <div class="barra" style="flex:none; height:12px; border-radius:6px"><div style={`width:${Math.max(perc, 1)}%; height:12px; background:${perc >= 80 ? 'var(--errore)' : perc >= 60 ? 'var(--portiere)' : 'var(--verde)'}`}></div></div>
+            <div class="sotto">Chat: {mb(spazio.messaggi_byte)} MB ({spazio.messaggi} messaggi) · Partite e posti: {mb(spazio.partite_byte)} MB ({spazio.partite}) · Utenti: {mb(spazio.profili_byte)} MB ({spazio.profili})</div>
+            <p class="aiuto">{perc >= 80 ? 'Quasi pieno: scarica l\'archivio e fai pulizia, oppure passa a Supabase Pro.' : perc >= 60 ? 'Oltre metà: è il momento di pensare a Supabase Pro o alla pulizia delle chat vecchie.' : 'Tutto tranquillo. Il resto dello spazio è occupato dalla struttura di base di Supabase.'}</p>
+          </div>
+        </section>
       {/if}
 
       <section class="sezione">

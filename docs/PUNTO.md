@@ -38,32 +38,30 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 
 ## Da fare, in ordine
 
-1. [ ] Supabase → URL Configuration: mettere l'indirizzo dell'app pubblicata
-3. [ ] Prima prova dal telefono: login, profilo, registrare un campo, stampare il QR, creare una partita
-2. [ ] Cloudflare: cancellare la zona `nemanca1.com` rimasta "pending" (o tenerla per il trasferimento)
-3. [ ] Casella `info@nemanca1.com` e alias su Tophost
-4. [ ] **Resend**: verificare il dominio (SPF + DKIM su Cloudflare), mittente `noreply@nemanca1.com`, rigenerare la API key e cancellare quella mostrata in chat
-6. [x] **Migrazione 0002 eseguita su Supabase l'11/11 sera** (verificato: le funzioni rispondono).
-   [x] **Tappa 2 scritta e provata** (ramo `tappa-2`): prendere/lasciare/spostarsi di posto toccando il campo, candidature con accetta/rifiuta, cambio ruolo da confermare, aggiungere/togliere posti, partita "completa" automatica, aggiornamento in tempo reale. **Per attivarla**: eseguire `supabase/migrations/0002_tappa2.sql` nell'SQL Editor, poi unire il ramo su `main`
-6b. [x] **Tappa 2 pubblicata su www.nemanca1.com** (unita su `main` l'11/11 sera)
-6c. [x] **Tribuna, "decido io chi gioca", panchine** (richiesto l'11/11, ramo `tribuna`, scritto e provato). Migrazione 0003 **applicata da Claude** l'11/11 sera tramite token Supabase. Da unire su `main` dopo la prova di Flavio
-6d. [x] **Modulo, sposta/scambia, vice di squadra, cambio ruolo diretto con "decido io", panchina sul cellulare, copia link** (richiesti l'11/11 sera): migrazioni 0004-0006 applicate da Claude, in anteprima su anteprima.nemanca1.pages.dev
-6e. [x] **Modulo con tre contatori, senza portiere, mostrato sul campo** (richiesto l'11/11 sera), in anteprima
-6f. [x] **Formazione trascinando i cerchi** con ruolo e modulo automatici (richiesto l'11/11 sera), in anteprima
-6g. [x] **Selettore a passi** squadra → ruolo → cerchio per spostare o chiamare giocatori; **cognome e iniziale** sotto i cerchi (richiesti l'11/11 sera), in anteprima
-7. [x] **Pagina amministratore** `/admin` (ramo `tappa-2`): numeri, ultimi iscritti con email e badge "nuovi", prossime partite con annulla, campi con verifica/elimina. Accesso dal Profilo, solo per `profili.admin` (il primo iscritto, Flavio)
-8. [ ] **Avviso a Flavio a ogni nuovo iscritto** (richiesto l'11/11). Già fatto: badge "nuovi" nella pagina amministratore. Manca: email automatica (serve mettere la chiave Resend nei segreti di Supabase) e (trigger DB → Resend), poi come notifica push con OneSignal (Tappa 3) e lista "ultimi iscritti" nella pagina amministratore
-
-9. [ ] **Entra con Google** (richiesto l'11/11, da fare per ultimo): login con un tocco accanto al codice via email; serve una configurazione OAuth su Google Cloud
-
-10. [x] **Niente più copia-incolla SQL**: token Supabase (solo progetto nemanca1, permesso Database read-write, 90 giorni) salvato nell'ambiente cloud "nemanca1"; Claude applica le migrazioni con `scripts/applica-migrazione.sh`. Il collegamento GitHub-Supabase resta facoltativo.
-    ~~Database automatico da GitHub~~ (richiesto l'11/11, da fare più avanti): collegare Supabase a GitHub, rinominare le migrazioni nel formato Supabase CLI e marcare 0001/0002 come già applicate
+1. [~] **Nome senza www**: repository `flavjo78/nemanca1-redirect` creato e caricato, GitHub Pages attivo con dominio `nemanca1.com`, 4 record `A` di `@` su Tophost verso GitHub (185.199.108-111.153), AAAA tolto. DNS già propagato l'11/11 sera. **Manca**: il controllo DNS di GitHub resta rosso finché scade la memoria del vecchio indirizzo (TTL Tophost 6 ore). Il 12/11: GitHub → Settings → Pages "Check again", poi spuntare **Enforce HTTPS**; Claude verifica che https://nemanca1.com porti su www con certificato valido
+2. [x] **`supporto@nemanca1.com`** creato l'11/11 sera su Tophost (Email → Gestione avanzata) come **inoltro esterno** alla Gmail di Flavio. Tophost ha una sola MAILBOX (`nemanca1.com`, indirizzi di base webmaster@ e postmaster@); `info@` eliminato su richiesta di Flavio. Niente alias da `benvenuto@`
+3. [x] **Tappa 3 – Chat** della partita in tempo reale (giocatori, organizzatore, vice, tribuna e chi ha un invito): elenco chat con pallino "nuovo", bolle, messaggi di sistema, card Accetta/Rifiuta per candidature e cambi ruolo, avviso invito. Migrazione 0009 applicata. Voce "Aiuto e supporto" nel Profilo e nel login. In anteprima
+4. [ ] **Autonomia via git** (richiesto l'11/11, subito dopo la chat): Claude fa tutte le modifiche da solo, senza copia-incolla di Flavio. Comprende: collegamento Supabase-GitHub per applicare le migrazioni a ogni unione su `main`; regola di permesso in Claude Code per pubblicare su `main` dopo il "unisci" senza blocchi; controlli automatici (build + test) su GitHub prima di ogni pubblicazione; nessun passaggio che chieda a Flavio di copiare codice o testo
+5. [~] **Tappa 3 – Notifiche push** (OneSignal) e **avviso a Flavio a ogni nuovo iscritto** (prima via email, poi push). 11/11: account OneSignal creato (piano Free, sito https://www.nemanca1.com, App ID 27506aa7-d2ae-4a62-8a47-56dad6193dd6, slide prompt in italiano senza avvio automatico, clic su notifica = stessa scheda). Fatto nell'app: file `OneSignalSDKWorker.js`, scheda **Notifiche** nel Profilo (Attiva/Spegni, istruzioni per iPhone), riquadro proposto dopo candidatura o ingresso in squadra, dispositivo collegato all'utente. **Manca**: chiave REST di OneSignal nel Vault di Supabase + invio automatico dal database (accettato, invito, messaggio, cambio ruolo, nuovo iscritto a Flavio). Le notifiche funzionano solo su www, non sull'anteprima
+6. [ ] **Tappa 4 – Social**: lista amici, giocatori vicini, inviti, mappa campi
+7. [ ] **Tappa 5 – Dopo la partita**: risultato, recensioni anonime, voti, storico
+8. [ ] **Tappa 6**: PWA installabile completa, QR stampabili, prova con 10 persone su un campo vero
+9. [ ] **Entra con Google**
+10. [ ] *Facoltativo*: filtro in Gmail (dal computer) per le email a `supporto@nemanca1.com`: etichetta "Ne manca 1", "Non inviare mai in Spam", eventualmente "importante"
+    [x] **Termometro dello spazio** nella pagina amministratore (richiesto l'11/11): barra su 500 MB, verde/gialla 60%/rossa 80%, peso di chat, partite, utenti
+    [ ] **Scarica archivio** dalla pagina amministratore (richiesto l'11/11): chat, partite, utenti in un file da conservare prima della pulizia
+    [ ] **Passare a Supabase Pro** quando arrivano utenti regolari (più connessioni in tempo reale, niente pausa per inattività, backup giornalieri)
+    [ ] *Facoltativo*: pulizia automatica delle chat di partite vecchie (es. oltre 6 mesi), se il database si avvicina ai 500 MB del piano gratuito (l'11/11: 12 MB in tutto, 48 kB di messaggi)
+    [ ] *Facoltativo, alla fine*: in Gmail "Invia come supporto@nemanca1.com" (SMTP di Tophost), per rispondere agli utenti dall'indirizzo del supporto
+11. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
 
 ## Richieste di Flavio in sospeso
 
-- **Da unire su www**: il sito vero ha la versione vecchia e mostra male le panchine (il database le contiene già). Serve il "unisci" di Flavio.
+- *Facoltativo*: **copia delle email di supporto@ anche su Tophost**. Provato l'11/11: Tophost non accetta una seconda destinazione per lo stesso indirizzo ("già esistente"). Se servirà, ticket all'assistenza Tophost; intanto supporto@ arriva solo alla Gmail
 
-- **Sicurezza, per ultima** (deciso da Flavio l'11/11): revocare il primo token Supabase `claude-nemanca1` e rigenerare la chiave Resend, entrambi finiti in screenshot.
+- In anteprima, da unire dopo l'ok: candidatura con preferenza di squadra, icona campetto nella chat, nome di chi si candida, termometro, cambio ruolo che sposta il giocatore, **in campo sempre i giocatori del formato** (calcio a 5 = portiere + 4: i contatori del modulo non superano il totale, si aggiungono/tolgono solo riserve in panchina; migrazione 0014 applicata)
+- ~~Da unire su www~~ fatto l'11/11 sera: www.nemanca1.com ha tribuna, panchine, modulo, trascinamento, vice, selettore a passi, copia link.
+
 
 - ~~Mittente delle email automatiche~~ deciso: `benvenuto@nemanca1.com`; quando si crea la casella `info@`, aggiungere l'alias `benvenuto@` → `info@`
 - ~~Backup del database~~ fatto: `scripts/backup.sh` scarica tutte le tabelle in CSV (serve la stringa di connessione dal bottone Connect di Supabase)

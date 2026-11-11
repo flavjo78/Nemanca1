@@ -83,5 +83,6 @@
       </form>
     {/if}
     <a href={destinazione.startsWith('/campo/') ? destinazione : '/campi'} class="aiuto" style="text-align:center">Continua senza accedere: guarda i campi</a>
+    <p class="aiuto" style="text-align:center">Problemi ad accedere? <a href="mailto:supporto@nemanca1.com?subject=Problema%20di%20accesso">supporto@nemanca1.com</a></p>
   </div>
 </div>
