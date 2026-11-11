@@ -1,6 +1,6 @@
 # Il punto della situazione – Ne manca 1
 
-Aggiornato: 11 novembre 2026, app pubblicata. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
+Aggiornato: 11 novembre 2026, dominio: piano B. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 ## Fatto
 
@@ -25,17 +25,22 @@ Aggiornato: 11 novembre 2026, app pubblicata. Questo file si aggiorna a ogni pas
 
 ## In corso
 
-- [ ] Supabase → URL Configuration: Site URL `https://nemanca1.pages.dev`
-- [ ] Prima prova dal telefono di Flavio
+- [ ] Supabase → URL Configuration: Site URL `https://nemanca1.pages.dev` (poi `https://www.nemanca1.com`)
+- [ ] Prima prova dal telefono di Flavio (con flavjo@gmail.com: unico indirizzo che riceve finché Resend non ha il dominio)
+- [ ] **Dominio, piano B** (Tophost non permette di cambiare i nameserver):
+  1. Tophost DNS: togliere A/AAAA di `www`, aggiungere CNAME `www` → `nemanca1.pages.dev`
+  2. Cloudflare Pages → Custom domains → `www.nemanca1.com`
+  3. Tophost → Redirect dominio: `nemanca1.com` → `https://www.nemanca1.com`
+  4. Resend → Domains → `nemanca1.com`, righe DKIM/SPF da copiare su Tophost
 
 ## Da fare, in ordine
 
 1. [ ] Supabase → URL Configuration: mettere l'indirizzo dell'app pubblicata
 3. [ ] Prima prova dal telefono: login, profilo, registrare un campo, stampare il QR, creare una partita
-2. [ ] **Dominio**: nameserver di nemanca1.com da Tophost a Cloudflare (prima copiare i record della posta)
+2. [ ] Cloudflare: cancellare la zona `nemanca1.com` rimasta "pending" (o tenerla per il trasferimento)
 3. [ ] Casella `info@nemanca1.com` e alias su Tophost
 4. [ ] **Resend**: verificare il dominio (SPF + DKIM su Cloudflare), mittente `noreply@nemanca1.com`, rigenerare la API key e cancellare quella mostrata in chat
-5. [ ] Cloudflare Pages: agganciare nemanca1.com e www
+5. [ ] Dopo 60 giorni dalla registrazione: valutare il **trasferimento** del dominio a Cloudflare Registrar per avere `nemanca1.com` senza www
 6. [ ] Tappa 2: prendere un posto libero, candidarsi, accettare, cambio ruolo
 
 ## Richieste di Flavio in sospeso
@@ -47,3 +52,4 @@ Aggiornato: 11 novembre 2026, app pubblicata. Questo file si aggiorna a ogni pas
 - Nome app "Ne manca 1", logo variante 5, slogan "Trova chi manca in campo"
 - Email automatiche con Resend; Gmail, Tophost, Amazon SES e Lambda scartati (motivi in chat e in CLAUDE.md)
 - Regione Supabase: Irlanda invece di Francoforte (non disponibile sul Free)
+- Dominio: Tophost blocca i nameserver → DNS resta su Tophost, app su **www.nemanca1.com**, redirect dal dominio nudo. Fonti: [record NS non modificabili](https://www.tophost.it/assistenza/supporto/domande-tecniche/dns/e-possibile-modificare-i-record-dns-del-dominio-ed-i-record-ns/), [Cloudflare con Tophost](https://www.tophost.it/assistenza/supporto/domande-tecniche/dns/posso-usare-cloudflare-con-tophost/)
