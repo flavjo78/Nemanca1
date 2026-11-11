@@ -99,3 +99,11 @@ export function perInputDataOra(d) {
   const p = (n) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
 }
+
+/** Nome sotto il cerchio: cognome e iniziale del nome, es. "Rizzo M." */
+export function nomeCampo(p) {
+  const parti = (p?.nome ?? '').trim().split(/\s+/).filter(Boolean)
+  if (!parti.length) return 'Giocatore'
+  if (parti.length === 1) return parti[0]
+  return `${parti.slice(1).join(' ')} ${parti[0][0].toUpperCase()}.`
+}

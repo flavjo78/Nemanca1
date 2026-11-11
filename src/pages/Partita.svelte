@@ -18,6 +18,29 @@
   let tribuna = $state([])
   let vice = $state([])
   let moduloSquadra = $state('A')
+  // selettore del posto a passi: squadra → ruolo → cerchio
+  let scelta = $state(null)   // { titolo, sotto, posti: [...], azione: (p) => ..., squadra, ruolo }
+  function apriScelta(titolo, sotto, posti, azione) {
+    const squadre = [...new Set(posti.map((x) => x.squadra))].sort()
+    scelta = { titolo, sotto, posti, azione, squadra: squadre.length === 1 ? squadre[0] : null, ruolo: null }
+    foglio = { tipo: 'scegli' }
+  }
+  const ORDINE_RUOLI = ['portiere', 'difesa', 'centro', 'attacco', 'panchina']
+  // etichetta del cerchio: lato del campo (dai cerchi come sono disegnati) o numero di panchina
+  function lato(p) {
+    if (p.ruolo === 'panchina') {
+      const panca = posizioni.filter((x) => x.squadra === p.squadra && x.ruolo === 'panchina')
+      return `posto ${panca.findIndex((x) => x.id === p.id) + 1}`
+    }
+    const fila = posizioni.filter((x) => x.squadra === p.squadra && x.ruolo === p.ruolo)
+    if (fila.length === 1) return ''
+    const c = coordinateCampo[p.id]?.x ?? 50
+    // per la squadra B il campo è visto dall'altra parte, ma "sinistra" resta quella dello schermo
+    const nome = c < 40 ? 'a sinistra' : c > 60 ? 'a destra' : 'al centro'
+    const uguali = fila.filter((x) => { const cx = coordinateCampo[x.id]?.x ?? 50; return (cx < 40 ? 'a sinistra' : cx > 60 ? 'a destra' : 'al centro') === nome })
+      .sort((a, b) => (coordinateCampo[a.id]?.x ?? 50) - (coordinateCampo[b.id]?.x ?? 50))
+    return uguali.length > 1 ? `${nome} (${uguali.findIndex((x) => x.id === p.id) + 1})` : nome
+  }
   let nuovo = $state({ difesa: 0, centro: 0, attacco: 0 })
   function apriModulo(sq) { moduloSquadra = sq; nuovo = contaRuoli(posizioni, sq); foglio = { tipo: 'modulo' } }
   let inviti = $state([])
@@ -163,6 +186,7 @@
     copiato = true; setTimeout(() => (copiato = false), 2500)
   }
   const altriPosti = (p) => posizioni.filter((x) => x.id !== p.id && gestisco(x.squadra)).sort((a, b) => (a.ruolo === 'panchina') - (b.ruolo === 'panchina') || a.squadra.localeCompare(b.squadra) || (a.giocatore_id ? 1 : 0) - (b.giocatore_id ? 1 : 0))
+  const coordinateCampo = $derived(disponi(posizioni))
   const postiLiberi = $derived(posizioni.filter((p) => p.stato === 'libera').sort((a, b) => (a.ruolo === 'panchina') - (b.ruolo === 'panchina') || a.squadra.localeCompare(b.squadra)))
 
   async function annulla() {
@@ -303,7 +327,7 @@
             <div class="chip-riga">
               {#each tribuna as t (t.giocatore_id)}
                 {#if sonoOrganizzatore && modificabile}
-                  <button type="button" class="chip" style="border: 1px solid var(--bordo); min-height: 36px" onclick={() => (foglio = { tipo: 'tribuna-membro', persona: { id: t.giocatore_id, profilo: t.giocatore } })}>
+                  <button type="button" class="chip" style="border: 1px solid var(--bordo); min-height: 36px" onclick={() => apriScelta(t.giocatore?.nome ?? 'Giocatore', 'È in tribuna. Scegli il posto che gli proponi: deve accettare.', postiLiberi.filter((x) => gestisco(x.squadra)), (x) => chiedi(x, t.giocatore_id))}>
                     <span class="avatar mini" style="width:22px;height:22px;font-size:9px;border-width:1px">{iniziali(t.giocatore)}</span>
                     {nomeBreve(t.giocatore)}{invitoPer(t.giocatore_id) ? ' · invitato' : ''}
                   </button>
@@ -413,7 +437,7 @@
       {@const p = foglio.posizione}
       <Foglio aperto titolo={p.giocatore?.nome ?? 'Giocatore'} sotto={`${etichettaRuolo(p.ruolo)} · squadra ${p.squadra}${p.giocatore_id === partita.organizzatore_id ? ' · organizzatore' : viceDi(p.giocatore_id) ? ` · vice squadra ${viceDi(p.giocatore_id)}` : ''}${p.stato === 'cambio_proposto' ? ` · cambio proposto: ${etichettaRuolo(p.nuovo_ruolo_proposto)}` : ''}`} chiudi={() => (foglio = null)}>
         {#if gestisco(p.squadra)}
-          <button type="button" class="btn" disabled={occupato} onclick={() => (foglio = { tipo: 'sposta', posizione: p })}>Sposta in un altro posto</button>
+          <button type="button" class="btn" disabled={occupato} onclick={() => apriScelta(`Sposta ${p.giocatore?.nome ?? 'il giocatore'}`, 'Il giocatore va sul cerchio che scegli; se è occupato, i due si scambiano.', altriPosti(p), (a) => sposta(p, a))}>Sposta in un altro posto</button>
           <div class="campo-form">
             <span class="aiuto" style="font-weight:600">{approvazione ? 'Cambia ruolo' : 'Proponi un cambio di ruolo (deve accettare)'}</span>
             <div class="scelte">
@@ -438,7 +462,7 @@
       {@const p = foglio.posizione}
       <Foglio aperto titolo={`Il tuo posto · ${etichettaRuolo(p.ruolo)}`} sotto={`Squadra ${p.squadra}. Per spostarti, tocca un altro posto libero sul campo.`} chiudi={() => (foglio = null)}>
         {#if sonoOrganizzatore}
-          <button type="button" class="btn" disabled={occupato} onclick={() => (foglio = { tipo: 'sposta', posizione: p })}>Sposta o scambia con un altro</button>
+          <button type="button" class="btn" disabled={occupato} onclick={() => apriScelta('Sposta te', 'Vai sul cerchio che scegli; se è occupato, vi scambiate.', altriPosti(p), (a) => sposta(p, a))}>Sposta o scambia con un altro</button>
           <div class="campo-form">
             <span class="aiuto" style="font-weight:600">Cambia il tuo ruolo</span>
             <div class="scelte">
@@ -478,6 +502,42 @@
           {/each}
         </div>
         <button type="button" class="btn" disabled={occupato || !ruoloScelto} onclick={aggiungi}>Aggiungi</button>
+      </Foglio>
+    {:else if foglio?.tipo === 'scegli' && scelta}
+      {@const squadre = [...new Set(scelta.posti.map((x) => x.squadra))].sort()}
+      {@const ruoli = ORDINE_RUOLI.filter((r) => scelta.posti.some((x) => x.squadra === scelta.squadra && x.ruolo === r))}
+      {@const cerchi = scelta.posti.filter((x) => x.squadra === scelta.squadra && x.ruolo === scelta.ruolo).sort((a, b) => (coordinateCampo[a.id]?.x ?? 0) - (coordinateCampo[b.id]?.x ?? 0))}
+      <Foglio aperto titolo={scelta.titolo} sotto={scelta.sotto} chiudi={() => { foglio = null; scelta = null }}>
+        {#if !scelta.posti.length}
+          <p class="aiuto">Non ci sono posti disponibili. Aggiungi un posto allo schema e riprova.</p>
+        {:else}
+          {#if squadre.length > 1}
+            <span class="aiuto" style="font-weight:600">1. Squadra</span>
+            <div class="scelte">
+              {#each squadre as sq}
+                <button type="button" class="scelta" class:attiva={scelta.squadra === sq} onclick={() => { scelta.squadra = sq; scelta.ruolo = null }}>Squadra {sq}</button>
+              {/each}
+            </div>
+          {/if}
+          {#if scelta.squadra}
+            <span class="aiuto" style="font-weight:600">{squadre.length > 1 ? '2. ' : '1. '}Ruolo</span>
+            <div class="scelte">
+              {#each ruoli as r}
+                {@const n = scelta.posti.filter((x) => x.squadra === scelta.squadra && x.ruolo === r).length}
+                <button type="button" class="scelta" class:attiva={scelta.ruolo === r} onclick={() => (scelta.ruolo = r)}>{etichettaRuolo(r)}{n > 1 ? ` · ${n}` : ''}</button>
+              {/each}
+            </div>
+          {/if}
+          {#if scelta.ruolo}
+            <span class="aiuto" style="font-weight:600">{squadre.length > 1 ? '3. ' : '2. '}{cerchi.length > 1 ? 'Quale posto' : 'Conferma'}</span>
+            {#each cerchi as c (c.id)}
+              <button type="button" class="btn bianco piccolo" style="justify-content:flex-start" disabled={occupato} onclick={() => { const a = scelta.azione; scelta = null; a(c) }}>
+                {etichettaRuolo(c.ruolo)} {lato(c)}
+                <span class="aiuto">· {c.giocatore_id ? `scambio con ${c.giocatore_id === uid ? 'te' : nomeBreve(c.giocatore)}` : 'libero'}</span>
+              </button>
+            {/each}
+          {/if}
+        {/if}
       </Foglio>
     {:else if foglio?.tipo === 'sposta'}
       {@const p = foglio.posizione}

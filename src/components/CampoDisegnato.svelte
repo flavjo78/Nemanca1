@@ -2,7 +2,7 @@
   // Campo da calcio con le due squadre in formazione (dal mockup partita.html).
   // Squadra A in alto, squadra B in basso. Ogni posto è toccabile se c'è `alClick`.
   import Icona from './Icona.svelte'
-  import { etichettaRuolo, iniziali } from '../lib/formato.js'
+  import { etichettaRuolo, iniziali, nomeCampo } from '../lib/formato.js'
   import { disponi, moduloDi, ruoloDaAltezza } from '../lib/formazione.js'
   let { posizioni = [], mioId = null, alClick = null, evidenzia = null, trascinabile = null, alTrascina = null } = $props()
 
@@ -74,12 +74,11 @@
     return c
   }
   function etichetta(p) {
-    if (p.ruolo === 'panchina') return p.stato === 'libera' ? 'Libero' : (p.giocatore_id === mioId ? 'Tu' : (p.giocatore?.nome ?? '').split(' ')[0])
+    if (p.ruolo === 'panchina') return p.stato === 'libera' ? 'Libero' : (p.giocatore_id === mioId ? 'Tu' : nomeCampo(p.giocatore))
     if (trascinato?.id === p.id && p.ruolo !== 'portiere') return `→ ${etichettaRuolo(ruoloDaAltezza(trascinato.y))}`
     if (p.stato === 'libera') return `${etichettaRuolo(p.ruolo)} libero`
-    if (p.stato === 'cambio_proposto') return 'Cambio proposto'
-    const base = etichettaRuolo(p.ruolo)
-    return p.giocatore_id === mioId ? `Tu · ${base}` : base
+    // posto occupato: cognome e iniziale del nome (il ruolo si capisce dalla posizione)
+    return p.giocatore_id === mioId ? 'Tu' : nomeCampo(p.giocatore)
   }
   function ariaLabel(p) {
     if (p.stato === 'libera') return `Posto libero: ${etichettaRuolo(p.ruolo)}, squadra ${p.squadra}`
@@ -163,7 +162,7 @@
   .nome-squadra.alto { top: 10px; } .nome-squadra.basso { bottom: 10px; }
   .modulo { position: absolute; right: 10px; font-family: var(--font-titoli); font-size: 13px; font-weight: 700; color: var(--testo); background: rgba(255,255,255,0.9); padding: 3px 9px; border-radius: 999px; pointer-events: none; }
   .modulo.alto { top: 10px; } .modulo.basso { bottom: 10px; }
-  .posto { position: absolute; width: 64px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; transition: left .25s, top .25s; }
+  .posto { position: absolute; width: 84px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; transition: left .25s, top .25s; }
   .posto.sopra { z-index: 5; transition: none; }
   .trascinabile { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
   .in-trascinamento { transform: scale(1.15); box-shadow: 0 6px 16px rgba(0,0,0,.35); }
@@ -192,7 +191,7 @@
   .posto-panchina { display: flex; flex-direction: column; align-items: center; gap: 2px; }
   .pallino-posto.piccolo { width: 36px; height: 36px; border-radius: 18px; font-size: 11px; border-width: 2px; }
   .posto-panchina .targhetta { font-size: 9px; padding: 1px 5px; max-width: 58px; overflow: hidden; text-overflow: ellipsis; }
-  .targhetta { font-size: 10px; font-weight: 600; color: #fff; background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius: 999px; white-space: nowrap; pointer-events: none; }
+  .targhetta { font-size: 10px; font-weight: 600; color: #fff; background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius: 999px; white-space: nowrap; pointer-events: none; max-width: 84px; overflow: hidden; text-overflow: ellipsis; }
   .targhetta.libera { font-weight: 700; }
   .targhetta.portiere { color: var(--testo); background: var(--portiere); }
   /* cellulare: panchina A sopra il campo, B sotto, in orizzontale */

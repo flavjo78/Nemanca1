@@ -50,6 +50,7 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 6d. [x] **Modulo, sposta/scambia, vice di squadra, cambio ruolo diretto con "decido io", panchina sul cellulare, copia link** (richiesti l'11/11 sera): migrazioni 0004-0006 applicate da Claude, in anteprima su anteprima.nemanca1.pages.dev
 6e. [x] **Modulo con tre contatori, senza portiere, mostrato sul campo** (richiesto l'11/11 sera), in anteprima
 6f. [x] **Formazione trascinando i cerchi** con ruolo e modulo automatici (richiesto l'11/11 sera), in anteprima
+6g. [x] **Selettore a passi** squadra → ruolo → cerchio per spostare o chiamare giocatori; **cognome e iniziale** sotto i cerchi (richiesti l'11/11 sera), in anteprima
 7. [x] **Pagina amministratore** `/admin` (ramo `tappa-2`): numeri, ultimi iscritti con email e badge "nuovi", prossime partite con annulla, campi con verifica/elimina. Accesso dal Profilo, solo per `profili.admin` (il primo iscritto, Flavio)
 8. [ ] **Avviso a Flavio a ogni nuovo iscritto** (richiesto l'11/11). Già fatto: badge "nuovi" nella pagina amministratore. Manca: email automatica (serve mettere la chiave Resend nei segreti di Supabase) e (trigger DB → Resend), poi come notifica push con OneSignal (Tappa 3) e lista "ultimi iscritti" nella pagina amministratore
 
