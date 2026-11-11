@@ -209,7 +209,7 @@ $$;
 -- schema predefinito dei posti per formato (ruolo, x, y) – uguale per le due squadre
 create or replace function public.schema_predefinito(p_formato smallint)
 returns table (ruolo text, x smallint, y smallint) language sql immutable as $$
-  select * from (values
+  select v.ruolo, v.x::smallint, v.y::smallint from (values
     -- calcio a 5: 1-2-2
     ('portiere', 50, 10, 5), ('difesa', 30, 40, 5), ('difesa', 70, 40, 5),
     ('attacco', 30, 75, 5), ('attacco', 70, 75, 5),
