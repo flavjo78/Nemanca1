@@ -30,7 +30,7 @@
     const [n, u, p, c] = await Promise.all([
       supabase.rpc('admin_numeri'),
       supabase.rpc('admin_utenti', { p_limite: 50 }),
-      supabase.from('partite').select('*, campo:campi(nome), organizzatore:profili(nome), posizioni(stato)')
+      supabase.from('partite').select('*, campo:campi(nome), organizzatore:profili!partite_organizzatore_id_fkey(nome), posizioni(stato)')
         .gte('data_ora', new Date(Date.now() - 86400000).toISOString()).order('data_ora').limit(30),
       supabase.from('campi').select('*, partite(count)').order('creato_il', { ascending: false }).limit(50)
     ])

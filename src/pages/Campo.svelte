@@ -34,7 +34,7 @@
     const [{ data: c, error: e1 }, { data: p, error: e2 }, { count }] = await Promise.all([
       supabase.from('campi').select('*').eq('id', id).maybeSingle(),
       supabase.from('partite')
-        .select('*, organizzatore:profili(id, nome, iniziali), posizioni(id, stato, ruolo)')
+        .select('*, organizzatore:profili!partite_organizzatore_id_fkey(id, nome, iniziali), posizioni(id, stato, ruolo)')
         .eq('campo_id', id).in('stato', ['aperta', 'completa'])
         .gte('data_ora', new Date(Date.now() - 2 * 3600 * 1000).toISOString())
         .order('data_ora'),
