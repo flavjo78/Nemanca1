@@ -24,7 +24,7 @@ Monetizzazione futura (l'app resta gratuita per i giocatori): campi "verificati"
 - **Frontend**: HTML/CSS/JS in Vite + framework leggero (Svelte o React, scegliere nella prima sessione) come PWA; mobile-first 390px.
 - **Backend**: **Supabase** (Postgres, Auth, Realtime, Storage, RLS). Progetto `nemanca1`, regione **eu-west-1 (Irlanda)** (il pannello non offriva Francoforte sul piano Free). Login: email con codice OTP; Google OAuth in seguito.
 - **Hosting**: **Cloudflare Pages**, deploy automatico da GitHub.
-- **Dominio**: **nemanca1.com** comprato su Tophost (TopName). Tophost **non permette di cambiare i nameserver**, quindi il DNS resta su Tophost: l'app risponde su `https://www.nemanca1.com` (CNAME verso Pages) e `nemanca1.com` fa redirect a www. Dopo 60 giorni valutare il trasferimento a Cloudflare Registrar. email `noreply@nemanca1.com` (Resend) e `info@nemanca1.com` (casella umana).
+- **Dominio**: **nemanca1.com** comprato su Tophost (TopName). Tophost **non permette di cambiare i nameserver**, quindi il DNS resta su Tophost: l'app risponde su `https://www.nemanca1.com` (CNAME verso Pages) e `nemanca1.com` fa redirect a www. Dopo 60 giorni valutare il trasferimento a Cloudflare Registrar. email automatiche da **`benvenuto@nemanca1.com`** (Resend, scelto da Flavio l'11/11) e `info@nemanca1.com` (casella umana su Tophost, con alias `benvenuto@` → `info@` per le risposte).
 - **Email transazionali**: **Resend** (SMTP custom in Supabase Auth); dominio autenticato con SPF/DKIM. Non usare Gmail né Amazon SES.
 - **Push**: **OneSignal** (web push).
 - **Mappe**: **OpenStreetMap + Leaflet**; geocoding con Nominatim; distanza calcolata lato DB (PostGIS o formula haversine).
@@ -85,3 +85,4 @@ RLS: tutti leggono campi e partite aperte; messaggi leggibili/scrivibili solo da
 - 2026-11-11: dominio acquistato **nemanca1.com**; nome dell'app "Ne manca 1" (da confermare con Flavio), usato in titolo, manifest e schermata di login.
 - 2026-11-11: Supabase creato (Irlanda), migrazione eseguita, SMTP Resend attivo con mittente provvisorio `onboarding@resend.dev` (consegna solo alla mail di Flavio finché il dominio non è su Resend). Template "Confirm sign up" e "Magic link or OTP" con `{{ .Token }}`. Senza SMTP custom Supabase non lascia modificare i template.
 - 2026-11-11: Tophost non consente di modificare i record NS: DNS resta su Tophost, app su www.nemanca1.com, redirect dal dominio nudo, record Resend inseriti a mano su Tophost.
+- 2026-11-11: dominio verificato su Resend (DKIM + SPF + DMARC su Tophost). Mittente delle email automatiche: `benvenuto@nemanca1.com`.

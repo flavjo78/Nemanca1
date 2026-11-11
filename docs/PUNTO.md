@@ -34,7 +34,7 @@ Aggiornato: 11 novembre 2026, dominio verificato su Resend. Questo file si aggio
   2. ~~Cloudflare Pages → Custom domains → `www.nemanca1.com`~~ fatto
   3. Tophost → Redirect dominio: `nemanca1.com` → `https://www.nemanca1.com`
   4. ~~Resend → Domains → `nemanca1.com`~~ fatto
-- [ ] Supabase → SMTP Settings: mittente `noreply@nemanca1.com` al posto di `onboarding@resend.dev`, poi prova verso un indirizzo diverso da quello di Flavio
+- [ ] Supabase → SMTP Settings: mittente `benvenuto@nemanca1.com` al posto di `onboarding@resend.dev`, poi prova verso un indirizzo diverso da quello di Flavio
 
 ## Da fare, in ordine
 
@@ -48,7 +48,7 @@ Aggiornato: 11 novembre 2026, dominio verificato su Resend. Questo file si aggio
 
 ## Richieste di Flavio in sospeso
 
-- Decidere il mittente delle email automatiche quando creiamo la casella: `noreply@` con alias verso `info@`, oppure `ciao@nemanca1.com`
+- ~~Mittente delle email automatiche~~ deciso: `benvenuto@nemanca1.com`; quando si crea la casella `info@`, aggiungere l'alias `benvenuto@` → `info@`
 - **Pannello amministratore dentro l'app** (richiesto l'11/11): utenti, campi, partite, elimina/blocca, statistiche, accesso riservato a Flavio (flag `profili.admin`). Da fare dopo la Tappa 2. Nel frattempo si usa il pannello Supabase (Authentication → Users, Table Editor).
 
 ## Decisioni prese oggi

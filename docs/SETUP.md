@@ -34,12 +34,12 @@ Il dominio è **nemanca1.com**, comprato su Tophost (TopName). **Tophost non per
 
 ## 3. Resend (email automatiche)
 
-1. Su resend.com → Domains → aggiungi `nemanca1.com` (regione Europe) e inserisci i record **DKIM e SPF** che ti dà nel pannello DNS di **Tophost** (la casella `info@` continua a funzionare, Resend invia solo da `noreply@`).
+1. Su resend.com → Domains → aggiungi `nemanca1.com` (regione Europe) e inserisci i record **DKIM e SPF** che ti dà nel pannello DNS di **Tophost** (la casella `info@` continua a funzionare, Resend invia solo da `benvenuto@`).
 2. Crea una API key.
 3. In Supabase, **Project Settings → Authentication → SMTP Settings**: attiva Custom SMTP con
    - Host `smtp.resend.com`, porta `465`
    - Username `resend`, password = la API key
-   - Sender `noreply@nemanca1.com`, nome `Ne manca 1`. Finché il dominio non è verificato su Resend usa `onboarding@resend.dev`: le email arrivano solo all'indirizzo dell'account Resend.
+   - Sender `benvenuto@nemanca1.com`, nome `Ne manca 1`. Finché il dominio non è verificato su Resend usa `onboarding@resend.dev`: le email arrivano solo all'indirizzo dell'account Resend.
 
 ## 4. GitHub e Cloudflare Pages
 
