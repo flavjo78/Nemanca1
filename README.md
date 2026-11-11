@@ -20,5 +20,7 @@ Poi apri http://localhost:5173 con la vista mobile del browser (390 px).
 - `CLAUDE.md` – memoria del progetto: funzionamento, stack, schema, grafica, decisioni
 - `ROADMAP.md` – stato delle tappe
 - `docs/SETUP.md` – configurazione di Supabase, Resend e Cloudflare Pages
+- `docs/SERVIZI.md` – quali servizi usiamo, a cosa servono, come si parlano
+- `docs/PUNTO.md` – il punto della situazione, aggiornato a ogni passaggio
 - `supabase/migrations/` – schema del database
 - `docs/screenshot/` – schermate della Tappa 1 (dati finti)
