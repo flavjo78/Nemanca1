@@ -48,8 +48,7 @@
 
 <div class="pagina">
   <div class="intestazione-verde" style="padding-bottom: 32px; border-radius: 0 0 28px 28px">
-    <h1 style="font-size: 32px; margin-top: 8px"><Logo dimensione={32} chiaro /></h1>
-    <p class="sotto">Trova giocatori per le partite nei campi vicino a te.</p>
+    <h1 style="font-size: 34px; margin-top: 8px"><Logo dimensione={34} chiaro slogan /></h1>
   </div>
 
   <div class="contenuto spazio-sopra">

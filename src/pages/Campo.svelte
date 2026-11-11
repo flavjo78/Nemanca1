@@ -8,6 +8,7 @@
   import Icona from '../components/Icona.svelte'
   import CardPartita from '../components/CardPartita.svelte'
   import Caricamento from '../components/Caricamento.svelte'
+  import Logo from '../components/Logo.svelte'
 
   let { id } = $props()
   let campo = $state(null)
@@ -101,7 +102,8 @@
       {#if mostraQr}
         <div class="card" style="align-items:center; text-align:center; gap:10px" id="stampa-qr">
           {#if appenaCreato}<div class="ok no-stampa" style="width:100%">Campo registrato. Stampa questo QR e attaccalo all'ingresso.</div>{/if}
-          <h2 style="font-size:22px">{campo.nome}</h2>
+          <Logo verticale dimensione={22} />
+          <h2 style="font-size:22px; margin-top: 6px">{campo.nome}</h2>
           <p class="sotto">Inquadra per vedere le partite e unirti</p>
           {#if qrDati}
             <img src={qrDati} alt={`QR code del campo ${campo.nome}`} style="width: 240px; height: 240px" />

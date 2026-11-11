@@ -54,7 +54,7 @@ RLS: tutti leggono campi e partite aperte; messaggi leggibili/scrivibili solo da
 - Componenti: card con raggio 16px; bottoni 52px raggio 14px; chip a pillola; barra inferiore con Home, Campi, Chat, Profilo.
 - Schermate: Home (prossima partita, da approvare, partite vicine con posti liberi), Campo dal QR (lista partite del campo + organizza qui), Partita (campo disegnato con formazione, posto libero tratteggiato, badge "?" per cambio proposto, legenda, bottone Candidati), Chat (bolle + card richiesta con Accetta/Rifiuta + messaggi di sistema), Profilo (voto, partite, vinte, barre per categoria, storico con risultato, campi frequentati).
 - Niente emoji nelle icone: SVG a tratto. Target touch minimo 44px.
-- **Logo** (variante 5 scelta da Flavio l'11/11): scritta "Ne manca" in **Outfit 900** inclinata di 8° in avanti + l'**1** (Space Grotesk) dentro un cerchio tratteggiato (lo stesso del posto libero sul campo). Componente `src/components/Logo.svelte`; icona app `public/icona.svg` (+ PNG 192/512 e versione maskable). Anteprima in `docs/logo-anteprima.png`.
+- **Logo** (variante 5 scelta da Flavio l'11/11): scritta "Ne manca" in **Outfit 900** inclinata di 8° in avanti + l'**1** (Space Grotesk) dentro un cerchio tratteggiato (lo stesso del posto libero sul campo). Slogan: **"Trova chi manca in campo"** (Inter 600, maiuscolo spaziato, verde o verde chiaro). Versione verticale (cerchio sopra la scritta) per QR stampati e splash. Componente `src/components/Logo.svelte` (prop `slogan`, `verticale`, `chiaro`); icona app `public/icona.svg` (+ PNG 192/512 e versione maskable). Anteprima in `docs/logo-anteprima.png`.
 
 ## Tappe
 
