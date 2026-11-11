@@ -57,7 +57,7 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 
 ## Richieste di Flavio in sospeso
 
-- **Sicurezza**: il primo token Supabase `claude-nemanca1` è comparso in uno screenshot: revocarlo su supabase.com, Account, Access Tokens, se non già fatto. Stessa cosa per la chiave Resend.
+- **Sicurezza, per ultima** (deciso da Flavio l'11/11): revocare il primo token Supabase `claude-nemanca1` e rigenerare la chiave Resend, entrambi finiti in screenshot.
 
 - ~~Mittente delle email automatiche~~ deciso: `benvenuto@nemanca1.com`; quando si crea la casella `info@`, aggiungere l'alias `benvenuto@` → `info@`
 - ~~Backup del database~~ fatto: `scripts/backup.sh` scarica tutte le tabelle in CSV (serve la stringa di connessione dal bottone Connect di Supabase)
