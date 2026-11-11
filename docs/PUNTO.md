@@ -1,6 +1,6 @@
 # Il punto della situazione – Ne manca 1
 
-Aggiornato: 11 novembre 2026, dominio verificato su Resend. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
+Aggiornato: 11 novembre 2026, sera: le email arrivano a chiunque. Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 ## Fatto
 
@@ -23,6 +23,7 @@ Aggiornato: 11 novembre 2026, dominio verificato su Resend. Questo file si aggio
 - [x] **Cloudflare Pages**: app pubblicata su https://nemanca1.pages.dev, deploy automatico da GitHub, variabili Supabase impostate
 - [x] **www.nemanca1.com attivo**: CNAME su Tophost, dominio verificato su Cloudflare Pages, HTTPS funzionante
 - [x] **Resend: dominio nemanca1.com verificato** (DKIM, SPF, DMARC inseriti su Tophost): può spedire a chiunque
+- [x] **Mittente `benvenuto@nemanca1.com` attivo**: login provato da un secondo indirizzo, email arrivata. **Gli amici possono entrare.**
 - [x] **Login provato per davvero**: email arrivata via Resend, codice (8 cifre) accettato, profilo creato in automatico
 
 ## In corso
@@ -34,7 +35,6 @@ Aggiornato: 11 novembre 2026, dominio verificato su Resend. Questo file si aggio
   2. ~~Cloudflare Pages → Custom domains → `www.nemanca1.com`~~ fatto
   3. Tophost → Redirect dominio: `nemanca1.com` → `https://www.nemanca1.com`
   4. ~~Resend → Domains → `nemanca1.com`~~ fatto
-- [ ] Supabase → SMTP Settings: mittente `benvenuto@nemanca1.com` al posto di `onboarding@resend.dev`, poi prova verso un indirizzo diverso da quello di Flavio
 
 ## Da fare, in ordine
 
