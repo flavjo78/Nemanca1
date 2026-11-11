@@ -47,6 +47,7 @@ Aggiornato: 11 novembre 2026, www.nemanca1.com attivo. Questo file si aggiorna a
 ## Richieste di Flavio in sospeso
 
 - Decidere il mittente delle email automatiche quando creiamo la casella: `noreply@` con alias verso `info@`, oppure `ciao@nemanca1.com`
+- **Pannello amministratore dentro l'app** (richiesto l'11/11): utenti, campi, partite, elimina/blocca, statistiche, accesso riservato a Flavio (flag `profili.admin`). Da fare dopo la Tappa 2. Nel frattempo si usa il pannello Supabase (Authentication → Users, Table Editor).
 
 ## Decisioni prese oggi
 
