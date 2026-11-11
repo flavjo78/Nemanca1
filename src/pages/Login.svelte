@@ -49,7 +49,7 @@
   <div class="intestazione-verde" style="padding-bottom: 32px; border-radius: 0 0 28px 28px">
     <div style="display:flex; align-items:center; gap:12px">
       <img src="/icona.svg" alt="" width="44" height="44" style="border-radius:12px" />
-      <h1 style="font-size: 26px">Calcetto</h1>
+      <h1 style="font-size: 26px">Ne manca 1</h1>
     </div>
     <p class="sotto">Trova giocatori per le partite nei campi vicino a te.</p>
   </div>

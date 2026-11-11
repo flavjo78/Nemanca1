@@ -1,4 +1,4 @@
-# Calcetto
+# Ne manca 1 (nemanca1.com)
 
 Web app per cellulare che aiuta a trovare giocatori per le partite di calcetto nei campi vicino a te.
 Ogni campo ha un QR code: chi lo inquadra vede le partite in programma e può unirsi.

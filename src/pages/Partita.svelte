@@ -35,7 +35,7 @@
 
   async function condividi() {
     const url = `${window.location.origin}/partita/${id}`
-    const dati = { title: 'Partita di calcetto', text: `${etichettaFormato(partita.formato)} · ${etichettaDataOra(partita.data_ora)} · ${partita.campo.nome}`, url }
+    const dati = { title: 'Ne manca 1 · partita di calcetto', text: `${etichettaFormato(partita.formato)} · ${etichettaDataOra(partita.data_ora)} · ${partita.campo.nome}`, url }
     if (navigator.share) { try { await navigator.share(dati) } catch { /* annullato */ } }
     else { await navigator.clipboard.writeText(url); alert('Link copiato') }
   }

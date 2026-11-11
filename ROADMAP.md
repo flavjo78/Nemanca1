@@ -16,7 +16,7 @@ Legenda: ✅ fatto · 🟡 fatto nel codice, da provare online · 🔴 da fare
 - ✅ Schermata partita con campo disegnato e formazione (sola lettura), condivisione, annulla
 - ✅ Profilo con voto, partite, vinte, barre per categoria, storico (vuoti finché non ci sono dati)
 - 🟡 Provato solo con un Supabase simulato (Playwright, screenshot in `docs/screenshot/`): manca la prova con il progetto Supabase vero
-- 🔴 Repo GitHub + deploy su Cloudflare Pages (vedi `docs/SETUP.md`)
+- 🔴 Repo GitHub + deploy su Cloudflare Pages con dominio nemanca1.com (vedi `docs/SETUP.md`)
 - 🔴 Supabase: creare il progetto, eseguire la migrazione, template email OTP con `{{ .Token }}`, SMTP Resend
 
 ## Tappa 2 – Campo disegnato
