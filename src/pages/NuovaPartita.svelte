@@ -5,6 +5,8 @@
   import { naviga } from '../lib/router.svelte.js'
   import { RUOLI, perInputDataOra } from '../lib/formato.js'
   import Intestazione from '../components/Intestazione.svelte'
+  import { PREDEFINITI, testoModulo, moduloPerDb } from '../lib/formazione.js'
+  import Contatori from '../components/Contatori.svelte'
 
   let { id } = $props()
   let campo = $state(null)
@@ -15,6 +17,20 @@
   let squadra = $state('A')
   let ruolo = $state(auth.profilo?.ruoli_preferiti?.[0] ?? 'attacco')
   let giocoAnchio = $state(true)
+  let modalita = $state('libera')
+  let panchina = $state(0)
+  let difesa = $state(2), centro = $state(0), attacco = $state(2)
+  let formatoPrecedente = 5
+  $effect(() => {
+    if (formato !== formatoPrecedente) {
+      formatoPrecedente = formato
+      ;({ difesa, centro, attacco } = PREDEFINITI[formato])
+    }
+  })
+  const movimento = $derived(formato - 1)
+  const mancano = $derived(movimento - (difesa + centro + attacco))
+  const ruoliModulo = $derived(['portiere', ...['difesa', 'centro', 'attacco'].filter((r) => ({ difesa, centro, attacco })[r] > 0)])
+  $effect(() => { if (!ruoliModulo.includes(ruolo)) ruolo = ruoliModulo.includes('attacco') ? 'attacco' : ruoliModulo[ruoliModulo.length - 1] })
   let errore = $state('')
   let occupato = $state(false)
 
@@ -34,6 +50,7 @@
     errore = ''
     const quando = new Date(dataOra)
     if (isNaN(quando) || quando < new Date()) { errore = 'Scegli una data e un\'ora future.'; return }
+    if (mancano !== 0) { errore = `Completa il modulo: servono ${movimento} giocatori più il portiere.`; return }
     occupato = true
     const { data, error } = await supabase.rpc('crea_partita', {
       p_campo_id: id,
@@ -43,7 +60,10 @@
       p_quota: quota === '' ? 0 : Number(String(quota).replace(',', '.')),
       p_sport: 'calcio',
       p_squadra: squadra,
-      p_ruolo: giocoAnchio ? ruolo : null
+      p_ruolo: giocoAnchio ? ruolo : null,
+      p_modalita: modalita,
+      p_panchina: panchina,
+      p_modulo: moduloPerDb({ difesa, centro, attacco })
     })
     occupato = false
     if (error) { errore = error.message; return }
@@ -61,7 +81,32 @@
           <button type="button" class="scelta" class:attiva={formato === f} onclick={() => (formato = f)}>Calcio a {f}</button>
         {/each}
       </div>
-      <p class="aiuto">{formato * 2} posti in tutto, {formato} per squadra. Lo schema lo puoi cambiare dopo.</p>
+      <p class="aiuto">{formato * 2} posti in tutto, {formato} per squadra.</p>
+    </div>
+    <div class="campo-form">
+      <span class="aiuto" style="font-weight:600">Modulo: {testoModulo({ difesa, centro, attacco })} <span style="font-weight:400">(più il portiere)</span></span>
+      <Contatori bind:difesa bind:centro bind:attacco massimo={movimento} />
+      <p class="aiuto" style={mancano ? 'color: var(--avviso-testo)' : ''}>{mancano > 0
+        ? `Mancano ${mancano} ${mancano === 1 ? 'giocatore' : 'giocatori'} per arrivare a ${movimento} più il portiere.`
+        : `${movimento} giocatori più il portiere, per entrambe le squadre. Dopo puoi cambiarlo per ciascuna.`}</p>
+    </div>
+    <div class="campo-form">
+      <span class="aiuto" style="font-weight:600">Chi sceglie il posto?</span>
+      <div class="scelte">
+        <button type="button" class="scelta" class:attiva={modalita === 'libera'} onclick={() => (modalita = 'libera')}>Ognuno sceglie il suo</button>
+        <button type="button" class="scelta" class:attiva={modalita === 'approvazione'} onclick={() => (modalita = 'approvazione')}>Decido io chi gioca</button>
+      </div>
+      <p class="aiuto">{modalita === 'libera'
+        ? 'Chi apre la partita tocca un posto libero e si siede subito.'
+        : 'Gli altri entrano in tribuna o si candidano; tu scegli chi mettere in campo.'}</p>
+    </div>
+    <div class="campo-form">
+      <span class="aiuto" style="font-weight:600">Panchina: riserve per squadra</span>
+      <div class="scelte">
+        {#each [0, 1, 2, 3] as n}
+          <button type="button" class="scelta" class:attiva={panchina === n} onclick={() => (panchina = n)}>{n === 0 ? 'Nessuna' : n}</button>
+        {/each}
+      </div>
     </div>
     <div class="campo-form">
       <label for="quando">Giorno e ora</label>
@@ -88,10 +133,8 @@
         </div>
         <span class="aiuto" style="font-weight:600">Il tuo ruolo</span>
         <div class="scelte">
-          {#each Object.entries(RUOLI) as [chiave, testo]}
-            {#if formato !== 5 || chiave !== 'centro'}
-              <button type="button" class="scelta" class:attiva={ruolo === chiave} onclick={() => (ruolo = chiave)}>{testo}</button>
-            {/if}
+          {#each ruoliModulo as chiave}
+            <button type="button" class="scelta" class:attiva={ruolo === chiave} onclick={() => (ruolo = chiave)}>{RUOLI[chiave]}</button>
           {/each}
         </div>
       {/if}

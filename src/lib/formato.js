@@ -12,7 +12,7 @@ export const RUOLI = {
   attacco: 'Attacco'
 }
 
-export function etichettaRuolo(r) { return RUOLI[r] ?? r }
+export function etichettaRuolo(r) { return r === 'panchina' ? 'Panchina' : (RUOLI[r] ?? r) }
 
 export function etichettaFormato(f) { return `Calcio a ${f}` }
 
@@ -79,7 +79,7 @@ export function iniziali(p) {
 
 /** Testo del chip posti: "Manca 1 portiere" · "2 posti" · "Al completo" */
 export function chipPosti(posizioni) {
-  const liberi = posizioni.filter((p) => p.stato === 'libera')
+  const liberi = posizioni.filter((p) => p.stato === 'libera' && p.ruolo !== 'panchina')
   if (liberi.length === 0) return { testo: 'Al completo', classe: 'neutro' }
   const portieri = liberi.filter((p) => p.ruolo === 'portiere').length
   if (portieri === liberi.length) return { testo: portieri === 1 ? 'Manca 1 portiere' : `Mancano ${portieri} portieri`, classe: 'avviso' }
@@ -98,4 +98,12 @@ export function perInputDataOra(d) {
   d = new Date(d)
   const p = (n) => String(n).padStart(2, '0')
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`
+}
+
+/** Nome sotto il cerchio: cognome e iniziale del nome, es. "Rizzo M." */
+export function nomeCampo(p) {
+  const parti = (p?.nome ?? '').trim().split(/\s+/).filter(Boolean)
+  if (!parti.length) return 'Giocatore'
+  if (parti.length === 1) return parti[0]
+  return `${parti.slice(1).join(' ')} ${parti[0][0].toUpperCase()}.`
 }
