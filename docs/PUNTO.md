@@ -43,7 +43,12 @@ Aggiornato: 11 novembre 2026, sera: tutto provato dal telefono, resta solo il ri
 3. [x] **Tappa 3 – Chat** della partita in tempo reale (giocatori, organizzatore, vice, tribuna e chi ha un invito): elenco chat con pallino "nuovo", bolle, messaggi di sistema, card Accetta/Rifiuta per candidature e cambi ruolo, avviso invito. Migrazione 0009 applicata. Voce "Aiuto e supporto" nel Profilo e nel login. In anteprima
 4. [ ] **Autonomia via git** (richiesto l'11/11, subito dopo la chat): Claude fa tutte le modifiche da solo, senza copia-incolla di Flavio. Comprende: collegamento Supabase-GitHub per applicare le migrazioni a ogni unione su `main`; regola di permesso in Claude Code per pubblicare su `main` dopo il "unisci" senza blocchi; controlli automatici (build + test) su GitHub prima di ogni pubblicazione; nessun passaggio che chieda a Flavio di copiare codice o testo
 5. [~] **Tappa 3 – Notifiche push** (OneSignal) e **avviso a Flavio a ogni nuovo iscritto** (prima via email, poi push). 11/11: account OneSignal creato (piano Free, sito https://www.nemanca1.com, App ID 27506aa7-d2ae-4a62-8a47-56dad6193dd6, slide prompt in italiano senza avvio automatico, clic su notifica = stessa scheda). Fatto nell'app: file `OneSignalSDKWorker.js`, scheda **Notifiche** nel Profilo (Attiva/Spegni, istruzioni per iPhone), riquadro proposto dopo candidatura o ingresso in squadra, dispositivo collegato all'utente. **Manca**: chiave REST di OneSignal nel Vault di Supabase + invio automatico dal database (accettato, invito, messaggio, cambio ruolo, nuovo iscritto a Flavio). Le notifiche funzionano solo su www, non sull'anteprima
-6. [ ] **Tappa 4 – Social**: lista amici, giocatori vicini, inviti, mappa campi
+6. [ ] **Tappa 4 – Social** (piano approvato da Flavio il 12/11), in quest'ordine:
+   1. Profilo: zona (comune, punto approssimativo) con **raggio personalizzabile da ogni giocatore** (niente valore fisso imposto), ruoli, campi frequentati, disponibilità facoltativa, interruttore "Cercami per le partite" (proposta: spento finché il giocatore non lo accende)
+   2. Mappa dei campi (OpenStreetMap) con partite e posti liberi, passaggio Mappa/Lista
+   3. Giocatori vicini al campo della partita (filtri ruolo, campo, voto) e inviti con limiti anti-spam
+   4. Compagni di gioco, preferiti con stella, chat 1-a-1 (solo chi ha giocato insieme o ha un invito), blocca
+   5. "Serve un portiere vicino a te": avviso ai giocatori della zona e del ruolo (richiede le notifiche automatiche)
 7. [ ] **Tappa 5 – Dopo la partita**: risultato, recensioni anonime, voti, storico
 8. [ ] **Tappa 6**: PWA installabile completa, QR stampabili, prova con 10 persone su un campo vero
 9. [ ] **Entra con Google**
