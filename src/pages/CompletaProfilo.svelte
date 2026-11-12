@@ -7,6 +7,8 @@
   import { RUOLI } from '../lib/formato.js'
 
   let nome = $state(auth.profilo?.nome ?? '')
+  // il nome si sceglie una volta sola (lo blocca anche il database)
+  const nomeBloccato = !!auth.profilo?.nome?.trim()
   let comuneTesto = $state(auth.profilo?.comune ?? '')
   let comuneScelto = $state(auth.profilo?.comune ? { comune: auth.profilo.comune, lat: auth.profilo.lat, lng: auth.profilo.lng } : null)
   let suggerimenti = $state([])
@@ -31,7 +33,8 @@
     errore = ''
     if (nome.trim().length < 2) { errore = 'Scrivi il tuo nome.'; return }
     occupato = true
-    const dati = { id: auth.utente.id, nome: nome.trim(), ruoli_preferiti: ruoli }
+    const dati = { id: auth.utente.id, ruoli_preferiti: ruoli }
+    if (!nomeBloccato) dati.nome = nome.trim()
     if (comuneScelto) { dati.comune = comuneScelto.comune; dati.lat = comuneScelto.lat; dati.lng = comuneScelto.lng }
     else if (!comuneTesto.trim()) { dati.comune = null; dati.lat = null; dati.lng = null }
     const { error } = await supabase.from('profili').upsert(dati)
@@ -53,7 +56,8 @@
   <form class="contenuto" onsubmit={salva}>
     <div class="campo-form">
       <label for="nome">Nome e cognome</label>
-      <input id="nome" class="input" type="text" autocomplete="name" required bind:value={nome} placeholder="Marco Rizzo" />
+      <input id="nome" class="input" type="text" autocomplete="name" required bind:value={nome} placeholder="Marco Rizzo" readonly={nomeBloccato} style={nomeBloccato ? 'background: var(--neutro); color: var(--testo-2)' : ''} />
+      <p class="aiuto">{nomeBloccato ? 'Il nome non si può cambiare. Se è sbagliato scrivi a supporto@nemanca1.com.' : 'Scrivi nome e cognome veri: dopo non si potranno più cambiare.'}</p>
     </div>
     <div class="campo-form">
       <label for="comune">Il tuo comune</label>

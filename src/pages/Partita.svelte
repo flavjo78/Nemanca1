@@ -410,7 +410,7 @@
             <button type="button" class="btn bianco" disabled={occupato} onclick={entraTribuna}>Entra in tribuna</button>
           {/if}
         {:else}
-          <button type="button" class="btn" disabled={occupato} onclick={() => prendi(p)}>{mioPosto ? 'Spostati qui' : `Siediti come ${etichettaRuolo(p.ruolo).toLowerCase()}`}</button>
+          <button type="button" class="btn" disabled={occupato} onclick={() => prendi(p)}>{mioPosto ? 'Spostati qui' : 'Posizionati qui'}</button>
         {/if}
         {#if gestisco(p.squadra) && disponibili.length}
           <div class="campo-form" style="margin-top: 6px">
