@@ -36,7 +36,7 @@
       supabase.from('partite')
         .select('*, organizzatore:profili!partite_organizzatore_id_fkey(id, nome, iniziali), posizioni(id, stato, ruolo)')
         .eq('campo_id', id).in('stato', ['aperta', 'completa'])
-        .gte('data_ora', new Date(Date.now() - 2 * 3600 * 1000).toISOString())
+        .gte('data_ora', new Date(Date.now() - 3600 * 1000).toISOString())
         .order('data_ora'),
       supabase.from('partite').select('id', { count: 'exact', head: true }).eq('campo_id', id)
         .gte('data_ora', new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString())

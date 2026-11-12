@@ -47,7 +47,7 @@
       .select('*, campo:campi(id, nome, indirizzo), posizioni(id, stato, ruolo, giocatore_id, giocatore:profili(nome, iniziali))')
       .in('id', ids)
       .in('stato', ['aperta', 'completa'])
-      .gte('data_ora', new Date(Date.now() - 3 * 3600 * 1000).toISOString())
+      .gte('data_ora', new Date(Date.now() - 3600 * 1000).toISOString())
       .order('data_ora')
       .limit(1)
     if (error) throw error

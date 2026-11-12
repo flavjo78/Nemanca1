@@ -44,10 +44,10 @@
       <div class="sezione">
         {#each chat as c (c.partita_id)}
           {@const nuovo = haNuovi(c.partita_id, c.ultimo_il)}
-          <a href={`/chat/${c.partita_id}`} class="card riga" style={c.stato === 'annullata' ? 'opacity:.6' : ''}>
+          <a href={`/chat/${c.partita_id}`} class="card riga" style={c.stato === 'annullata' || !c.attiva ? 'opacity:.7' : ''}>
             <div class="data-box"><div class="g">{giornoBreve(c.data_ora)}</div><div class="n">{giornoNumero(c.data_ora)}</div></div>
             <div class="riempi">
-              <div class="nome taglia">{c.campo_nome} · {ora(c.data_ora)}</div>
+              <div class="nome taglia">{c.campo_nome} · {ora(c.data_ora)}{#if !c.attiva}<span class="chip neutro" style="margin-left:6px; font-size:11px; padding:2px 8px">{c.archiviata ? 'Archivio' : 'Chiusa'}</span>{/if}</div>
               <div class="sotto taglia" style={nuovo ? 'color: var(--testo); font-weight:600' : ''}>{anteprima(c)}</div>
             </div>
             {#if nuovo}<span class="pallino-nuovo" aria-label="Messaggi nuovi"></span>{/if}
