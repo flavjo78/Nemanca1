@@ -53,8 +53,8 @@
       <button type="button" role="tab" class="scelta" class:attiva={scheda === 'archivio'} aria-selected={scheda === 'archivio'} onclick={() => cambia('archivio')}>Archivio</button>
     </div>
     <p class="aiuto">{scheda === 'giocate'
-      ? 'Le partite finite oggi: un\'ora dopo l\'inizio escono dagli elenchi e la chat si chiude. Domani passano in archivio.'
-      : 'Le partite dei giorni passati, con formazione, partecipanti, tribuna e risultato (quando si potrà inserire).'}</p>
+      ? 'Le partite finite oggi: un\'ora dopo l\'inizio escono dagli elenchi. La chat resta aperta fino a domani, quando passano in archivio.'
+      : 'Le partite dei giorni passati, con formazione, partecipanti, tribuna e risultato (quando si potrà inserire). Le chat si rileggono ma non si scrive più.'}</p>
 
     {#if caricamento}
       <Caricamento />

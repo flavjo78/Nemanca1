@@ -11,8 +11,8 @@
 
   let { id } = $props()
   let partita = $state(null)
-  // un'ora dopo l'inizio la chat diventa di sola lettura (regola anche nel database)
-  const chatAttiva = $derived(partita && ['aperta', 'completa'].includes(partita.stato) && new Date(partita.data_ora) > new Date(Date.now() - 3600 * 1000))
+  // la chat si chiude quando la partita va in archivio, il giorno dopo (regola anche nel database)
+  const chatAttiva = $derived(partita && !partita.archiviata)
   let messaggi = $state([])
   let richieste = $state({})       // id → richiesta
   let posti = $state({})           // id → posizione (per le card cambio ruolo)
@@ -233,7 +233,7 @@
     </div>
 
     {#if !chatAttiva}
-      <div class="scrivi"><div class="chiusa">Chat chiusa: la partita {partita.stato === 'annullata' ? 'è stata annullata' : partita.archiviata ? 'è in archivio' : 'è stata giocata'}. Puoi rileggere i messaggi.</div></div>
+      <div class="scrivi"><div class="chiusa">Chat chiusa: la partita è in archivio. Puoi rileggere i messaggi.</div></div>
     {:else}
     <form class="scrivi" onsubmit={invia}>
       {#if errore}<div class="errore" style="margin-bottom: 8px">{errore}</div>{/if}
