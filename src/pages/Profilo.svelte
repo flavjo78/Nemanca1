@@ -116,6 +116,15 @@
       </section>
     {/if}
 
+    <a class="card riga" href="/giocate" style="text-decoration:none">
+      <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="orologio" dimensione={20} /></div>
+      <div class="riempi">
+        <div class="nome">Partite giocate e archivio</div>
+        <div class="sotto taglia">Formazioni, partecipanti e chat delle partite passate</div>
+      </div>
+      <Icona nome="avanti" dimensione={18} />
+    </a>
+
     <div class="card riga">
       <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="campanella" dimensione={20} /></div>
       <div class="riempi">

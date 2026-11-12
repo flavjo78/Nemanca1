@@ -82,7 +82,7 @@
   })
   const invitoPer = (giocatoreId) => inviti.find((i) => i.a_id === giocatoreId) ?? null
   const richiesteDaApprovare = $derived(sonoOrganizzatore ? richieste : [])
-  const modificabile = $derived(partita && ['aperta', 'completa'].includes(partita.stato) && new Date(partita.data_ora) > new Date(Date.now() - 2 * 3600 * 1000))
+  const modificabile = $derived(partita && ['aperta', 'completa'].includes(partita.stato) && new Date(partita.data_ora) > new Date(Date.now() - 3600 * 1000))
 
   onMount(async () => {
     await carica()
@@ -239,7 +239,9 @@
       <div class="chip-riga">
         {#if partita.stato === 'annullata'}
           <span class="chip neutro">Annullata</span>
-        {:else if partita.stato === 'giocata'}
+        {:else if partita.archiviata}
+          <span class="chip neutro">In archivio</span>
+        {:else if partita.stato === 'giocata' || !modificabile}
           <span class="chip neutro">Giocata</span>
         {:else}
           <span class="chip {chip.classe}">{chip.testo}</span>
@@ -371,7 +373,7 @@
       {#if partita.stato === 'annullata'}
         <div class="btn bianco" style="color: var(--testo-2)">Partita annullata</div>
       {:else if !modificabile}
-        <div class="btn bianco" style="color: var(--testo-2)">Iscrizioni chiuse</div>
+        <div class="btn bianco" style="color: var(--testo-2)">{partita.archiviata ? 'Partita in archivio' : 'Partita giocata'}</div>
       {:else if !uid}
         <button type="button" class="btn" onclick={() => naviga(`/login?next=${encodeURIComponent(`/partita/${id}`)}`)}>Accedi per unirti</button>
       {:else if mioPosto}
@@ -410,7 +412,7 @@
             <button type="button" class="btn bianco" disabled={occupato} onclick={entraTribuna}>Entra in tribuna</button>
           {/if}
         {:else}
-          <button type="button" class="btn" disabled={occupato} onclick={() => prendi(p)}>{mioPosto ? 'Spostati qui' : `Siediti come ${etichettaRuolo(p.ruolo).toLowerCase()}`}</button>
+          <button type="button" class="btn" disabled={occupato} onclick={() => prendi(p)}>{mioPosto ? 'Spostati qui' : 'Posizionati qui'}</button>
         {/if}
         {#if gestisco(p.squadra) && disponibili.length}
           <div class="campo-form" style="margin-top: 6px">

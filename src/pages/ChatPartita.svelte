@@ -11,6 +11,8 @@
 
   let { id } = $props()
   let partita = $state(null)
+  // la chat si chiude quando la partita va in archivio, il giorno dopo (regola anche nel database)
+  const chatAttiva = $derived(partita && !partita.archiviata)
   let messaggi = $state([])
   let richieste = $state({})       // id → richiesta
   let posti = $state({})           // id → posizione (per le card cambio ruolo)
@@ -40,7 +42,7 @@
 
   async function carica() {
     const [{ data: p }, { data: part }, { data: gest }] = await Promise.all([
-      supabase.from('partite').select('id, data_ora, formato, stato, organizzatore_id, campo:campi(nome)').eq('id', id).maybeSingle(),
+      supabase.from('partite').select('id, data_ora, formato, stato, archiviata, organizzatore_id, campo:campi(nome)').eq('id', id).maybeSingle(),
       supabase.rpc('partecipa', { p_partita: id }),
       supabase.rpc('e_organizzatore', { p_partita: id })
     ])
@@ -230,6 +232,9 @@
       {/each}
     </div>
 
+    {#if !chatAttiva}
+      <div class="scrivi"><div class="chiusa">Chat chiusa: la partita è in archivio. Puoi rileggere i messaggi.</div></div>
+    {:else}
     <form class="scrivi" onsubmit={invia}>
       {#if errore}<div class="errore" style="margin-bottom: 8px">{errore}</div>{/if}
       <div class="barra-scrivi">
@@ -239,10 +244,12 @@
         </button>
       </div>
     </form>
+    {/if}
   {/if}
 </div>
 
 <style>
+  .chiusa { text-align: center; font-size: 13.5px; color: var(--testo-2); padding: 12px 8px; }
   .chat { height: 100dvh; min-height: 0; }
   .lista { flex: 1 1 0; min-height: 0; overflow-y: auto; padding: 12px 14px 8px; display: flex; flex-direction: column; gap: 6px; }
   .giorno { align-self: center; font-size: 12px; font-weight: 600; color: var(--testo-2); background: var(--neutro); padding: 4px 10px; border-radius: 999px; margin: 8px 0 4px; text-transform: capitalize; }
