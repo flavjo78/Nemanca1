@@ -12,6 +12,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@700&family=Outfit:wght@900&display=swap" rel="stylesheet" />
     <title>Ne manca 1</title>
+    <script>
+      // Su nemanca1.pages.dev l'app si installa come "Ne manca 1 Admin" con l'icona nera,
+      // così sullo stesso telefono convive con quella di www (account diverso).
+      if (location.hostname === 'nemanca1.pages.dev') {
+        document.querySelector('link[rel=manifest]').href = '/manifest-admin.webmanifest'
+        document.querySelector('link[rel=icon]').href = '/icona-admin.svg'
+        document.querySelector('link[rel=apple-touch-icon]').href = '/icona-admin-192.png'
+        document.querySelector('meta[name=theme-color]').content = '#14201A'
+        document.title = 'Ne manca 1 Admin'
+      }
+    </script>
   </head>
   <body>
     <div id="app"></div>
