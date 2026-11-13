@@ -71,6 +71,9 @@ function rispondi(url, metodo) {
     if (url.includes('head=true') || req.headers()['prefer']?.includes('count=exact')) intestazioni['content-range'] = '0-1/42'
     await route.fulfill({ status: 200, headers: intestazioni, body: JSON.stringify(corpo ?? null) })
   })
+  // tessere della mappa: un quadrato vuoto, per non dipendere da internet
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64')
+  await ctx.route('**/tile.openstreetmap.org/**', (r) => r.fulfill({ status: 200, headers: { 'content-type': 'image/png' }, body: PNG }))
   await ctx.route('**/nominatim.openstreetmap.org/**', (r) => r.fulfill({ status: 200, headers: { 'content-type': 'application/json' }, body: '[]' }))
   await ctx.route('**/fonts.googleapis.com/**', (r) => r.fulfill({ status: 200, headers: { 'content-type': 'text/css' }, body: '' }))
 
@@ -90,6 +93,9 @@ function rispondi(url, metodo) {
   await page.click('text=Organizza una partita su questo campo'); await page.waitForSelector('text=Formato'); await foto('nuova-partita')
   await page.goto(base + `/partita/${PARTITA}`); await page.waitForSelector('text=SQUADRA A'); await foto('partita')
   await page.goto(base + '/campi'); await page.waitForSelector('text=Campo San Rocco'); await foto('campi')
+  await page.click('role=tab[name="Mappa"]'); await page.waitForSelector('.leaflet-container .pin'); await foto('campi-mappa')
+  await page.click('.pin'); await page.waitForSelector('text=Apri il campo'); await foto('campi-mappa-popup')
+  await page.click('role=tab[name="Lista"]')
   await page.goto(base + `/campo/${CAMPO}?nuovo=1`); await page.waitForSelector('img[alt^="QR code"]'); await foto('campo-qr')
   await page.goto(base + '/profilo'); await page.waitForSelector('text=Come ti valutano'); await foto('profilo')
   await page.goto(base + '/profilo/modifica'); await page.waitForSelector('text=Il tuo profilo'); await foto('profilo-modifica')

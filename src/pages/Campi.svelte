@@ -18,6 +18,11 @@
   let conDistanza = $state(false)
   const perOrganizzare = $derived(router.query.get('organizza') === '1')
 
+  // Lista o Mappa (ricordata su questo telefono)
+  let vista = $state((() => { try { return localStorage.getItem('nm1-vista-campi') === 'mappa' ? 'mappa' : 'lista' } catch { return 'lista' } })())
+  function scegliVista(v) { vista = v; try { localStorage.setItem('nm1-vista-campi', v) } catch {} }
+  const caricaMappa = () => import('../components/MappaCampi.svelte')
+
   const filtrati = $derived(campi.filter((c) => {
     const q = ricerca.trim().toLowerCase()
     return !q || c.nome.toLowerCase().includes(q) || c.indirizzo.toLowerCase().includes(q)
@@ -56,6 +61,10 @@
       <input class="input" type="search" placeholder="Cerca per nome o indirizzo" bind:value={ricerca} aria-label="Cerca campo" style="padding-left: 44px" />
       <span style="position:absolute; left:14px; top:14px; color: var(--testo-2)"><Icona nome="cerca" dimensione={22} /></span>
     </div>
+    <div class="scelte" role="tablist" aria-label="Vista dei campi">
+      <button type="button" role="tab" class="scelta" class:attiva={vista === 'lista'} aria-selected={vista === 'lista'} onclick={() => scegliVista('lista')}>Lista</button>
+      <button type="button" role="tab" class="scelta" class:attiva={vista === 'mappa'} aria-selected={vista === 'mappa'} onclick={() => scegliVista('mappa')}>Mappa</button>
+    </div>
     {#if auth.profilo?.lat != null}
       <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
         <RaggioKm cambiato={carica} />
@@ -67,6 +76,17 @@
       <Caricamento />
     {:else if errore}
       <div class="errore">{errore}</div>
+    {:else if vista === 'mappa'}
+      {#await caricaMappa()}
+        <Caricamento />
+      {:then modulo}
+        <modulo.default campi={filtrati} organizza={perOrganizzare}
+          centro={auth.profilo?.lat != null ? { lat: auth.profilo.lat, lng: auth.profilo.lng } : null}
+          raggioKm={conDistanza ? (auth.profilo?.raggio_km ?? 20) : null} />
+        {#if !filtrati.length}<p class="aiuto">{campi.length ? 'Nessun campo corrisponde alla ricerca.' : 'Non c\'è ancora nessun campo. Registra il primo!'}</p>{/if}
+      {:catch}
+        <div class="errore">Non sono riuscito a caricare la mappa. Controlla la connessione e riprova.</div>
+      {/await}
     {:else if !filtrati.length}
       <div class="vuoto">
         {campi.length ? 'Nessun campo corrisponde alla ricerca.' : 'Non c\'è ancora nessun campo. Registra il primo!'}
