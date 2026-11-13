@@ -9,7 +9,7 @@ const UID = '11111111-1111-1111-1111-111111111111'
 const CAMPO = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
 const PARTITA = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
 const PARTITA2 = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
-const oggi = new Date(); oggi.setHours(21, 0, 0, 0)
+const oggi = new Date(Date.now() + 3 * 3600000); oggi.setMinutes(0, 0, 0) // sempre nel futuro: la prova non dipende dall'ora
 const giovedi = new Date(Date.now() + 2 * 86400000); giovedi.setHours(20, 30, 0, 0)
 const io = { id: UID, nome: 'Marco Rizzo', iniziali: 'MR', comune: 'Galatina', lat: 40.17, lng: 18.17, ruoli_preferiti: ['attacco'], creato_il: '2026-01-01' }
 const campo = { id: CAMPO, nome: 'Campo San Rocco', indirizzo: 'Via dei Pini 12, Galatina', lat: 40.17, lng: 18.17, sport: ['calcio'], verificato: true, sponsor_nome: 'Bar Centrale', sponsor_testo: 'Terzo tempo offerto da Bar Centrale', creato_da: UID }
@@ -93,6 +93,7 @@ function rispondi(url, metodo) {
   await page.goto(base + `/campo/${CAMPO}?qr=1`); await page.waitForSelector('text=Campo San Rocco'); await foto('campo')
   await page.click('text=Organizza una partita su questo campo'); await page.waitForSelector('text=Formato'); await foto('nuova-partita')
   await page.goto(base + `/partita/${PARTITA}`); await page.waitForSelector('text=SQUADRA A'); await foto('partita')
+  await page.click('text=Colori delle divise'); await page.waitForSelector('text=Divisa squadra A'); await page.click('.tavolozza >> nth=0 >> [aria-label="rosso"]'); await foto('partita-divise'); await page.keyboard.press('Escape')
   await page.goto(base + '/campi'); await page.waitForSelector('text=Campo San Rocco'); await foto('campi')
   await page.click('role=tab[name="Mappa"]'); await page.waitForSelector('.leaflet-container .pin'); await foto('campi-mappa')
   await page.click('.pin'); await page.waitForSelector('text=Apri il campo'); await foto('campi-mappa-popup')

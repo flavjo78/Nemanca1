@@ -12,6 +12,8 @@
   import CampoDisegnato from '../components/CampoDisegnato.svelte'
   import Caricamento from '../components/Caricamento.svelte'
   import Foglio from '../components/Foglio.svelte'
+  import Divisa from '../components/Divisa.svelte'
+  import { COLORI, divisaDi, testoDivisa, testoPorta } from '../lib/divise.js'
 
   let { id } = $props()
   let partita = $state(null)
@@ -43,6 +45,12 @@
     return uguali.length > 1 ? `${nome} (${uguali.findIndex((x) => x.id === p.id) + 1})` : nome
   }
   let nuovo = $state({ difesa: 0, centro: 0, attacco: 0 })
+  // divise
+  let divisaSquadra = $state('A')
+  let divisaNuova = $state({ maglia: 'bianco', pantaloncini: 'nero' })
+  function apriDivise(sq) { divisaSquadra = sq; divisaNuova = { ...divisaDi(partita, sq) }; foglio = { tipo: 'divise' } }
+  const salvaDivisa = () => esegui('imposta_divisa', { p_partita: id, p_squadra: divisaSquadra, p_maglia: divisaNuova.maglia, p_pantaloncini: divisaNuova.pantaloncini },
+    `Squadra ${divisaSquadra}: ${testoDivisa(divisaNuova)}.`)
   function apriModulo(sq) { moduloSquadra = sq; nuovo = contaRuoli(posizioni, sq); foglio = { tipo: 'modulo' } }
   let inviti = $state([])
   let caricamento = $state(true)
@@ -295,8 +303,15 @@
         </section>
       {/if}
 
-      <CampoDisegnato {posizioni} mioId={uid} alClick={modificabile ? tocca : null}
+      <CampoDisegnato {posizioni} mioId={uid} alClick={modificabile ? tocca : null} divise={{ A: divisaDi(partita, 'A'), B: divisaDi(partita, 'B') }}
         trascinabile={modificabile ? (p) => gestisco(p.squadra) : null} alTrascina={trascina} />
+      {#if mioPosto && partita.stato !== 'annullata'}
+        {@const miaDivisa = divisaDi(partita, mioPosto.squadra)}
+        <div class="card riga promemoria-divisa">
+          <Divisa maglia={miaDivisa.maglia} pantaloncini={miaDivisa.pantaloncini} dimensione={30} />
+          <div class="riempi"><div class="nome">{testoPorta(miaDivisa)}</div><div class="sotto">Divisa della squadra {mioPosto.squadra}</div></div>
+        </div>
+      {/if}
       {#if modificabile && sonoOrganizzatore}
         <p class="aiuto" style="text-align:center">Tieni premuto un cerchio e trascinalo: vicino alla porta è difesa, in mezzo centrocampo, avanti attacco. Il modulo si aggiorna da solo.</p>
       {/if}
@@ -353,6 +368,9 @@
           <div class="card" style="gap: 8px">
             <div class="sotto">Tocca un posto per cambiarne il ruolo o spostare chi lo occupa. In campo restano sempre {partita.formato} per squadra.</div>
             <button type="button" class="btn bianco piccolo" onclick={() => apriModulo(sonoTitolare ? 'A' : miaViceSquadra)}>Cambia modulo</button>
+            <button type="button" class="btn bianco piccolo" onclick={() => apriDivise(sonoTitolare ? 'A' : miaViceSquadra)}>
+              <Divisa maglia={divisaDi(partita, sonoTitolare ? 'A' : miaViceSquadra).maglia} pantaloncini={divisaDi(partita, sonoTitolare ? 'A' : miaViceSquadra).pantaloncini} dimensione={18} /> Colori delle divise
+            </button>
             <button type="button" class="btn bianco piccolo" onclick={() => { ruoloScelto = 'panchina'; squadraScelta = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'aggiungi' } }}>
               <Icona nome="piu" dimensione={18} spessore={2.4} /> Aggiungi una riserva in panchina
             </button>
@@ -556,6 +574,29 @@
           </button>
         {/each}
       </Foglio>
+    {:else if foglio?.tipo === 'divise'}
+      <Foglio aperto titolo={`Divisa squadra ${divisaSquadra}`} sotto="Scegli i colori: i giocatori vedranno cosa portare." chiudi={() => (foglio = null)}>
+        {#if ['A', 'B'].filter(gestisco).length > 1}
+          <div class="scelte">
+            {#each ['A', 'B'] as sq}
+              <button type="button" class="scelta" class:attiva={divisaSquadra === sq} onclick={() => apriDivise(sq)}>Squadra {sq}</button>
+            {/each}
+          </div>
+        {/if}
+        <div style="display:flex; justify-content:center"><Divisa maglia={divisaNuova.maglia} pantaloncini={divisaNuova.pantaloncini} dimensione={64} titolo={testoDivisa(divisaNuova)} /></div>
+        <p class="aiuto" style="text-align:center; font-weight:600">{testoDivisa(divisaNuova)}</p>
+        {#each [['maglia', 'Maglia'], ['pantaloncini', 'Pantaloncini']] as [pezzo, nomePezzo]}
+          <span class="aiuto" style="font-weight:600">{nomePezzo}</span>
+          <div class="tavolozza" role="radiogroup" aria-label={nomePezzo}>
+            {#each Object.entries(COLORI) as [chiave, c]}
+              <button type="button" role="radio" aria-checked={divisaNuova[pezzo] === chiave} aria-label={chiave}
+                class="colore" class:scelto={divisaNuova[pezzo] === chiave} style={`background:${c.hex}`}
+                onclick={() => (divisaNuova = { ...divisaNuova, [pezzo]: chiave })}></button>
+            {/each}
+          </div>
+        {/each}
+        <button type="button" class="btn" disabled={occupato} onclick={salvaDivisa}>Salva la divisa della squadra {divisaSquadra}</button>
+      </Foglio>
     {:else if foglio?.tipo === 'modulo'}
       {@const attuale = contaRuoli(posizioni, moduloSquadra)}
       {@const totNuovo = nuovo.difesa + nuovo.centro + nuovo.attacco}
@@ -589,6 +630,11 @@
 </div>
 
 <style>
+  .promemoria-divisa { gap: 12px; }
+  .tavolozza { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+  .colore { width: 100%; aspect-ratio: 1; min-height: 44px; border-radius: 50%; border: 2px solid var(--bordo); cursor: pointer; }
+  .colore.scelto { outline: 3px solid var(--verde); outline-offset: 2px; border-color: #14201A; }
+
   .toast {
     position: fixed; left: 50%; bottom: calc(90px + var(--safe-bottom)); transform: translateX(-50%); z-index: 50;
     background: var(--testo); color: #fff; font-size: 14px; font-weight: 600; padding: 10px 16px; border-radius: 999px;
