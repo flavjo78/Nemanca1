@@ -9,7 +9,7 @@ const UID = '11111111-1111-1111-1111-111111111111'
 const CAMPO = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'
 const PARTITA = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
 const PARTITA2 = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
-const oggi = new Date(); oggi.setHours(21, 0, 0, 0)
+const oggi = new Date(Date.now() + 3 * 3600000); oggi.setMinutes(0, 0, 0) // sempre nel futuro: la prova non dipende dall'ora
 const giovedi = new Date(Date.now() + 2 * 86400000); giovedi.setHours(20, 30, 0, 0)
 const io = { id: UID, nome: 'Marco Rizzo', iniziali: 'MR', comune: 'Galatina', lat: 40.17, lng: 18.17, ruoli_preferiti: ['attacco'], creato_il: '2026-01-01' }
 const campo = { id: CAMPO, nome: 'Campo San Rocco', indirizzo: 'Via dei Pini 12, Galatina', lat: 40.17, lng: 18.17, sport: ['calcio'], verificato: true, sponsor_nome: 'Bar Centrale', sponsor_testo: 'Terzo tempo offerto da Bar Centrale', creato_da: UID }
@@ -39,6 +39,12 @@ function rispondi(url, metodo) {
   if (p.endsWith('/rpc/partite_vicine')) return [{ id: PARTITA2, campo_id: CAMPO, campo_nome: 'Sporting Club', organizzatore_id: 'u-PL', formato: 5, data_ora: giovedi.toISOString(), quota: 5, posti_liberi: 2, ruoli_liberi: ['centro','attacco'], distanza_km: 2.1 },
     { id: 'dddddddd-dddd-dddd-dddd-dddddddddddd', campo_id: CAMPO, campo_nome: 'Centro Sportivo Aradeo', organizzatore_id: 'u-PL', formato: 8, data_ora: new Date(Date.now()+4*86400000).toISOString(), quota: 5, posti_liberi: 1, ruoli_liberi: ['portiere'], distanza_km: 6.4 }]
   if (p.endsWith('/rpc/campi_vicini')) return [{ ...campo, distanza_km: 0.8, partite_aperte: 2 }, { id: 'c2', nome: 'Sporting Club', indirizzo: 'Via Roma 4, Galatina', distanza_km: 2.1, partite_aperte: 0, sport: ['calcio'] }]
+  if (p.endsWith('/rpc/non_letti')) return [{ partita_id: PARTITA, quanti: 3 }]
+  if (p.endsWith('/rpc/miei_amici')) return [
+    { amicizia_id: 'f1', id: 'u-LC', nome: 'Luca C', iniziali: 'LC', comune: 'Galatina', ruoli_preferiti: ['difesa'], stato: 'amico' },
+    { amicizia_id: 'f2', id: 'u-NV', nome: 'Nino Valente', iniziali: 'NV', comune: 'Lecce', ruoli_preferiti: ['portiere'], stato: 'amico' },
+    { amicizia_id: 'f3', id: 'u-XP', nome: 'Xenia Puce', iniziali: 'XP', stato: 'ricevuta' }]
+  if (p.endsWith('/rpc/compagni_di_gioco')) return [{ id: 'u-FS', nome: 'Fabio S', iniziali: 'FS', partite: 3, stato: null }]
   if (p.endsWith('/rpc/crea_partita')) return PARTITA
   const tabella = p.split('/rest/v1/')[1]
   const sel = u.searchParams.get('select') || ''
@@ -71,6 +77,9 @@ function rispondi(url, metodo) {
     if (url.includes('head=true') || req.headers()['prefer']?.includes('count=exact')) intestazioni['content-range'] = '0-1/42'
     await route.fulfill({ status: 200, headers: intestazioni, body: JSON.stringify(corpo ?? null) })
   })
+  // tessere della mappa: un quadrato vuoto, per non dipendere da internet
+  const PNG = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=', 'base64')
+  await ctx.route('**/tile.openstreetmap.org/**', (r) => r.fulfill({ status: 200, headers: { 'content-type': 'image/png' }, body: PNG }))
   await ctx.route('**/nominatim.openstreetmap.org/**', (r) => r.fulfill({ status: 200, headers: { 'content-type': 'application/json' }, body: '[]' }))
   await ctx.route('**/fonts.googleapis.com/**', (r) => r.fulfill({ status: 200, headers: { 'content-type': 'text/css' }, body: '' }))
 
@@ -89,9 +98,15 @@ function rispondi(url, metodo) {
   await page.goto(base + `/campo/${CAMPO}?qr=1`); await page.waitForSelector('text=Campo San Rocco'); await foto('campo')
   await page.click('text=Organizza una partita su questo campo'); await page.waitForSelector('text=Formato'); await foto('nuova-partita')
   await page.goto(base + `/partita/${PARTITA}`); await page.waitForSelector('text=SQUADRA A'); await foto('partita')
+  await page.click('text=Invita amici'); await page.waitForSelector('text=Invita tutti'); await foto('partita-invita-amici'); await page.keyboard.press('Escape')
+  await page.click('text=Colori delle divise'); await page.waitForSelector('text=Divisa squadra A'); await page.click('.tavolozza >> nth=0 >> [aria-label="rosso"]'); await foto('partita-divise'); await page.keyboard.press('Escape')
   await page.goto(base + '/campi'); await page.waitForSelector('text=Campo San Rocco'); await foto('campi')
+  await page.click('role=tab[name="Mappa"]'); await page.waitForSelector('.leaflet-container .pin'); await foto('campi-mappa')
+  await page.click('.pin'); await page.waitForSelector('text=Apri il campo'); await foto('campi-mappa-popup')
+  await page.click('role=tab[name="Lista"]')
   await page.goto(base + `/campo/${CAMPO}?nuovo=1`); await page.waitForSelector('img[alt^="QR code"]'); await foto('campo-qr')
   await page.goto(base + '/profilo'); await page.waitForSelector('text=Come ti valutano'); await foto('profilo')
+  await page.goto(base + '/amici'); await page.waitForSelector('text=Richieste da accettare'); await page.waitForSelector('text=Hai giocato con'); await foto('amici')
   await page.goto(base + '/profilo/modifica'); await page.waitForSelector('text=Il tuo profilo'); await foto('profilo-modifica')
   await page.goto(base + '/'); await page.waitForSelector('text=Cercami per le partite'); await page.click('.chip-km'); await page.waitForSelector('text=Fino a quanti km vai a giocare?'); await page.click('.foglio >> text=30 km'); await foto('home-raggio')
   await page.goto(base + '/campi/nuovo'); await page.waitForSelector('text=Nome del campo'); await foto('nuovo-campo')

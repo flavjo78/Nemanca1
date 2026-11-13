@@ -4,7 +4,20 @@
   import Icona from './Icona.svelte'
   import { etichettaRuolo, iniziali, nomeCampo } from '../lib/formato.js'
   import { disponi, moduloDi, ruoloDaAltezza } from '../lib/formazione.js'
-  let { posizioni = [], mioId = null, alClick = null, evidenzia = null, trascinabile = null, alTrascina = null } = $props()
+  import Divisa from './Divisa.svelte'
+  import { testoMaglia, testoDivisa } from '../lib/divise.js'
+  let { posizioni = [], mioId = null, alClick = null, evidenzia = null, trascinabile = null, alTrascina = null, divise = null } = $props()
+
+  // ogni tanto, al posto del modulo, compare il colore della maglia da portare
+  let mostraMaglia = $state(false)
+  $effect(() => {
+    if (!divise) return
+    const t = setInterval(() => {
+      mostraMaglia = true
+      setTimeout(() => (mostraMaglia = false), 3500)
+    }, 9000)
+    return () => clearInterval(t)
+  })
 
   // --- trascinamento: tieni premuto ~0,7 s, poi sposti il cerchio nella metà campo della sua squadra
   const TEMPO_PRESSIONE = 700
@@ -92,12 +105,12 @@
       aria-label={ariaLabel(p)} onclick={() => tocco(p)}
       onpointerdown={(e) => giu(e, p)} onpointermove={muovi} onpointerup={su} onpointercancel={su}
       oncontextmenu={(e) => e.preventDefault()}>
-      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else}{iniziali(p.giocatore)}{/if}
+      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else if p.giocatore?.foto_url}<img class="foto-cerchio" src={p.giocatore.foto_url} alt="" loading="lazy" decoding="async" />{:else}{iniziali(p.giocatore)}{/if}
       {#if p.stato === 'cambio_proposto'}<span class="badge-domanda">?</span>{/if}
     </button>
   {:else}
     <div class="{classiPallino(p)} {classeExtra}">
-      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else}{iniziali(p.giocatore)}{/if}
+      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else if p.giocatore?.foto_url}<img class="foto-cerchio" src={p.giocatore.foto_url} alt="" loading="lazy" decoding="async" />{:else}{iniziali(p.giocatore)}{/if}
       {#if p.stato === 'cambio_proposto'}<span class="badge-domanda">?</span>{/if}
     </div>
   {/if}
@@ -128,8 +141,12 @@
   <div class="area basso"></div>
   <div class="nome-squadra alto">SQUADRA A</div>
   <div class="nome-squadra basso">SQUADRA B</div>
-  <div class="modulo alto" aria-label={`Modulo squadra A ${moduloDi(posizioni, 'A')}`}>{moduloDi(posizioni, 'A')}</div>
-  <div class="modulo basso" aria-label={`Modulo squadra B ${moduloDi(posizioni, 'B')}`}>{moduloDi(posizioni, 'B')}</div>
+  {#each ['A', 'B'] as sq}
+    <div class="modulo {sq === 'A' ? 'alto' : 'basso'}" aria-label={`Squadra ${sq}: modulo ${moduloDi(posizioni, sq)}${divise?.[sq] ? ', ' + testoDivisa(divise[sq]) : ''}`}>
+      {#if divise?.[sq]}<Divisa maglia={divise[sq].maglia} pantaloncini={divise[sq].pantaloncini} dimensione={16} />{/if}
+      <span aria-hidden="true">{mostraMaglia && divise?.[sq] ? `Porta la ${testoMaglia(divise[sq])}` : moduloDi(posizioni, sq)}</span>
+    </div>
+  {/each}
 
   {#each inCampo as p (p.id)}
     <div class="posto" class:sopra={trascinato?.id === p.id} style={stile(p)}>
@@ -142,6 +159,8 @@
 </div>
 
 <style>
+  .foto-cerchio { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; pointer-events: none; }
+
   .insieme { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; max-width: 420px; margin: 0 auto; width: 100%; }
   /* schermi larghi: panchine a lato del campo, A in alto e B in basso */
   .insieme.con-panchine { max-width: 500px; grid-template-columns: minmax(0, 1fr) 62px; grid-template-areas: "campo pA" "campo pB"; }
@@ -160,7 +179,7 @@
   .area.basso { bottom: 0; border-bottom: none; }
   .nome-squadra { position: absolute; left: 10px; font-size: 11px; font-weight: 700; color: #fff; background: rgba(0,0,0,0.28); padding: 4px 8px; border-radius: 999px; pointer-events: none; }
   .nome-squadra.alto { top: 10px; } .nome-squadra.basso { bottom: 10px; }
-  .modulo { position: absolute; right: 10px; font-family: var(--font-titoli); font-size: 13px; font-weight: 700; color: var(--testo); background: rgba(255,255,255,0.9); padding: 3px 9px; border-radius: 999px; pointer-events: none; }
+  .modulo { display: flex; align-items: center; gap: 6px; position: absolute; right: 10px; font-family: var(--font-titoli); font-size: 13px; font-weight: 700; color: var(--testo); background: rgba(255,255,255,0.9); padding: 3px 9px; border-radius: 999px; pointer-events: none; }
   .modulo.alto { top: 10px; } .modulo.basso { bottom: 10px; }
   .posto { position: absolute; width: 84px; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; transition: left .25s, top .25s; }
   .posto.sopra { z-index: 5; transition: none; }

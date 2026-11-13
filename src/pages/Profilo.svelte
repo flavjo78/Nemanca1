@@ -7,11 +7,17 @@
   import { iniziali, etichettaRuolo, etichettaFormato } from '../lib/formato.js'
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Icona from '../components/Icona.svelte'
+  import Avatar from '../components/Avatar.svelte'
   import { notifiche, attivaNotifiche, disattivaNotifiche } from '../lib/notifiche.svelte.js'
 
   let voti = $state(null)
   let storico = $state([])
   let caricato = $state(false)
+  let richiesteAmici = $state(0)
+  onMount(async () => {
+    const { data } = await supabase.rpc('miei_amici')
+    richiesteAmici = (data ?? []).filter((a) => a.stato === 'ricevuta').length
+  })
 
   const p = $derived(auth.profilo)
   const giocate = $derived(storico.filter((s) => s.stato === 'giocata').length)
@@ -58,7 +64,7 @@
 
   <div class="contenuto con-barra">
     <div class="card riga" style="padding: 16px">
-      <div class="avatar verde" style="width:56px; height:56px; border-radius:28px; font-size:20px">{iniziali(p)}</div>
+      <a href="/profilo/modifica" aria-label="Cambia la foto" style="text-decoration:none"><Avatar profilo={p} dimensione={56} classe="verde" /></a>
       <div class="riempi">
         <div class="nome" style="font-size:18px; font-family: var(--font-titoli)">{p?.nome ?? 'Giocatore'}</div>
         <div class="sotto">{[p?.comune, (p?.ruoli_preferiti ?? []).map(etichettaRuolo).join(', '), p?.comune ? `entro ${p?.raggio_km ?? 20} km` : ''].filter(Boolean).join(' · ')}{p?.comune || p?.ruoli_preferiti?.length ? ' · ' : ''}dal {anno}</div>
@@ -115,6 +121,16 @@
         <div class="chip-riga">{#each campiFrequentati as c}<span class="chip">{c}</span>{/each}</div>
       </section>
     {/if}
+
+    <a class="card riga" href="/amici" style="text-decoration:none">
+      <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="utenti" dimensione={20} /></div>
+      <div class="riempi">
+        <div class="nome">Amici</div>
+        <div class="sotto taglia">{richiesteAmici ? `${richiesteAmici} ${richiesteAmici === 1 ? 'richiesta' : 'richieste'} da accettare` : 'Aggiungi amici e invitali alle tue partite'}</div>
+      </div>
+      {#if richiesteAmici}<span class="chip avviso">{richiesteAmici}</span>{/if}
+      <Icona nome="avanti" dimensione={18} />
+    </a>
 
     <a class="card riga" href="/giocate" style="text-decoration:none">
       <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="orologio" dimensione={20} /></div>

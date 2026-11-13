@@ -9,6 +9,7 @@
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
+  import Avatar from '../components/Avatar.svelte'
   import RaggioKm from '../components/RaggioKm.svelte'
   import { salvaCercami } from '../lib/preferenze.js'
 
@@ -46,7 +47,7 @@
     if (!ids.length) { prossima = null; return }
     const { data, error } = await supabase
       .from('partite')
-      .select('*, campo:campi(id, nome, indirizzo), posizioni(id, stato, ruolo, giocatore_id, giocatore:profili(nome, iniziali))')
+      .select('*, campo:campi(id, nome, indirizzo), posizioni(id, stato, ruolo, giocatore_id, giocatore:profili(nome, iniziali, foto_url))')
       .in('id', ids)
       .in('stato', ['aperta', 'completa'])
       .gte('data_ora', new Date(Date.now() - 3600 * 1000).toISOString())
@@ -59,7 +60,7 @@
   async function caricaDaApprovare() {
     const { data, error } = await supabase
       .from('richieste')
-      .select('*, giocatore:profili(id, nome, iniziali), partita:partite!inner(id, organizzatore_id, data_ora, formato)')
+      .select('*, giocatore:profili(id, nome, iniziali, foto_url), partita:partite!inner(id, organizzatore_id, data_ora, formato)')
       .eq('stato', 'in_attesa')
       .eq('partita.organizzatore_id', auth.utente.id)
       .order('creato_il')
@@ -124,7 +125,7 @@
       <div class="sotto">{dataEstesa()}</div>
       <h1 style="font-size: 26px; letter-spacing: -0.5px">Ciao {primoNome}</h1>
     </div>
-    <a href="/profilo" class="avatar verde grande" aria-label="Apri il profilo">{iniziali(auth.profilo)}</a>
+    <a href="/profilo" aria-label="Apri il profilo" style="text-decoration:none"><Avatar profilo={auth.profilo} dimensione={44} classe="verde" /></a>
   </header>
 
   <div class="contenuto con-barra">
