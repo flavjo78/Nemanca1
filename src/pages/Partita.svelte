@@ -13,6 +13,7 @@
   import Caricamento from '../components/Caricamento.svelte'
   import Foglio from '../components/Foglio.svelte'
   import Divisa from '../components/Divisa.svelte'
+  import Avatar from '../components/Avatar.svelte'
   import { COLORI, divisaDi, testoDivisa, testoPorta } from '../lib/divise.js'
 
   let { id } = $props()
@@ -45,6 +46,38 @@
     return uguali.length > 1 ? `${nome} (${uguali.findIndex((x) => x.id === p.id) + 1})` : nome
   }
   let nuovo = $state({ difesa: 0, centro: 0, attacco: 0 })
+  // amici: chiedere l'amicizia a un giocatore e invitare gli amici alla partita
+  let amici = $state([])
+  let invitaScelti = $state([])
+  async function chiediAmicizia(g) {
+    errore = ''; avviso = ''
+    const { data, error } = await supabase.rpc('chiedi_amicizia', { p_altro: g.id })
+    foglio = null
+    if (error) { errore = error.message; return }
+    avviso = data === 'accettata' ? `Tu e ${g.nome} ora siete amici.` : data === 'gia_amici' ? `${g.nome} è già tra i tuoi amici.` : `Richiesta di amicizia inviata a ${g.nome}.`
+  }
+  async function apriInvitaAmici() {
+    errore = ''
+    const { data, error } = await supabase.rpc('miei_amici')
+    if (error) { errore = error.message; return }
+    amici = (data ?? []).filter((a) => a.stato === 'amico')
+    invitaScelti = []
+    foglio = { tipo: 'invita-amici' }
+  }
+  const giaInPartita = (idGiocatore) => posizioni.some((x) => x.giocatore_id === idGiocatore)
+  const giaInvitato = (idGiocatore) => inviti.some((x) => x.a_id === idGiocatore && x.stato === 'in_attesa')
+  function alternaScelto(idGiocatore) { invitaScelti = invitaScelti.includes(idGiocatore) ? invitaScelti.filter((x) => x !== idGiocatore) : [...invitaScelti, idGiocatore] }
+  async function invitaAmici(lista) {
+    if (!lista.length) return
+    occupato = true; errore = ''; avviso = ''
+    const { data, error } = await supabase.rpc('invita_amici', { p_partita: id, p_amici: lista })
+    occupato = false
+    foglio = null
+    if (error) { errore = error.message; return }
+    avviso = data ? `Invito mandato a ${data} ${data === 1 ? 'amico' : 'amici'}: riceveranno una notifica.` : 'Nessun nuovo invito da mandare.'
+    await carica()
+  }
+
   // divise
   let divisaSquadra = $state('A')
   let divisaNuova = $state({ maglia: 'bianco', pantaloncini: 'nero' })
@@ -367,6 +400,9 @@
           <div class="sezione-titolo">{sonoTitolare ? "Sei l'organizzatore" : `Sei vice · squadra ${miaViceSquadra}`}</div>
           <div class="card" style="gap: 8px">
             <div class="sotto">Tocca un posto per cambiarne il ruolo o spostare chi lo occupa. In campo restano sempre {partita.formato} per squadra.</div>
+            {#if sonoTitolare}
+              <button type="button" class="btn piccolo" onclick={apriInvitaAmici}><Icona nome="utenti" dimensione={18} /> Invita amici</button>
+            {/if}
             <button type="button" class="btn bianco piccolo" onclick={() => apriModulo(sonoTitolare ? 'A' : miaViceSquadra)}>Cambia modulo</button>
             <button type="button" class="btn bianco piccolo" onclick={() => apriDivise(sonoTitolare ? 'A' : miaViceSquadra)}>
               <Divisa maglia={divisaDi(partita, sonoTitolare ? 'A' : miaViceSquadra).maglia} pantaloncini={divisaDi(partita, sonoTitolare ? 'A' : miaViceSquadra).pantaloncini} dimensione={18} /> Colori delle divise
@@ -481,6 +517,9 @@
         {:else}
           <p class="aiuto">{sonoOrganizzatore ? `Gestisci solo la squadra ${miaViceSquadra}.` : 'Solo chi organizza la partita può spostare gli altri giocatori.'}</p>
         {/if}
+        {#if uid && p.giocatore_id && p.giocatore_id !== uid}
+          <button type="button" class="btn bianco" disabled={occupato} onclick={() => chiediAmicizia(p.giocatore)}>Aggiungi agli amici</button>
+        {/if}
       </Foglio>
     {:else if foglio?.tipo === 'mio-posto'}
       {@const p = foglio.posizione}
@@ -574,6 +613,26 @@
           </button>
         {/each}
       </Foglio>
+    {:else if foglio?.tipo === 'invita-amici'}
+      {@const invitabili = amici.filter((a) => !giaInPartita(a.id))}
+      <Foglio aperto titolo="Invita amici" sotto="Ricevono una notifica; chi accetta va nel primo posto libero adatto ai suoi ruoli." chiudi={() => (foglio = null)}>
+        {#if !amici.length}
+          <p class="aiuto">Non hai ancora amici. Aggiungili dalla pagina <a href="/amici">Amici</a> (Profilo → Amici) o toccando un giocatore sul campo.</p>
+        {:else}
+          <div class="elenco-amici">
+            {#each amici as a (a.id)}
+              {@const dentro = giaInPartita(a.id)}
+              <label class="card riga" class:spento={dentro}>
+                <input type="checkbox" checked={invitaScelti.includes(a.id)} disabled={dentro} onchange={() => alternaScelto(a.id)} style="width:22px; height:22px; accent-color: var(--verde)" />
+                <Avatar profilo={a} dimensione={36} />
+                <div class="riempi"><div class="nome taglia">{a.nome}</div><div class="sotto taglia">{dentro ? 'Già in partita' : giaInvitato(a.id) ? 'Già invitato: puoi richiederlo' : (a.ruoli_preferiti ?? []).map(etichettaRuolo).join(', ')}</div></div>
+              </label>
+            {/each}
+          </div>
+          <button type="button" class="btn" disabled={occupato || !invitaScelti.length} onclick={() => invitaAmici(invitaScelti)}>Invita {invitaScelti.length ? `${invitaScelti.length} ${invitaScelti.length === 1 ? 'amico' : 'amici'}` : 'gli amici scelti'}</button>
+          <button type="button" class="btn bianco" disabled={occupato || !invitabili.length} onclick={() => invitaAmici(invitabili.map((a) => a.id))}>Invita tutti ({invitabili.length})</button>
+        {/if}
+      </Foglio>
     {:else if foglio?.tipo === 'divise'}
       <Foglio aperto titolo={`Divisa squadra ${divisaSquadra}`} sotto="Scegli i colori: i giocatori vedranno cosa portare." chiudi={() => (foglio = null)}>
         {#if ['A', 'B'].filter(gestisco).length > 1}
@@ -631,6 +690,9 @@
 
 <style>
   .promemoria-divisa { gap: 12px; }
+  .elenco-amici { display: flex; flex-direction: column; gap: 8px; max-height: 45vh; overflow-y: auto; }
+  .elenco-amici .riga { gap: 10px; cursor: pointer; }
+  .elenco-amici .spento { opacity: .55; cursor: default; }
   .tavolozza { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
   .colore { width: 100%; aspect-ratio: 1; min-height: 44px; border-radius: 50%; border: 2px solid var(--bordo); cursor: pointer; }
   .colore.scelto { outline: 3px solid var(--verde); outline-offset: 2px; border-color: #14201A; }

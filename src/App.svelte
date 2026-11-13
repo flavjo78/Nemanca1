@@ -17,6 +17,7 @@
   import ChatPartita from './pages/ChatPartita.svelte'
   import Profilo from './pages/Profilo.svelte'
   import Giocate from './pages/Giocate.svelte'
+  import Amici from './pages/Amici.svelte'
   import Admin from './pages/Admin.svelte'
 
   // privata = serve il login; pubblica = visibile anche dal QR senza account
@@ -33,6 +34,7 @@
     { pattern: '/profilo', componente: Profilo, privata: true },
     { pattern: '/profilo/modifica', componente: CompletaProfilo, privata: true },
     { pattern: '/giocate', componente: Giocate, privata: true },
+    { pattern: '/amici', componente: Amici, privata: true },
     { pattern: '/admin', componente: Admin, privata: true }
   ]
 
