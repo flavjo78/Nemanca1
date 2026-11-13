@@ -11,6 +11,7 @@
   import Icona from '../components/Icona.svelte'
   import Avatar from '../components/Avatar.svelte'
   import RaggioKm from '../components/RaggioKm.svelte'
+  import InstallaApp from '../components/InstallaApp.svelte'
   import { salvaCercami } from '../lib/preferenze.js'
 
   let prossima = $state(null)
@@ -133,6 +134,7 @@
       <Caricamento />
     {:else}
       {#if errore}<div class="errore">{errore}</div>{/if}
+      <InstallaApp chiudibile />
 
       <section class="sezione">
         <div class="sezione-titolo">La tua prossima partita</div>
