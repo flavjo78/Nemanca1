@@ -3,7 +3,13 @@
 -- (inserita da Flavio dal pannello, mai nel codice). Senza chiave non parte nulla.
 -- Ogni invio è protetto: se OneSignal non risponde, l'azione dell'utente va comunque a buon fine.
 
-create extension if not exists pg_net with schema extensions;
+-- pg_net esiste su Supabase; su un Postgres di prova si salta senza errori
+do $$
+begin
+  create extension if not exists pg_net with schema extensions;
+exception when others then
+  raise notice 'pg_net non disponibile: %', sqlerrm;
+end $$;
 
 -- ---------------------------------------------------------------------
 -- invio generico

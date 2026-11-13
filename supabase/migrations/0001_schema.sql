@@ -360,53 +360,76 @@ alter table public.recensioni enable row level security;
 alter table public.prenotazioni enable row level security;
 
 -- profili: nome/iniziali visibili a chi è loggato; ognuno modifica solo il suo
+drop policy if exists "profili leggibili" on public.profili;
 create policy "profili leggibili" on public.profili for select to authenticated using (true);
+drop policy if exists "profilo proprio insert" on public.profili;
 create policy "profilo proprio insert" on public.profili for insert to authenticated with check (id = auth.uid());
+drop policy if exists "profilo proprio update" on public.profili;
 create policy "profilo proprio update" on public.profili for update to authenticated using (id = auth.uid()) with check (id = auth.uid());
 
 -- campi: tutti leggono (anche dal QR senza login); chi è loggato li crea
+drop policy if exists "campi leggibili" on public.campi;
 create policy "campi leggibili" on public.campi for select to anon, authenticated using (true);
+drop policy if exists "campi insert" on public.campi;
 create policy "campi insert" on public.campi for insert to authenticated with check (creato_da = auth.uid());
+drop policy if exists "campi update creatore" on public.campi;
 create policy "campi update creatore" on public.campi for update to authenticated using (creato_da = auth.uid());
 
 -- partite: tutti leggono; solo l'organizzatore crea/modifica
+drop policy if exists "partite leggibili" on public.partite;
 create policy "partite leggibili" on public.partite for select to anon, authenticated using (true);
+drop policy if exists "partite insert" on public.partite;
 create policy "partite insert" on public.partite for insert to authenticated with check (organizzatore_id = auth.uid());
+drop policy if exists "partite update organizzatore" on public.partite;
 create policy "partite update organizzatore" on public.partite for update to authenticated
   using (organizzatore_id = auth.uid()) with check (organizzatore_id = auth.uid());
 
 -- posizioni: tutti leggono (posti liberi visibili dal QR)
+drop policy if exists "posizioni leggibili" on public.posizioni;
 create policy "posizioni leggibili" on public.posizioni for select to anon, authenticated using (true);
+drop policy if exists "posizioni organizzatore" on public.posizioni;
 create policy "posizioni organizzatore" on public.posizioni for all to authenticated
   using (public.e_organizzatore(partita_id)) with check (public.e_organizzatore(partita_id));
 -- un giocatore prende un posto libero
+drop policy if exists "posizioni prendi posto" on public.posizioni;
 create policy "posizioni prendi posto" on public.posizioni for update to authenticated
   using (stato = 'libera' and giocatore_id is null)
   with check (giocatore_id = auth.uid() and stato = 'occupata');
 -- un giocatore lascia il proprio posto (o conferma/rifiuta il cambio ruolo)
+drop policy if exists "posizioni posto proprio" on public.posizioni;
 create policy "posizioni posto proprio" on public.posizioni for update to authenticated
   using (giocatore_id = auth.uid())
   with check (giocatore_id = auth.uid() or (giocatore_id is null and stato = 'libera'));
 
 -- richieste
+drop policy if exists "richieste leggibili" on public.richieste;
 create policy "richieste leggibili" on public.richieste for select to authenticated
   using (giocatore_id = auth.uid() or public.e_organizzatore(partita_id));
+drop policy if exists "richieste insert" on public.richieste;
 create policy "richieste insert" on public.richieste for insert to authenticated with check (giocatore_id = auth.uid());
+drop policy if exists "richieste update" on public.richieste;
 create policy "richieste update" on public.richieste for update to authenticated
   using (giocatore_id = auth.uid() or public.e_organizzatore(partita_id));
 
 -- inviti
+drop policy if exists "inviti leggibili" on public.inviti;
 create policy "inviti leggibili" on public.inviti for select to authenticated using (da_id = auth.uid() or a_id = auth.uid());
+drop policy if exists "inviti insert" on public.inviti;
 create policy "inviti insert" on public.inviti for insert to authenticated with check (da_id = auth.uid() and public.e_organizzatore(partita_id));
+drop policy if exists "inviti update destinatario" on public.inviti;
 create policy "inviti update destinatario" on public.inviti for update to authenticated using (a_id = auth.uid());
 
 -- messaggi: solo partecipanti
+drop policy if exists "messaggi leggibili" on public.messaggi;
 create policy "messaggi leggibili" on public.messaggi for select to authenticated using (public.partecipa(partita_id));
+drop policy if exists "messaggi insert" on public.messaggi;
 create policy "messaggi insert" on public.messaggi for insert to authenticated
   with check (autore_id = auth.uid() and public.partecipa(partita_id));
 
 -- recensioni: scrive chi ha giocato una partita in stato 'giocata'; legge solo le proprie
+drop policy if exists "recensioni proprie" on public.recensioni;
 create policy "recensioni proprie" on public.recensioni for select to authenticated using (da_id = auth.uid());
+drop policy if exists "recensioni insert" on public.recensioni;
 create policy "recensioni insert" on public.recensioni for insert to authenticated
   with check (
     da_id = auth.uid()
@@ -416,6 +439,7 @@ create policy "recensioni insert" on public.recensioni for insert to authenticat
   );
 
 -- prenotazioni: per ora sola lettura
+drop policy if exists "prenotazioni leggibili" on public.prenotazioni;
 create policy "prenotazioni leggibili" on public.prenotazioni for select to anon, authenticated using (true);
 
 -- viste

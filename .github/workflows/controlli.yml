@@ -1,0 +1,55 @@
+# Controlli automatici a ogni pubblicazione su "anteprima" e "main":
+# 1) l'app si costruisce e tutte le schermate si aprono senza errori (Supabase finto);
+# 2) tutte le migrazioni del database funzionano su un Postgres vuoto e sono rieseguibili.
+# Nessun segreto: non tocca né il database vero né il sito.
+name: Controlli
+
+on:
+  push:
+    branches: [anteprima, main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  app:
+    name: App (build e schermate)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Browser per la prova
+        run: |
+          npm install --no-save playwright@1.63.0
+          npx playwright install --with-deps chromium
+      - name: Prova dell'app
+        run: scripts/prova-app.sh
+      - name: Foto delle schermate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: foto-schermate
+          path: tests/foto
+          if-no-files-found: ignore
+
+  database:
+    name: Database (migrazioni)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: prova
+          POSTGRES_DB: prova
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prova delle migrazioni
+        env:
+          DATABASE_URL: postgresql://postgres:prova@localhost:5432/prova
+        run: scripts/prova-migrazioni.sh

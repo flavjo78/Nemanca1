@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prova": "scripts/prova-app.sh",
+    "prova:db": "scripts/prova-migrazioni.sh"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
