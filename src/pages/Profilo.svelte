@@ -8,6 +8,7 @@
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Icona from '../components/Icona.svelte'
   import Avatar from '../components/Avatar.svelte'
+  import InstallaApp from '../components/InstallaApp.svelte'
   import { notifiche, attivaNotifiche, disattivaNotifiche } from '../lib/notifiche.svelte.js'
 
   let voti = $state(null)
@@ -121,6 +122,8 @@
         <div class="chip-riga">{#each campiFrequentati as c}<span class="chip">{c}</span>{/each}</div>
       </section>
     {/if}
+
+    <InstallaApp />
 
     <a class="card riga" href="/amici" style="text-decoration:none">
       <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="utenti" dimensione={20} /></div>
