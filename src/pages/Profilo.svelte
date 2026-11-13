@@ -9,6 +9,8 @@
   import Icona from '../components/Icona.svelte'
   import Avatar from '../components/Avatar.svelte'
   import InstallaApp from '../components/InstallaApp.svelte'
+  import Novita from '../components/Novita.svelte'
+  let vediNovita = $state(false)
   import { notifiche, attivaNotifiche, disattivaNotifiche } from '../lib/notifiche.svelte.js'
 
   let voti = $state(null)
@@ -124,6 +126,13 @@
     {/if}
 
     <InstallaApp />
+
+    <button type="button" class="card riga" style="text-align:left; border:none; font:inherit; color:inherit" onclick={() => (vediNovita = true)}>
+      <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="ricarica" dimensione={20} /></div>
+      <div class="riempi"><div class="nome">Novità dell'app</div><div class="sotto taglia">Cosa è cambiato negli ultimi aggiornamenti</div></div>
+      <Icona nome="avanti" dimensione={18} />
+    </button>
+    {#if vediNovita}<Novita apriSempre chiudiFuori={() => (vediNovita = false)} />{/if}
 
     <a class="card riga" href="/amici" style="text-decoration:none">
       <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="utenti" dimensione={20} /></div>
