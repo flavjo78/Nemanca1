@@ -30,7 +30,7 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 **Amici e social**
 - [x] **Lista amici** (si diventa amici solo se l'altro accetta), ricerca per nome, "Hai giocato con"
 - [x] **Invita amici / Invita tutti** dalla partita, anche per chi gioca e non organizza (nelle partite "decido io" decide sempre l'organizzatore)
-- [x] **"Cercami per le partite"** in Home (spento finché il giocatore non lo accende)
+- [x] **"Cercami per le partite"** in Home, **acceso di default** (13/11, migrazione 0026: acceso anche per gli iscritti attuali); si spegne dalla Home
 
 **App**
 - [x] Scheda **"Metti l'app sulla schermata Home"** (un tocco su Android, istruzioni su iPhone)

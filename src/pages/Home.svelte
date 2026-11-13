@@ -221,7 +221,7 @@
       <label class="card riga cercami">
         <div class="riempi">
           <div class="nome">Cercami per le partite</div>
-          <div class="sotto">{auth.profilo?.cercami ? 'Gli organizzatori vicini possono trovarti e invitarti' : 'Accendi se vuoi essere invitato quando manca un giocatore'}</div>
+          <div class="sotto">{auth.profilo?.cercami ? 'Ti avvisiamo quando a una partita vicina manca qualcuno' : 'Spento: non ricevi avvisi dalle partite vicine'}</div>
         </div>
         <input type="checkbox" class="interruttore" checked={!!auth.profilo?.cercami} disabled={salvandoCercami} onchange={cambiaCercami} aria-label="Cercami per le partite" />
       </label>
