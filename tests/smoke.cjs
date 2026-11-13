@@ -92,6 +92,7 @@ function rispondi(url, metodo) {
   await page.goto(base + '/campi'); await page.waitForSelector('text=Campo San Rocco'); await foto('campi')
   await page.goto(base + `/campo/${CAMPO}?nuovo=1`); await page.waitForSelector('img[alt^="QR code"]'); await foto('campo-qr')
   await page.goto(base + '/profilo'); await page.waitForSelector('text=Come ti valutano'); await foto('profilo')
+  await page.goto(base + '/profilo/modifica'); await page.waitForSelector('text=Fino a quanti km'); await page.click('text=30 km'); await page.waitForSelector('text=30 km'); await foto('profilo-modifica')
   await page.goto(base + '/campi/nuovo'); await page.waitForSelector('text=Nome del campo'); await foto('nuovo-campo')
 
   // senza login: login e campo pubblico

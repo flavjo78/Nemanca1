@@ -30,7 +30,7 @@
     let lat = auth.profilo?.lat, lng = auth.profilo?.lng
     if (lat == null) { try { ({ lat, lng } = await posizioneAttuale()) } catch { /* niente */ } }
     if (lat != null) {
-      const { data, error } = await supabase.rpc('campi_vicini', { p_lat: lat, p_lng: lng, p_raggio_km: 60, p_limite: 50 })
+      const { data, error } = await supabase.rpc('campi_vicini', { p_lat: lat, p_lng: lng, p_raggio_km: auth.profilo?.raggio_km ?? 20, p_limite: 50 })
       if (!error && data?.length) { campi = data; conDistanza = true; caricamento = false; return }
     }
     const { data, error } = await supabase.from('campi').select('*').order('nome').limit(100)

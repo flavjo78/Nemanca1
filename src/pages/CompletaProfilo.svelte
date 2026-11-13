@@ -14,6 +14,9 @@
   let comuneScelto = $state(auth.profilo?.comune ? { comune: auth.profilo.comune, lat: auth.profilo.lat, lng: auth.profilo.lng } : null)
   let suggerimenti = $state([])
   let ruoli = $state([...(auth.profilo?.ruoli_preferiti ?? [])])
+  let raggio = $state(auth.profilo?.raggio_km ?? 20)
+  let cercami = $state(auth.profilo?.cercami ?? false)
+  const RAGGI_RAPIDI = [5, 10, 20, 30, 50]
   let errore = $state('')
   let occupato = $state(false)
   let timer
@@ -36,7 +39,7 @@
     // nuovo iscritto: notifiche attive di default, il browser chiede subito il suo "Consenti"
     if (!nomeBloccato && notifiche.stato === 'spente' && window.Notification?.permission === 'default') attivaNotifiche().catch(() => {})
     occupato = true
-    const dati = { id: auth.utente.id, ruoli_preferiti: ruoli }
+    const dati = { id: auth.utente.id, ruoli_preferiti: ruoli, raggio_km: Math.min(100, Math.max(1, Math.round(raggio))), cercami }
     if (!nomeBloccato) dati.nome = nome.trim()
     if (comuneScelto) { dati.comune = comuneScelto.comune; dati.lat = comuneScelto.lat; dati.lng = comuneScelto.lng }
     else if (!comuneTesto.trim()) { dati.comune = null; dati.lat = null; dati.lng = null }
@@ -52,7 +55,7 @@
 <div class="pagina">
   <div class="intestazione">
     <div class="centro">
-      <h1 style="font-size: 26px">Come ti chiami?</h1>
+      <h1 style="font-size: 26px">{nomeBloccato ? 'Il tuo profilo' : 'Come ti chiami?'}</h1>
       <div class="sotto">Gli altri giocatori vedranno nome e iniziali.</div>
     </div>
   </div>
@@ -75,6 +78,22 @@
       <p class="aiuto">{comuneScelto ? `Scelto: ${comuneScelto.comune}` : 'Serve per mostrarti le partite vicine. Scegli dall\'elenco.'}</p>
     </div>
     <div class="campo-form">
+      <label for="raggio">Fino a quanti km vai a giocare? <strong style="color: var(--verde)">{raggio} km</strong></label>
+      <input id="raggio" type="range" min="1" max="100" step="1" bind:value={raggio} style="width:100%; accent-color: var(--verde); min-height:44px" />
+      <div class="scelte">
+        {#each RAGGI_RAPIDI as r}
+          <button type="button" class="scelta" class:attiva={raggio === r} onclick={() => (raggio = r)}>{r} km</button>
+        {/each}
+      </div>
+      <p class="aiuto">Ti mostriamo partite e campi entro questa distanza dal tuo comune. Puoi cambiarla quando vuoi.</p>
+    </div>
+    <div class="campo-form">
+      <label style="display:flex; align-items:flex-start; gap:10px; min-height:44px; font-size:15px; color: var(--testo)">
+        <input type="checkbox" bind:checked={cercami} style="width:22px; height:22px; margin-top:2px; accent-color: var(--verde); flex:0 0 auto" />
+        <span><strong>Cercami per le partite</strong><br /><span class="aiuto">Gli organizzatori della tua zona potranno trovarti e invitarti quando manca un giocatore. Vedono solo nome breve, ruoli e distanza indicativa.</span></span>
+      </label>
+    </div>
+    <div class="campo-form">
       <span class="aiuto" style="font-weight:600">Dove giochi di solito?</span>
       <div class="scelte">
         {#each Object.entries(RUOLI) as [chiave, testo]}
@@ -84,6 +103,6 @@
     </div>
     {#if !nomeBloccato && notifiche.stato === 'spente'}<p class="aiuto">Premendo Continua attiviamo le notifiche: ti avvisiamo quando ti accettano, ti invitano o ti scrivono. Puoi spegnerle dal Profilo.</p>{/if}
     {#if errore}<div class="errore">{errore}</div>{/if}
-    <button class="btn" type="submit" disabled={occupato}>{occupato ? 'Salvataggio…' : 'Continua'}</button>
+    <button class="btn" type="submit" disabled={occupato}>{occupato ? 'Salvataggio…' : nomeBloccato ? 'Salva' : 'Continua'}</button>
   </form>
 </div>

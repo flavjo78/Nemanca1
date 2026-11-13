@@ -91,7 +91,7 @@
       }).filter((p) => p.posti_liberi > 0)
       return
     }
-    const { data, error } = await supabase.rpc('partite_vicine', { p_lat: lat, p_lng: lng, p_raggio_km: 30, p_limite: 10 })
+    const { data, error } = await supabase.rpc('partite_vicine', { p_lat: lat, p_lng: lng, p_raggio_km: auth.profilo?.raggio_km ?? 20, p_limite: 10 })
     if (error) throw error
     vicine = (data ?? []).filter((p) => p.organizzatore_id !== auth.utente.id)
   }
@@ -192,8 +192,8 @@
 
       <section class="sezione">
         <div class="sezione-titolo">
-          <span>{senzaPosizione ? 'Partite con posti liberi' : 'Serve un giocatore vicino a te'}</span>
-          <a href="/campi">Campi</a>
+          <span>{senzaPosizione ? 'Partite con posti liberi' : `Serve un giocatore entro ${auth.profilo?.raggio_km ?? 20} km`}</span>
+          <a href={senzaPosizione ? '/campi' : '/profilo/modifica'}>{senzaPosizione ? 'Campi' : 'Cambia km'}</a>
         </div>
         {#if senzaPosizione}
           <p class="aiuto">Imposta il tuo comune nel <a href="/profilo">profilo</a> per vedere solo le partite vicine.</p>
