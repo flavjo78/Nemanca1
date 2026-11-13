@@ -3,6 +3,15 @@
 // "id" deve essere unico e crescente (data + lettera). Testi brevi, per i giocatori.
 export const NOVITA = [
   {
+    id: '2026-11-13b',
+    titolo: 'Novità: trova chi manca',
+    punti: [
+      'Nella partita: "Cerca chi manca" avvisa i giocatori vicini quando serve qualcuno',
+      'Lo può usare chi gioca o è in tribuna, non solo l\'organizzatore',
+      '"Cercami per le partite" è acceso: dalla Home scegli per quali ruoli e in che orari essere chiamato, o spegnilo'
+    ]
+  },
+  {
     id: '2026-11-13a',
     titolo: 'Novità di Ne manca 1',
     punti: [
