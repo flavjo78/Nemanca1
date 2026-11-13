@@ -6,6 +6,27 @@
   import { naviga, router } from '../lib/router.svelte.js'
   import { RUOLI } from '../lib/formato.js'
   import { notifiche, attivaNotifiche } from '../lib/notifiche.svelte.js'
+  import { caricaFoto, togliFoto } from '../lib/foto.js'
+  import Avatar from '../components/Avatar.svelte'
+
+  let fotoOccupato = $state(false)
+  let fotoMessaggio = $state('')
+  async function sceltaFoto(e) {
+    const file = e.currentTarget.files?.[0]
+    e.currentTarget.value = ''
+    if (!file) return
+    fotoOccupato = true; fotoMessaggio = ''
+    try {
+      const { peso } = await caricaFoto(file)
+      fotoMessaggio = `Foto salvata (${Math.max(1, Math.round(peso / 1024))} KB).`
+    } catch (err) {
+      fotoMessaggio = /formato/.test(err?.message) ? 'Questo file non è una foto che riesco a leggere. Prova con un\'altra.' : 'Non sono riuscito a caricare la foto. Riprova.'
+    } finally { fotoOccupato = false }
+  }
+  async function rimuoviFoto() {
+    fotoOccupato = true; fotoMessaggio = ''
+    try { await togliFoto(); fotoMessaggio = 'Foto tolta.' } catch { fotoMessaggio = 'Non sono riuscito a togliere la foto.' } finally { fotoOccupato = false }
+  }
 
   let nome = $state(auth.profilo?.nome ?? '')
   // il nome si sceglie una volta sola (lo blocca anche il database)
@@ -53,10 +74,23 @@
   <div class="intestazione">
     <div class="centro">
       <h1 style="font-size: 26px">{nomeBloccato ? 'Il tuo profilo' : 'Come ti chiami?'}</h1>
-      <div class="sotto">Gli altri giocatori vedranno nome e iniziali.</div>
+      <div class="sotto">Gli altri giocatori vedranno il tuo nome e la tua foto.</div>
     </div>
   </div>
   <form class="contenuto" onsubmit={salva}>
+    {#if auth.utente}
+      <div class="campo-form foto-riga">
+        <Avatar profilo={{ ...auth.profilo, nome: nome || auth.profilo?.nome }} dimensione={72} classe="verde" />
+        <div class="riempi" style="display:flex; flex-direction:column; gap:6px">
+          <label class="btn bianco piccolo" style="cursor:pointer; width:auto" aria-disabled={fotoOccupato}>
+            {fotoOccupato ? 'Sto preparando la foto…' : auth.profilo?.foto_url ? 'Cambia foto' : 'Aggiungi una foto'}
+            <input type="file" accept="image/*,.heic,.heif" onchange={sceltaFoto} disabled={fotoOccupato} hidden />
+          </label>
+          {#if auth.profilo?.foto_url}<button type="button" class="link-piccolo" disabled={fotoOccupato} onclick={rimuoviFoto}>Togli la foto</button>{/if}
+        </div>
+      </div>
+      <p class="aiuto">{fotoMessaggio || 'Scatta una foto o scegline una: la riduciamo noi, pesa pochissimo.'}</p>
+    {/if}
     <div class="campo-form">
       <label for="nome">Nome e cognome</label>
       <input id="nome" class="input" type="text" autocomplete="name" required bind:value={nome} placeholder="Marco Rizzo" readonly={nomeBloccato} style={nomeBloccato ? 'background: var(--neutro); color: var(--testo-2)' : ''} />
@@ -87,3 +121,8 @@
     <button class="btn" type="submit" disabled={occupato}>{occupato ? 'Salvataggio…' : nomeBloccato ? 'Salva' : 'Continua'}</button>
   </form>
 </div>
+
+<style>
+  .foto-riga { display:flex; flex-direction: row; align-items: center; gap: 14px; }
+  .link-piccolo { background: none; border: none; color: var(--testo-2); text-decoration: underline; font-size: 13px; min-height: 32px; text-align: left; padding: 0; }
+</style>

@@ -7,6 +7,7 @@
   import { iniziali, etichettaRuolo, etichettaFormato } from '../lib/formato.js'
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Icona from '../components/Icona.svelte'
+  import Avatar from '../components/Avatar.svelte'
   import { notifiche, attivaNotifiche, disattivaNotifiche } from '../lib/notifiche.svelte.js'
 
   let voti = $state(null)
@@ -58,7 +59,7 @@
 
   <div class="contenuto con-barra">
     <div class="card riga" style="padding: 16px">
-      <div class="avatar verde" style="width:56px; height:56px; border-radius:28px; font-size:20px">{iniziali(p)}</div>
+      <a href="/profilo/modifica" aria-label="Cambia la foto" style="text-decoration:none"><Avatar profilo={p} dimensione={56} classe="verde" /></a>
       <div class="riempi">
         <div class="nome" style="font-size:18px; font-family: var(--font-titoli)">{p?.nome ?? 'Giocatore'}</div>
         <div class="sotto">{[p?.comune, (p?.ruoli_preferiti ?? []).map(etichettaRuolo).join(', '), p?.comune ? `entro ${p?.raggio_km ?? 20} km` : ''].filter(Boolean).join(' · ')}{p?.comune || p?.ruoli_preferiti?.length ? ' · ' : ''}dal {anno}</div>

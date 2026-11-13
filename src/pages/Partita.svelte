@@ -111,7 +111,7 @@
   async function carica() {
     const { data, error } = await supabase
       .from('partite')
-      .select('*, campo:campi(id, nome, indirizzo), organizzatore:profili!partite_organizzatore_id_fkey(id, nome, iniziali), posizioni(*, giocatore:profili(id, nome, iniziali))')
+      .select('*, campo:campi(id, nome, indirizzo), organizzatore:profili!partite_organizzatore_id_fkey(id, nome, iniziali), posizioni(*, giocatore:profili(id, nome, iniziali, foto_url))')
       .eq('id', id).maybeSingle()
     if (error || !data) { errore = 'Partita non trovata.'; return }
     data.posizioni.sort((a, b) => a.squadra.localeCompare(b.squadra) || a.y - b.y || a.x - b.x || a.creato_il.localeCompare(b.creato_il))
@@ -120,9 +120,9 @@
     vice = v ?? []
     if (uid) {
       const [{ data: r }, { data: t }, { data: inv }] = await Promise.all([
-        supabase.from('richieste').select('*, giocatore:profili(id, nome, iniziali)')
+        supabase.from('richieste').select('*, giocatore:profili(id, nome, iniziali, foto_url)')
           .eq('partita_id', id).eq('stato', 'in_attesa').order('creato_il'),
-        supabase.from('tribuna').select('*, giocatore:profili(id, nome, iniziali)').eq('partita_id', id).order('creato_il'),
+        supabase.from('tribuna').select('*, giocatore:profili(id, nome, iniziali, foto_url)').eq('partita_id', id).order('creato_il'),
         supabase.from('inviti').select('*, posizione:posizioni(id, ruolo, squadra, stato)').eq('partita_id', id).eq('stato', 'in_attesa')
       ])
       richieste = r ?? []

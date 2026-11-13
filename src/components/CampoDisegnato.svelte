@@ -105,12 +105,12 @@
       aria-label={ariaLabel(p)} onclick={() => tocco(p)}
       onpointerdown={(e) => giu(e, p)} onpointermove={muovi} onpointerup={su} onpointercancel={su}
       oncontextmenu={(e) => e.preventDefault()}>
-      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else}{iniziali(p.giocatore)}{/if}
+      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else if p.giocatore?.foto_url}<img class="foto-cerchio" src={p.giocatore.foto_url} alt="" loading="lazy" decoding="async" />{:else}{iniziali(p.giocatore)}{/if}
       {#if p.stato === 'cambio_proposto'}<span class="badge-domanda">?</span>{/if}
     </button>
   {:else}
     <div class="{classiPallino(p)} {classeExtra}">
-      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else}{iniziali(p.giocatore)}{/if}
+      {#if p.stato === 'libera'}<Icona nome="piu" dimensione={18} spessore={2.6} />{:else if p.giocatore?.foto_url}<img class="foto-cerchio" src={p.giocatore.foto_url} alt="" loading="lazy" decoding="async" />{:else}{iniziali(p.giocatore)}{/if}
       {#if p.stato === 'cambio_proposto'}<span class="badge-domanda">?</span>{/if}
     </div>
   {/if}
@@ -159,6 +159,8 @@
 </div>
 
 <style>
+  .foto-cerchio { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; pointer-events: none; }
+
   .insieme { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; max-width: 420px; margin: 0 auto; width: 100%; }
   /* schermi larghi: panchine a lato del campo, A in alto e B in basso */
   .insieme.con-panchine { max-width: 500px; grid-template-columns: minmax(0, 1fr) 62px; grid-template-areas: "campo pA" "campo pB"; }
