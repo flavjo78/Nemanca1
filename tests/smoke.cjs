@@ -86,6 +86,7 @@ function rispondi(url, metodo) {
   // sessione salvata come la salva supabase-js
   const sessione = { access_token: 'x', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: 'y', user: { id: UID, email: 'marco@esempio.it', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: '2026-01-01' } }
   await ctx.addInitScript((s) => { if (window.__sessione !== false) localStorage.setItem('sb-finto-auth-token', JSON.stringify(s)) }, sessione)
+  await ctx.addInitScript(() => localStorage.setItem('nm1-novita-viste', '9999'))
 
   const page = await ctx.newPage()
   page.on('pageerror', (e) => errori.push('pageerror: ' + e.message))
@@ -106,6 +107,7 @@ function rispondi(url, metodo) {
   await page.click('role=tab[name="Lista"]')
   await page.goto(base + `/campo/${CAMPO}?nuovo=1`); await page.waitForSelector('img[alt^="QR code"]'); await foto('campo-qr')
   await page.goto(base + '/profilo'); await page.waitForSelector('text=Come ti valutano'); await foto('profilo')
+  await page.click('text=Novità dell\'app'); await page.waitForSelector('text=Ho capito'); await foto('novita'); await page.click('text=Ho capito')
   await page.goto(base + '/amici'); await page.waitForSelector('text=Richieste da accettare'); await page.waitForSelector('text=Hai giocato con'); await foto('amici')
   await page.goto(base + '/profilo/modifica'); await page.waitForSelector('text=Il tuo profilo'); await foto('profilo-modifica')
   await page.goto(base + '/'); await page.waitForSelector('text=Cercami per le partite'); await page.click('.chip-km'); await page.waitForSelector('text=Fino a quanti km vai a giocare?'); await page.click('.foglio >> text=30 km'); await foto('home-raggio')

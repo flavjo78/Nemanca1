@@ -18,6 +18,7 @@
   import Profilo from './pages/Profilo.svelte'
   import Giocate from './pages/Giocate.svelte'
   import Amici from './pages/Amici.svelte'
+  import Novita from './components/Novita.svelte'
   import Admin from './pages/Admin.svelte'
 
   // privata = serve il login; pubblica = visibile anche dal QR senza account
@@ -73,6 +74,7 @@
     {#key router.percorso}
       <corrente.componente {...corrente.parametri} />
     {/key}
+    <Novita />
   {/if}
 </div>
 
