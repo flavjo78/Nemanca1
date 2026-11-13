@@ -6,3 +6,5 @@ dist
 .DS_Store
 *.log
 backup/
+dist-prova
+tests/foto

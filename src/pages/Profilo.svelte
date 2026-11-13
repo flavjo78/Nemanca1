@@ -61,7 +61,7 @@
       <div class="avatar verde" style="width:56px; height:56px; border-radius:28px; font-size:20px">{iniziali(p)}</div>
       <div class="riempi">
         <div class="nome" style="font-size:18px; font-family: var(--font-titoli)">{p?.nome ?? 'Giocatore'}</div>
-        <div class="sotto">{[p?.comune, (p?.ruoli_preferiti ?? []).map(etichettaRuolo).join(', ')].filter(Boolean).join(' · ')}{p?.comune || p?.ruoli_preferiti?.length ? ' · ' : ''}dal {anno}</div>
+        <div class="sotto">{[p?.comune, (p?.ruoli_preferiti ?? []).map(etichettaRuolo).join(', '), p?.comune ? `entro ${p?.raggio_km ?? 20} km` : ''].filter(Boolean).join(' · ')}{p?.comune || p?.ruoli_preferiti?.length ? ' · ' : ''}dal {anno}</div>
       </div>
     </div>
 

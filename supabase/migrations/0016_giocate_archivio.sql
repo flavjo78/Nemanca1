@@ -42,13 +42,18 @@ begin
 end $$;
 revoke execute on function public.aggiorna_stati_partite() from public, anon, authenticated;
 
-create extension if not exists pg_cron;
+-- pg_cron esiste su Supabase; su un Postgres di prova senza pg_cron si salta senza errori
 do $$
 begin
-  perform cron.unschedule('aggiorna-stati-partite');
-exception when others then null;
+  create extension if not exists pg_cron;
+  begin
+    perform cron.unschedule('aggiorna-stati-partite');
+  exception when others then null;
+  end;
+  perform cron.schedule('aggiorna-stati-partite', '*/5 * * * *', 'select public.aggiorna_stati_partite()');
+exception when others then
+  raise notice 'pg_cron non disponibile: %', sqlerrm;
 end $$;
-select cron.schedule('aggiorna-stati-partite', '*/5 * * * *', 'select public.aggiorna_stati_partite()');
 
 -- elenco chat: tutte (anche archiviate, in sola lettura), prima quelle ancora attive
 drop function if exists public.mie_chat();

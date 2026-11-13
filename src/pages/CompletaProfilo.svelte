@@ -52,7 +52,7 @@
 <div class="pagina">
   <div class="intestazione">
     <div class="centro">
-      <h1 style="font-size: 26px">Come ti chiami?</h1>
+      <h1 style="font-size: 26px">{nomeBloccato ? 'Il tuo profilo' : 'Come ti chiami?'}</h1>
       <div class="sotto">Gli altri giocatori vedranno nome e iniziali.</div>
     </div>
   </div>
@@ -84,6 +84,6 @@
     </div>
     {#if !nomeBloccato && notifiche.stato === 'spente'}<p class="aiuto">Premendo Continua attiviamo le notifiche: ti avvisiamo quando ti accettano, ti invitano o ti scrivono. Puoi spegnerle dal Profilo.</p>{/if}
     {#if errore}<div class="errore">{errore}</div>{/if}
-    <button class="btn" type="submit" disabled={occupato}>{occupato ? 'Salvataggio…' : 'Continua'}</button>
+    <button class="btn" type="submit" disabled={occupato}>{occupato ? 'Salvataggio…' : nomeBloccato ? 'Salva' : 'Continua'}</button>
   </form>
 </div>

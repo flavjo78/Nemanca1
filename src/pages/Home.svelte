@@ -9,6 +9,8 @@
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
+  import RaggioKm from '../components/RaggioKm.svelte'
+  import { salvaCercami } from '../lib/preferenze.js'
 
   let prossima = $state(null)
   let daApprovare = $state([])
@@ -91,9 +93,17 @@
       }).filter((p) => p.posti_liberi > 0)
       return
     }
-    const { data, error } = await supabase.rpc('partite_vicine', { p_lat: lat, p_lng: lng, p_raggio_km: 30, p_limite: 10 })
+    const { data, error } = await supabase.rpc('partite_vicine', { p_lat: lat, p_lng: lng, p_raggio_km: auth.profilo?.raggio_km ?? 20, p_limite: 10 })
     if (error) throw error
     vicine = (data ?? []).filter((p) => p.organizzatore_id !== auth.utente.id)
+  }
+
+  let salvandoCercami = $state(false)
+  async function cambiaCercami(e) {
+    const si = e.currentTarget.checked
+    salvandoCercami = true; errore = ''
+    try { await salvaCercami(si) } catch { errore = 'Non sono riuscito a salvare. Riprova.'; e.currentTarget.checked = !si }
+    finally { salvandoCercami = false }
   }
 
   async function rispondi(r, stato) {
@@ -190,11 +200,25 @@
         </section>
       {/if}
 
+      <label class="card riga cercami">
+        <div class="riempi">
+          <div class="nome">Cercami per le partite</div>
+          <div class="sotto">{auth.profilo?.cercami ? 'Gli organizzatori vicini possono trovarti e invitarti' : 'Accendi se vuoi essere invitato quando manca un giocatore'}</div>
+        </div>
+        <input type="checkbox" class="interruttore" checked={!!auth.profilo?.cercami} disabled={salvandoCercami} onchange={cambiaCercami} aria-label="Cercami per le partite" />
+      </label>
+
       <section class="sezione">
         <div class="sezione-titolo">
           <span>{senzaPosizione ? 'Partite con posti liberi' : 'Serve un giocatore vicino a te'}</span>
-          <a href="/campi">Campi</a>
+          {#if senzaPosizione}<a href="/campi">Campi</a>{/if}
         </div>
+        {#if !senzaPosizione}
+          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+            <RaggioKm cambiato={() => caricaVicine().catch(() => {})} />
+            <span class="aiuto">dal tuo comune</span>
+          </div>
+        {/if}
         {#if senzaPosizione}
           <p class="aiuto">Imposta il tuo comune nel <a href="/profilo">profilo</a> per vedere solo le partite vicine.</p>
         {/if}
@@ -222,3 +246,7 @@
   </div>
   <BarraInferiore />
 </div>
+
+<style>
+  .cercami { cursor: pointer; }
+</style>
