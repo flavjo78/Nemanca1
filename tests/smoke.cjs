@@ -39,6 +39,7 @@ function rispondi(url, metodo) {
   if (p.endsWith('/rpc/partite_vicine')) return [{ id: PARTITA2, campo_id: CAMPO, campo_nome: 'Sporting Club', organizzatore_id: 'u-PL', formato: 5, data_ora: giovedi.toISOString(), quota: 5, posti_liberi: 2, ruoli_liberi: ['centro','attacco'], distanza_km: 2.1 },
     { id: 'dddddddd-dddd-dddd-dddd-dddddddddddd', campo_id: CAMPO, campo_nome: 'Centro Sportivo Aradeo', organizzatore_id: 'u-PL', formato: 8, data_ora: new Date(Date.now()+4*86400000).toISOString(), quota: 5, posti_liberi: 1, ruoli_liberi: ['portiere'], distanza_km: 6.4 }]
   if (p.endsWith('/rpc/campi_vicini')) return [{ ...campo, distanza_km: 0.8, partite_aperte: 2 }, { id: 'c2', nome: 'Sporting Club', indirizzo: 'Via Roma 4, Galatina', distanza_km: 2.1, partite_aperte: 0, sport: ['calcio'] }]
+  if (p.endsWith('/rpc/non_letti')) return [{ partita_id: PARTITA, quanti: 3 }]
   if (p.endsWith('/rpc/crea_partita')) return PARTITA
   const tabella = p.split('/rest/v1/')[1]
   const sel = u.searchParams.get('select') || ''

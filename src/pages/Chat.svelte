@@ -3,7 +3,7 @@
   import { onMount } from 'svelte'
   import { supabase } from '../lib/supabase.js'
   import { etichettaFormato, giornoBreve, giornoNumero, ora } from '../lib/formato.js'
-  import { haNuovi } from '../lib/letture.js'
+  import { nonLetti, aggiornaNonLetti } from '../lib/nonletti.svelte.js'
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
@@ -13,6 +13,7 @@
   let errore = $state('')
 
   onMount(async () => {
+    aggiornaNonLetti()
     const { data, error } = await supabase.rpc('mie_chat')
     if (error) errore = error.message
     chat = data ?? []
@@ -43,14 +44,15 @@
     {:else}
       <div class="sezione">
         {#each chat as c (c.partita_id)}
-          {@const nuovo = haNuovi(c.partita_id, c.ultimo_il)}
+          {@const quanti = nonLetti.perPartita[c.partita_id] ?? 0}
+          {@const nuovo = quanti > 0}
           <a href={`/chat/${c.partita_id}`} class="card riga" style={c.stato === 'annullata' || !c.attiva ? 'opacity:.7' : ''}>
             <div class="data-box"><div class="g">{giornoBreve(c.data_ora)}</div><div class="n">{giornoNumero(c.data_ora)}</div></div>
             <div class="riempi">
               <div class="nome taglia">{c.campo_nome} · {ora(c.data_ora)}{#if !c.attiva}<span class="chip neutro" style="margin-left:6px; font-size:11px; padding:2px 8px">Archivio</span>{/if}</div>
               <div class="sotto taglia" style={nuovo ? 'color: var(--testo); font-weight:600' : ''}>{anteprima(c)}</div>
             </div>
-            {#if nuovo}<span class="pallino-nuovo" aria-label="Messaggi nuovi"></span>{/if}
+            {#if nuovo}<span class="conta-nuovi" aria-label={`${quanti} da leggere`}>{quanti > 99 ? '99+' : quanti}</span>{/if}
             <Icona nome="avanti" dimensione={18} />
           </a>
         {/each}
@@ -61,5 +63,6 @@
 </div>
 
 <style>
+  .conta-nuovi { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #D93025; color: #fff; font-size: 12px; font-weight: 700; line-height: 22px; text-align: center; flex: 0 0 auto; }
   .pallino-nuovo { width: 10px; height: 10px; border-radius: 5px; background: var(--da-confermare); flex: 0 0 10px; }
 </style>

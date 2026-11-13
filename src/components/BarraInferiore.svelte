@@ -1,6 +1,7 @@
 <script>
   import Icona from './Icona.svelte'
   import { router } from '../lib/router.svelte.js'
+  import { nonLetti } from '../lib/nonletti.svelte.js'
   const voci = [
     { href: '/', nome: 'home', testo: 'Home' },
     { href: '/campi', nome: 'campi', testo: 'Campi' },
@@ -14,8 +15,13 @@
 
 <nav class="barra-inferiore no-stampa" aria-label="Navigazione principale">
   {#each voci as v}
-    <a href={v.href} class:attiva={attiva(v.href)} aria-current={attiva(v.href) ? 'page' : undefined}>
-      <Icona nome={v.nome} />
+    {@const n = v.nome === 'chat' ? nonLetti.totale : 0}
+    <a href={v.href} class:attiva={attiva(v.href)} aria-current={attiva(v.href) ? 'page' : undefined}
+       aria-label={n ? `${v.testo}, ${n} ${n === 1 ? 'messaggio da leggere' : 'messaggi da leggere'}` : undefined}>
+      <span class="icona">
+        <Icona nome={v.nome} />
+        {#if n}<span class="apice" class:lampeggia={n > 1}>{n > 99 ? '99+' : n}</span>{/if}
+      </span>
       {v.testo}
     </a>
   {/each}
@@ -35,4 +41,14 @@
     font-size: 11px; font-weight: 600; min-height: 44px; justify-content: center;
   }
   a.attiva { color: var(--verde); }
+  .icona { position: relative; display: inline-flex; }
+  .apice {
+    position: absolute; top: -6px; right: -12px; min-width: 20px; height: 20px; padding: 0 5px;
+    border-radius: 10px; background: #D93025; color: #fff; border: 2px solid var(--superficie);
+    font-size: 11px; font-weight: 700; line-height: 16px; text-align: center; box-sizing: border-box;
+  }
+  /* più di un messaggio: lampeggia piano */
+  .apice.lampeggia { animation: lampeggia 2.4s ease-in-out infinite; }
+  @keyframes lampeggia { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+  @media (prefers-reduced-motion: reduce) { .apice.lampeggia { animation: none; } }
 </style>

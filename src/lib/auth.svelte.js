@@ -1,5 +1,6 @@
 import { supabase } from './supabase.js'
 import { avviaNotifiche, scollegaNotifiche } from './notifiche.svelte.js'
+import { avviaNonLetti, fermaNonLetti } from './nonletti.svelte.js'
 
 export const auth = $state({
   pronto: false,      // vero quando abbiamo letto la sessione salvata
@@ -25,7 +26,7 @@ export async function avviaAuth() {
   auth.utente = data.session?.user ?? null
   await caricaProfilo()
   auth.pronto = true
-  if (auth.utente) avviaNotifiche(auth.utente.id)
+  if (auth.utente) { avviaNotifiche(auth.utente.id); avviaNonLetti() }
 
   supabase.auth.onAuthStateChange((_evento, sessione) => {
     const nuovoId = sessione?.user?.id ?? null
@@ -33,12 +34,14 @@ export async function avviaAuth() {
     auth.utente = sessione?.user ?? null
     // non attendere chiamate Supabase dentro il callback
     setTimeout(caricaProfilo, 0)
-    if (auth.utente) setTimeout(() => avviaNotifiche(auth.utente.id), 0)
+    if (auth.utente) setTimeout(() => { avviaNotifiche(auth.utente.id); avviaNonLetti() }, 0)
+    else fermaNonLetti()
   })
 }
 
 export async function esci() {
   await scollegaNotifiche()
+  fermaNonLetti()
   await supabase.auth.signOut()
   auth.utente = null
   auth.profilo = null
