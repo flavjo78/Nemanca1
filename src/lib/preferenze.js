@@ -14,3 +14,6 @@ async function salva(campi) {
 
 export function salvaRaggio(km) { return salva({ raggio_km: Math.min(100, Math.max(1, Math.round(km))) }) }
 export function salvaCercami(si) { return salva({ cercami: !!si }) }
+export function salvaAvvisi({ ruoli, dalle, alle }) {
+  return salva({ avvisi_ruoli: ruoli === 'tutti' ? 'tutti' : 'miei', avvisi_dalle: dalle, avvisi_alle: alle })
+}

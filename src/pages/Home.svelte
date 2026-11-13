@@ -12,7 +12,8 @@
   import Avatar from '../components/Avatar.svelte'
   import RaggioKm from '../components/RaggioKm.svelte'
   import InstallaApp from '../components/InstallaApp.svelte'
-  import { salvaCercami } from '../lib/preferenze.js'
+  import { salvaCercami, salvaAvvisi } from '../lib/preferenze.js'
+  import Foglio from '../components/Foglio.svelte'
 
   let prossima = $state(null)
   let daApprovare = $state([])
@@ -101,6 +102,20 @@
   }
 
   let salvandoCercami = $state(false)
+  // impostazioni degli avvisi "serve un giocatore vicino a te"
+  let fogliAvvisi = $state(false)
+  let avvisi = $state({ ruoli: 'miei', dalle: 8, alle: 22 })
+  const ORE = Array.from({ length: 25 }, (_, i) => i)
+  function apriAvvisi() {
+    avvisi = { ruoli: auth.profilo?.avvisi_ruoli ?? 'miei', dalle: auth.profilo?.avvisi_dalle ?? 8, alle: auth.profilo?.avvisi_alle ?? 22 }
+    fogliAvvisi = true
+  }
+  async function salvaImpostazioniAvvisi() {
+    errore = ''
+    if (avvisi.dalle === avvisi.alle) { errore = 'Scegli due orari diversi.'; return }
+    try { await salvaAvvisi(avvisi); fogliAvvisi = false } catch { errore = 'Non sono riuscito a salvare. Riprova.' }
+  }
+  const testoAvvisi = $derived(`${(auth.profilo?.avvisi_ruoli ?? 'miei') === 'tutti' ? 'Per tutti i ruoli' : 'Solo per i tuoi ruoli'} · dalle ${auth.profilo?.avvisi_dalle ?? 8} alle ${auth.profilo?.avvisi_alle ?? 22}`)
   async function cambiaCercami(e) {
     const si = e.currentTarget.checked
     salvandoCercami = true; errore = ''
@@ -210,6 +225,28 @@
         </div>
         <input type="checkbox" class="interruttore" checked={!!auth.profilo?.cercami} disabled={salvandoCercami} onchange={cambiaCercami} aria-label="Cercami per le partite" />
       </label>
+      {#if auth.profilo?.cercami}
+        <button type="button" class="riga-avvisi" onclick={apriAvvisi}>
+          <span>Avvisi: {testoAvvisi}</span><strong>Cambia</strong>
+        </button>
+      {/if}
+      <Foglio aperto={fogliAvvisi} titolo="Quando vuoi essere chiamato" sotto="Ti avvisiamo quando a una partita entro i tuoi km manca qualcuno." chiudi={() => (fogliAvvisi = false)}>
+        <span class="aiuto" style="font-weight:600">Per quali ruoli</span>
+        <div class="scelte">
+          <button type="button" class="scelta" class:attiva={avvisi.ruoli === 'miei'} onclick={() => (avvisi.ruoli = 'miei')}>Solo per i miei ruoli</button>
+          <button type="button" class="scelta" class:attiva={avvisi.ruoli === 'tutti'} onclick={() => (avvisi.ruoli = 'tutti')}>Anche per altri ruoli</button>
+        </div>
+        <p class="aiuto">I tuoi ruoli sono quelli del profilo{(auth.profilo?.ruoli_preferiti ?? []).length ? `: ${auth.profilo.ruoli_preferiti.map(etichettaRuolo).join(', ')}` : ' (non ne hai scelti: ti chiamiamo per tutti)'}.</p>
+        <span class="aiuto" style="font-weight:600">In quali orari</span>
+        <div style="display:flex; gap:10px; align-items:center">
+          <label class="aiuto" for="dalle">dalle</label>
+          <select id="dalle" class="input" bind:value={avvisi.dalle} style="flex:1">{#each ORE.slice(0, 24) as o}<option value={o}>{o}:00</option>{/each}</select>
+          <label class="aiuto" for="alle">alle</label>
+          <select id="alle" class="input" bind:value={avvisi.alle} style="flex:1">{#each ORE.slice(1) as o}<option value={o}>{o}:00</option>{/each}</select>
+        </div>
+        <p class="aiuto">Fuori da questi orari non ti arriva nessun avviso. Al massimo 3 al giorno e uno per partita.</p>
+        <button type="button" class="btn" onclick={salvaImpostazioniAvvisi}>Salva</button>
+      </Foglio>
 
       <section class="sezione">
         <div class="sezione-titolo">
@@ -252,4 +289,6 @@
 
 <style>
   .cercami { cursor: pointer; }
+  .riga-avvisi { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; min-height: 44px; margin-top: -4px; padding: 0 16px; background: none; border: none; font: inherit; font-size: 13px; color: var(--testo-2); text-align: left; }
+  .riga-avvisi strong { color: var(--verde); }
 </style>

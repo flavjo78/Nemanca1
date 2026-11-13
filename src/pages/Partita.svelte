@@ -78,6 +78,23 @@
     await carica()
   }
 
+  // "Serve un portiere vicino a te": avviso ai giocatori della zona
+  const NOMI_RUOLO = { portiere: 'portiere', difesa: 'difensore', centro: 'centrocampista', attacco: 'attaccante' }
+  const PLURALI_RUOLO = { portiere: 'portieri', difesa: 'difensori', centro: 'centrocampisti', attacco: 'attaccanti' }
+  const ruoliMancanti = $derived(Object.entries(posizioni.filter((p) => p.stato === 'libera' && p.ruolo !== 'panchina')
+    .reduce((acc, p) => { acc[p.ruolo] = (acc[p.ruolo] || 0) + 1; return acc }, {})))
+  let ruoloCercato = $state('qualsiasi')
+  async function cercaChiManca() {
+    occupato = true; errore = ''; avviso = ''
+    const { data, error } = await supabase.rpc('cerca_chi_manca', { p_partita: id, p_ruolo: ruoloCercato })
+    occupato = false
+    foglio = null
+    if (error) { errore = error.message; return }
+    avviso = data > 0
+      ? `Avviso mandato a ${data} ${data === 1 ? 'giocatore vicino' : 'giocatori vicini'}: il primo che entra prende il posto.`
+      : 'In questo momento non ci sono giocatori disponibili in zona. Prova a invitare i tuoi amici.'
+  }
+
   // divise
   let divisaSquadra = $state('A')
   let divisaNuova = $state({ maglia: 'bianco', pantaloncini: 'nero' })
@@ -348,6 +365,11 @@
           <button type="button" class="btn bianco" onclick={apriInvitaAmici}><Icona nome="utenti" dimensione={18} /> Invita amici a questa partita</button>
         {/if}
       {/if}
+      {#if modificabile && (mioPosto || sonoOrganizzatore || sonoInTribuna) && ruoliMancanti.length}
+        <button type="button" class="btn tratteggiato" onclick={() => { ruoloCercato = ruoliMancanti.length === 1 ? ruoliMancanti[0][0] : 'qualsiasi'; foglio = { tipo: 'cerca' } }}>
+          <Icona nome="cerca" dimensione={18} /> Cerca chi manca tra i giocatori vicini
+        </button>
+      {/if}
       {#if modificabile && sonoOrganizzatore}
         <p class="aiuto" style="text-align:center">Tieni premuto un cerchio e trascinalo: vicino alla porta è difesa, in mezzo centrocampo, avanti attacco. Il modulo si aggiorna da solo.</p>
       {/if}
@@ -615,6 +637,19 @@
             <span class="aiuto">· {a.giocatore_id ? `scambia con ${a.giocatore_id === uid ? 'te' : nomeBreve(a.giocatore)}` : 'libero'}</span>
           </button>
         {/each}
+      </Foglio>
+    {:else if foglio?.tipo === 'cerca'}
+      <Foglio aperto titolo="Cerca chi manca" sotto="Avvisiamo con una notifica i giocatori vicini al campo che hanno acceso &quot;Cercami&quot;, secondo i km e gli orari che hanno scelto." chiudi={() => (foglio = null)}>
+        <div class="scelte">
+          {#each ruoliMancanti as [ruolo, n]}
+            <button type="button" class="scelta" class:attiva={ruoloCercato === ruolo} onclick={() => (ruoloCercato = ruolo)}>{n > 1 ? `${n} ${PLURALI_RUOLO[ruolo]}` : `Un ${NOMI_RUOLO[ruolo]}`}</button>
+          {/each}
+          {#if ruoliMancanti.length > 1}
+            <button type="button" class="scelta" class:attiva={ruoloCercato === 'qualsiasi'} onclick={() => (ruoloCercato = 'qualsiasi')}>Qualsiasi ruolo</button>
+          {/if}
+        </div>
+        <p class="aiuto">Ogni giocatore riceve al massimo un avviso per partita; per lo stesso ruolo si può riprovare dopo 2 ore.</p>
+        <button type="button" class="btn" disabled={occupato} onclick={cercaChiManca}>Avvisa i giocatori vicini</button>
       </Foglio>
     {:else if foglio?.tipo === 'invita-amici'}
       {@const invitabili = amici.filter((a) => !giaInPartita(a.id))}

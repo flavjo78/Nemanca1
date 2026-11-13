@@ -11,7 +11,7 @@ const PARTITA = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb'
 const PARTITA2 = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
 const oggi = new Date(Date.now() + 3 * 3600000); oggi.setMinutes(0, 0, 0) // sempre nel futuro: la prova non dipende dall'ora
 const giovedi = new Date(Date.now() + 2 * 86400000); giovedi.setHours(20, 30, 0, 0)
-const io = { id: UID, nome: 'Marco Rizzo', iniziali: 'MR', comune: 'Galatina', lat: 40.17, lng: 18.17, ruoli_preferiti: ['attacco'], creato_il: '2026-01-01' }
+const io = { id: UID, cercami: true, avvisi_ruoli: 'miei', avvisi_dalle: 9, avvisi_alle: 22, nome: 'Marco Rizzo', iniziali: 'MR', comune: 'Galatina', lat: 40.17, lng: 18.17, ruoli_preferiti: ['attacco'], creato_il: '2026-01-01' }
 const campo = { id: CAMPO, nome: 'Campo San Rocco', indirizzo: 'Via dei Pini 12, Galatina', lat: 40.17, lng: 18.17, sport: ['calcio'], verificato: true, sponsor_nome: 'Bar Centrale', sponsor_testo: 'Terzo tempo offerto da Bar Centrale', creato_da: UID }
 const nomi = [['Giulia P','GP'],['Luca C','LC'],['Anna D','AD'],['Marco Rizzo','MR'],['Fabio S','FS'],['Dario N','DN'],['Paolo L','PL'],['Sara T','ST'],['Rita B','RB']]
 const schema5 = [['portiere',50,10],['difesa',30,40],['difesa',70,40],['attacco',30,75],['attacco',70,75]]
@@ -99,6 +99,7 @@ function rispondi(url, metodo) {
   await page.goto(base + `/campo/${CAMPO}?qr=1`); await page.waitForSelector('text=Campo San Rocco'); await foto('campo')
   await page.click('text=Organizza una partita su questo campo'); await page.waitForSelector('text=Formato'); await foto('nuova-partita')
   await page.goto(base + `/partita/${PARTITA}`); await page.waitForSelector('text=SQUADRA A'); await foto('partita')
+  await page.click('text=Cerca chi manca tra i giocatori vicini'); await page.waitForSelector('text=Avvisa i giocatori vicini'); await foto('partita-cerca'); await page.keyboard.press('Escape')
   await page.click('text=Invita amici'); await page.waitForSelector('text=Invita tutti'); await foto('partita-invita-amici'); await page.keyboard.press('Escape')
   await page.click('text=Colori delle divise'); await page.waitForSelector('text=Divisa squadra A'); await page.click('.tavolozza >> nth=0 >> [aria-label="rosso"]'); await foto('partita-divise'); await page.keyboard.press('Escape')
   await page.goto(base + '/campi'); await page.waitForSelector('text=Campo San Rocco'); await foto('campi')
@@ -110,7 +111,7 @@ function rispondi(url, metodo) {
   await page.click('text=Novità dell\'app'); await page.waitForSelector('text=Ho capito'); await foto('novita'); await page.click('text=Ho capito')
   await page.goto(base + '/amici'); await page.waitForSelector('text=Richieste da accettare'); await page.waitForSelector('text=Hai giocato con'); await foto('amici')
   await page.goto(base + '/profilo/modifica'); await page.waitForSelector('text=Il tuo profilo'); await foto('profilo-modifica')
-  await page.goto(base + '/'); await page.waitForSelector('text=Cercami per le partite'); await page.click('.chip-km'); await page.waitForSelector('text=Fino a quanti km vai a giocare?'); await page.click('.foglio >> text=30 km'); await foto('home-raggio')
+  await page.goto(base + '/'); await page.waitForSelector('text=Cercami per le partite'); await page.click('.riga-avvisi'); await page.waitForSelector('text=Quando vuoi essere chiamato'); await foto('home-avvisi'); await page.keyboard.press('Escape'); await page.click('.chip-km'); await page.waitForSelector('text=Fino a quanti km vai a giocare?'); await page.click('.foglio >> text=30 km'); await foto('home-raggio')
   await page.goto(base + '/campi/nuovo'); await page.waitForSelector('text=Nome del campo'); await foto('nuovo-campo')
 
   // senza login: login e campo pubblico
