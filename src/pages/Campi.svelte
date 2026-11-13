@@ -9,6 +9,7 @@
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
+  import RaggioKm from '../components/RaggioKm.svelte'
 
   let campi = $state([])
   let caricamento = $state(true)
@@ -26,6 +27,7 @@
 
   async function carica() {
     caricamento = true
+    conDistanza = false
     errore = ''
     let lat = auth.profilo?.lat, lng = auth.profilo?.lng
     if (lat == null) { try { ({ lat, lng } = await posizioneAttuale()) } catch { /* niente */ } }
@@ -54,6 +56,12 @@
       <input class="input" type="search" placeholder="Cerca per nome o indirizzo" bind:value={ricerca} aria-label="Cerca campo" style="padding-left: 44px" />
       <span style="position:absolute; left:14px; top:14px; color: var(--testo-2)"><Icona nome="cerca" dimensione={22} /></span>
     </div>
+    {#if auth.profilo?.lat != null}
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
+        <RaggioKm cambiato={carica} />
+        <span class="aiuto">{caricamento ? '' : conDistanza ? 'dal tuo comune' : 'Nessun campo in questo raggio: ecco tutti i campi'}</span>
+      </div>
+    {/if}
 
     {#if caricamento}
       <Caricamento />

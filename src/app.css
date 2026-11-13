@@ -201,3 +201,18 @@ textarea.input { height: auto; min-height: 96px; padding: 14px 16px; resize: ver
   .no-stampa { display: none !important; }
   body { background: #fff; }
 }
+
+/* interruttore acceso/spento (checkbox) */
+.interruttore {
+  appearance: none; -webkit-appearance: none; flex: 0 0 auto;
+  width: 52px; height: 32px; border-radius: 16px; background: var(--bordo);
+  position: relative; cursor: pointer; transition: background .15s; margin: 6px 0;
+}
+.interruttore::after {
+  content: ''; position: absolute; top: 3px; left: 3px; width: 26px; height: 26px;
+  border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .15s;
+}
+.interruttore:checked { background: var(--verde); }
+.interruttore:checked::after { transform: translateX(20px); }
+.interruttore:disabled { opacity: .6; }
+.interruttore:focus-visible { outline: 2px solid var(--verde); outline-offset: 2px; }
