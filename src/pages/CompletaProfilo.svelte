@@ -5,6 +5,7 @@
   import { cercaComune } from '../lib/geo.js'
   import { naviga, router } from '../lib/router.svelte.js'
   import { RUOLI } from '../lib/formato.js'
+  import { notifiche, attivaNotifiche } from '../lib/notifiche.svelte.js'
 
   let nome = $state(auth.profilo?.nome ?? '')
   // il nome si sceglie una volta sola (lo blocca anche il database)
@@ -32,6 +33,8 @@
     e.preventDefault()
     errore = ''
     if (nome.trim().length < 2) { errore = 'Scrivi il tuo nome.'; return }
+    // nuovo iscritto: notifiche attive di default, il browser chiede subito il suo "Consenti"
+    if (!nomeBloccato && notifiche.stato === 'spente' && window.Notification?.permission === 'default') attivaNotifiche().catch(() => {})
     occupato = true
     const dati = { id: auth.utente.id, ruoli_preferiti: ruoli }
     if (!nomeBloccato) dati.nome = nome.trim()
@@ -79,6 +82,7 @@
         {/each}
       </div>
     </div>
+    {#if !nomeBloccato && notifiche.stato === 'spente'}<p class="aiuto">Premendo Continua attiviamo le notifiche: ti avvisiamo quando ti accettano, ti invitano o ti scrivono. Puoi spegnerle dal Profilo.</p>{/if}
     {#if errore}<div class="errore">{errore}</div>{/if}
     <button class="btn" type="submit" disabled={occupato}>{occupato ? 'Salvataggio…' : 'Continua'}</button>
   </form>

@@ -63,6 +63,8 @@ export async function avviaNotifiche(idUtente) {
     const OneSignal = await carica()
     if (idUtente) await OneSignal.login(idUtente)
     aggiorna(OneSignal)
+    // attive di default: a chi non ha ancora deciso proponiamo subito di attivarle
+    setTimeout(proponiNotifiche, 2500)
   } catch (e) {
     console.warn('Notifiche:', e)
     notifiche.stato = 'non_supportate'
@@ -99,8 +101,17 @@ export async function disattivaNotifiche() {
   }
 }
 
-/** Dopo un'azione importante (es. candidatura): propone il riquadro se non ha ancora deciso. */
-export async function proponiNotifiche() {
+const CHIAVE_PROPOSTA = 'nm1-notifiche-proposte'
+const OGNI = 3 * 24 * 3600 * 1000 // se dice "Più tardi", si ripropone dopo 3 giorni
+
+/** Le notifiche sono attive di default: chi non ha ancora deciso vede il riquadro "Attiva".
+ *  Il browser chiede comunque il suo "Consenti" una volta (non si può saltare). */
+export async function proponiNotifiche({ forza = false } = {}) {
   if (notifiche.stato !== 'spente' || Notification.permission !== 'default') return
-  try { (await carica()).Slidedown.promptPush() } catch {}
+  try {
+    const ultima = Number(localStorage.getItem(CHIAVE_PROPOSTA) || 0)
+    if (!forza && Date.now() - ultima < OGNI) return
+    localStorage.setItem(CHIAVE_PROPOSTA, String(Date.now()))
+  } catch {}
+  try { (await carica()).Slidedown.promptPush({ force: true }) } catch {}
 }

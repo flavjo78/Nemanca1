@@ -151,13 +151,13 @@
     else foglio = { tipo: 'posto-occupato', posizione: p }
   }
 
-  const prendi = (p) => esegui('prendi_posto', { p_posizione: p.id }, mioPosto ? 'Ti sei spostato.' : 'Sei in squadra!').then((ok) => { if (ok) proponiNotifiche() })
+  const prendi = (p) => esegui('prendi_posto', { p_posizione: p.id }, mioPosto ? 'Ti sei spostato.' : 'Sei in squadra!').then((ok) => { if (ok) proponiNotifiche({ forza: true }) })
   const lascia = () => esegui('lascia_posto', { p_partita: id }, 'Hai lasciato il posto.')
   const libera = (p) => esegui('libera_posto', { p_posizione: p.id }, 'Posto liberato.')
   const rimuovi = (p) => esegui('rimuovi_posto', { p_posizione: p.id }, 'Posto tolto dallo schema.')
   const proponi = (p, ruolo) => esegui('proponi_cambio', { p_posizione: p.id, p_nuovo_ruolo: ruolo }, p.giocatore_id ? 'Proposta inviata: il giocatore deve accettare.' : 'Ruolo cambiato.')
   const rispondiCambio = (accetta) => esegui('rispondi_cambio', { p_posizione: mioPosto.id, p_accetta: accetta }, accetta ? 'Ruolo aggiornato.' : 'Hai rifiutato il cambio.')
-  const candidati = () => esegui('candidati', { p_partita: id, p_ruolo: ruoloScelto, p_squadra: squadraPreferita }, 'Candidatura inviata: l\'organizzatore riceve la richiesta.').then((ok) => { if (ok) proponiNotifiche() })
+  const candidati = () => esegui('candidati', { p_partita: id, p_ruolo: ruoloScelto, p_squadra: squadraPreferita }, 'Candidatura inviata: l\'organizzatore riceve la richiesta.').then((ok) => { if (ok) proponiNotifiche({ forza: true }) })
   const ritira = () => esegui('ritira_candidatura', { p_richiesta: miaRichiesta.id }, 'Candidatura ritirata.')
   const rispondiRichiesta = (r, accetta) => esegui('rispondi_richiesta', { p_richiesta: r.id, p_accetta: accetta }, accetta ? `${nomeBreve(r.giocatore)} è in squadra.` : 'Candidatura rifiutata.')
   const aggiungi = () => esegui('aggiungi_posto', { p_partita: id, p_squadra: squadraScelta, p_ruolo: ruoloScelto ?? 'centro' }, 'Posto aggiunto.')
