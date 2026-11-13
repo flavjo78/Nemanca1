@@ -46,7 +46,7 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 ## Da fare, in ordine
 
-1. [~] **Tappa 4 – "Cerca chi manca"** (13/11, in anteprima): bottone nella partita per chi gioca o è in tribuna; avvisa chi ha "Cercami" acceso entro i suoi km, per i suoi ruoli o anche per altri (lo sceglie lui), negli orari che imposta in Home; precedenza a chi ha già giocato su quel campo; limiti anti-fastidio. **Tolte su decisione di Flavio**: chat 1-a-1 e "blocca"
+1. [x] **Tappa 4 – "Cerca chi manca"** (13/11, su www): bottone nella partita per chi gioca o è in tribuna; avvisa chi ha "Cercami" acceso entro i suoi km, per i suoi ruoli o anche per altri (lo sceglie lui), negli orari che imposta in Home; precedenza a chi ha già giocato su quel campo; limiti anti-fastidio. **Tolte su decisione di Flavio**: chat 1-a-1 e "blocca"
    - [ ] *Da decidere*: avviso **automatico** (es. quando qualcuno si toglie entro 24 ore, o 24 e 3 ore prima se mancano giocatori)
 2. [ ] **Tappa 5 – Dopo la partita**: risultato (andrà anche nell'archivio), recensioni anonime su 4 categorie, voti nel profilo, storico
 3. [ ] **Tappa 6**: QR stampabili (versione da stampare con logo), prova con 10 persone su un campo vero
