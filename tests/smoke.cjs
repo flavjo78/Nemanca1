@@ -86,7 +86,7 @@ function rispondi(url, metodo) {
   // sessione salvata come la salva supabase-js
   const sessione = { access_token: 'x', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, refresh_token: 'y', user: { id: UID, email: 'marco@esempio.it', aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {}, created_at: '2026-01-01' } }
   await ctx.addInitScript((s) => { if (window.__sessione !== false) localStorage.setItem('sb-finto-auth-token', JSON.stringify(s)) }, sessione)
-  await ctx.addInitScript(() => localStorage.setItem('nm1-novita-viste', '9999'))
+  await ctx.addInitScript(() => { localStorage.setItem('nm1-novita-viste', '9999'); sessionStorage.setItem('nm1-avvio-visto', '1') })
 
   const page = await ctx.newPage()
   page.on('pageerror', (e) => errori.push('pageerror: ' + e.message))
@@ -118,6 +118,7 @@ function rispondi(url, metodo) {
   const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 })
   await ctx2.route('**/finto.supabase.co/**', (route) => route.fulfill({ status: 200, headers: { 'content-type': 'application/json' }, body: JSON.stringify(rispondi(route.request().url())) }))
   await ctx2.route('**/fonts.googleapis.com/**', (r) => r.fulfill({ status: 200, headers: { 'content-type': 'text/css' }, body: '' }))
+  await ctx2.addInitScript(() => sessionStorage.setItem('nm1-avvio-visto', '1'))
   const p2 = await ctx2.newPage()
   p2.on('pageerror', (e) => errori.push('anon pageerror: ' + e.message))
   await p2.goto(base + '/'); await p2.waitForSelector('text=Mandami il codice'); await p2.waitForTimeout(500); await p2.screenshot({ path: `${OUT}/login.png` })

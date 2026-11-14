@@ -3,6 +3,13 @@
 // "id" deve essere unico e crescente (data + lettera). Testi brevi, per i giocatori.
 export const NOVITA = [
   {
+    id: '2026-11-14a',
+    titolo: 'Novità: nuova apertura',
+    punti: [
+      'Un breve video di apertura accoglie chi apre l\'app (si può saltare)'
+    ]
+  },
+  {
     id: '2026-11-13b',
     titolo: 'Novità: trova chi manca',
     punti: [
