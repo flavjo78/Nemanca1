@@ -2,6 +2,7 @@
   // Video di apertura (5 s): parte all'avvio dell'app, si ferma sull'ultimo fotogramma (il logo),
   // il logo sfuma e compare la prima schermata. Una volta per apertura dell'app; "Salta" per chi ha fretta.
   import { onMount } from 'svelte'
+  import { avvioFinito } from '../lib/avvio.js'
 
   const CHIAVE = 'nm1-avvio-visto'
   let mostra = $state((() => { try { return !sessionStorage.getItem(CHIAVE) } catch { return true } })())
@@ -19,11 +20,12 @@
   }
   function chiudi() {
     mostra = false
+    avvioFinito()
     try { sessionStorage.setItem(CHIAVE, '1') } catch {}
   }
 
   onMount(() => {
-    if (!mostra) return
+    if (!mostra) { avvioFinito(); return }
     const ridotto = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
     if (ridotto || !video) { fine(); return }
     timer = setTimeout(fine, 7000) // rete lenta o video bloccato: non si resta mai fermi
