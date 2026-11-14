@@ -34,6 +34,7 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 **App**
 - [x] Scheda **"Metti l'app sulla schermata Home"** (un tocco su Android, istruzioni su iPhone)
+- [x] **Video di apertura** (5 s, ~0,5 MB) che sfuma nel colore dell'app, con "Salta" (14/11)
 - [x] Riquadro **"Novità"** dopo ogni aggiornamento e avviso "versione nuova: tocca per aggiornare"
 - [x] **Area amministratore** con numeri e termometro dello spazio (500 MB)
 - [x] "Aiuto e supporto" → `supporto@nemanca1.com` (inoltro alla Gmail di Flavio)

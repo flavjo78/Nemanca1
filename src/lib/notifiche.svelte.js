@@ -1,3 +1,4 @@
+import { dopoAvvio } from './avvio.js'
 // Notifiche push con OneSignal (web push).
 // L'App ID è pubblico per design; si può cambiare con VITE_ONESIGNAL_APP_ID.
 // OneSignal accetta un solo sito per app: le notifiche funzionano su www.nemanca1.com.
@@ -107,6 +108,7 @@ const OGNI = 3 * 24 * 3600 * 1000 // se dice "Più tardi", si ripropone dopo 3 g
 /** Le notifiche sono attive di default: chi non ha ancora deciso vede il riquadro "Attiva".
  *  Il browser chiede comunque il suo "Consenti" una volta (non si può saltare). */
 export async function proponiNotifiche({ forza = false } = {}) {
+  await dopoAvvio() // il riquadro delle notifiche arriva dopo il video d'apertura
   if (notifiche.stato !== 'spente' || Notification.permission !== 'default') return
   try {
     const ultima = Number(localStorage.getItem(CHIAVE_PROPOSTA) || 0)

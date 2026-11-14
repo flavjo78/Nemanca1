@@ -1,3 +1,4 @@
+import { dopoAvvio } from './avvio.js'
 // Geocoding con Nominatim (OpenStreetMap). Rispettare la policy: max 1 richiesta/secondo.
 const BASE = 'https://nominatim.openstreetmap.org'
 
@@ -42,7 +43,8 @@ function indirizzoBreve(x) {
 }
 
 /** Posizione del telefono (se l'utente la concede). */
-export function posizioneAttuale() {
+export async function posizioneAttuale() {
+  await dopoAvvio() // la richiesta "consenti posizione" non deve coprire il video d'apertura
   return new Promise((risolvi, rifiuta) => {
     if (!navigator.geolocation) return rifiuta(new Error('Geolocalizzazione non disponibile'))
     navigator.geolocation.getCurrentPosition(
