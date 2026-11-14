@@ -13,7 +13,7 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 **Campi**
 - [x] Registrazione campi con **QR** da stampare (apre la pagina del campo anche senza account)
 - [x] **Mappa dei campi** (schede Lista/Mappa): segnaposto arancio con il numero di partite con posti liberi, cerchio dei km
-- [x] **Raggio personalizzabile** ("Entro X km") nella pagina Campi e in Home, scelto da ogni giocatore
+- [x] **Raggio personalizzabile** ("Entro X km") e **punto di partenza** ("da Galatina" o "da questa posizione") nella pagina Campi e in Home; il comune non è più nel profilo (14/11)
 
 **Partite e campo disegnato**
 - [x] Calcio a 5/8/11, quota, panchine; modalità "ognuno sceglie il suo posto" o "decido io chi gioca"
@@ -28,7 +28,7 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 - [x] **Notifiche automatiche** (OneSignal): candidature, accettazioni, inviti, messaggi, cambi di ruolo, amicizie, nuovi iscritti (solo a Flavio); proposte da subito, si spengono dal Profilo
 
 **Amici e social**
-- [x] **Lista amici** (si diventa amici solo se l'altro accetta), ricerca per nome, "Hai giocato con"
+- [x] **Lista amici** (si diventa amici solo se l'altro accetta), ricerca per nome, "Hai giocato con"; dal 14/11 è nella **Chat**, scheda "Amici"
 - [x] **Invita amici / Invita tutti** dalla partita, anche per chi gioca e non organizza (nelle partite "decido io" decide sempre l'organizzatore)
 - [x] **"Cercami per le partite"** in Home, **acceso di default** (13/11, migrazione 0026: acceso anche per gli iscritti attuali); si spegne dalla Home
 
