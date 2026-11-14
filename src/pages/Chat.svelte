@@ -7,6 +7,13 @@
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
+  import ElencoAmici from '../components/ElencoAmici.svelte'
+  import { router, naviga } from '../lib/router.svelte.js'
+
+  // due schede: le chat delle partite e gli amici (anche da /amici)
+  const scheda = $derived(router.percorso === '/amici' ? 'amici' : 'partite')
+  let richiesteAmici = $state(0)
+  function vai(s) { naviga(s === 'amici' ? '/amici' : '/chat', { sostituisci: true }) }
 
   let chat = $state([])
   let caricamento = $state(true)
@@ -14,6 +21,7 @@
 
   onMount(async () => {
     aggiornaNonLetti()
+    supabase.rpc('miei_amici').then(({ data }) => { richiesteAmici = (data ?? []).filter((a) => a.stato === 'ricevuta').length })
     const { data, error } = await supabase.rpc('mie_chat')
     if (error) errore = error.message
     chat = data ?? []
@@ -28,9 +36,17 @@
 </script>
 
 <div class="pagina">
-  <header class="intestazione"><div class="centro"><h1 style="font-size:26px">Chat</h1><div class="sotto">Le chat delle tue partite</div></div></header>
+  <header class="intestazione"><div class="centro"><h1 style="font-size:26px">Chat</h1><div class="sotto">{scheda === 'amici' ? 'I tuoi amici, da invitare alle partite' : 'Le chat delle tue partite'}</div></div></header>
   <div class="contenuto con-barra">
-    {#if caricamento}
+    <div class="scelte" role="tablist" aria-label="Chat e amici">
+      <button type="button" role="tab" class="scelta" class:attiva={scheda === 'partite'} aria-selected={scheda === 'partite'} onclick={() => vai('partite')}>Partite</button>
+      <button type="button" role="tab" class="scelta" class:attiva={scheda === 'amici'} aria-selected={scheda === 'amici'} onclick={() => vai('amici')}>
+        Amici{#if richiesteAmici} <span class="conta-nuovi" style="margin-left:4px">{richiesteAmici}</span>{/if}
+      </button>
+    </div>
+    {#if scheda === 'amici'}
+      <ElencoAmici />
+    {:else if caricamento}
       <Caricamento />
     {:else if errore}
       <div class="errore">{errore}</div>

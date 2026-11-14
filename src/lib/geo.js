@@ -62,3 +62,22 @@ export function distanzaKm(lat1, lng1, lat2, lng2) {
     Math.cos(lat1 * r) * Math.cos(lat2 * r) * Math.sin(((lng2 - lng1) * r) / 2) ** 2
   return 6371 * 2 * Math.asin(Math.sqrt(a))
 }
+
+/** Dal testo scritto al comune: il primo suggerimento (preferendo un nome uguale a quello scritto). */
+export async function risolviComune(testo) {
+  const q = (testo || '').trim()
+  if (q.length < 2) return null
+  const elenco = await cercaComune(q)
+  if (!elenco.length) return null
+  const uguale = elenco.find((x) => x.comune.toLowerCase() === q.toLowerCase())
+  return uguale ?? elenco[0]
+}
+
+/** Nome del comune dalle coordinate (Nominatim reverse). */
+export async function comuneDaCoordinate(lat, lng) {
+  const url = `${BASE}/reverse?format=jsonv2&addressdetails=1&zoom=10&lat=${lat}&lon=${lng}`
+  const r = await fetch(url, { headers: { 'Accept-Language': 'it' } })
+  if (!r.ok) return null
+  const x = await r.json()
+  return comuneDa(x.address) || null
+}

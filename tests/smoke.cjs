@@ -103,6 +103,7 @@ function rispondi(url, metodo) {
   await page.click('text=Invita amici'); await page.waitForSelector('text=Invita tutti'); await foto('partita-invita-amici'); await page.keyboard.press('Escape')
   await page.click('text=Colori delle divise'); await page.waitForSelector('text=Divisa squadra A'); await page.click('.tavolozza >> nth=0 >> [aria-label="rosso"]'); await foto('partita-divise'); await page.keyboard.press('Escape')
   await page.goto(base + '/campi'); await page.waitForSelector('text=Campo San Rocco'); await foto('campi')
+  await page.click('text=da Galatina'); await page.waitForSelector('text=Da dove parti?'); await foto('campi-da-dove'); await page.keyboard.press('Escape')
   await page.click('role=tab[name="Mappa"]'); await page.waitForSelector('.leaflet-container .pin'); await foto('campi-mappa')
   await page.click('.pin'); await page.waitForSelector('text=Apri il campo'); await foto('campi-mappa-popup')
   await page.click('role=tab[name="Lista"]')

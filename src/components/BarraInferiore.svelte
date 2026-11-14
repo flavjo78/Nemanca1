@@ -9,6 +9,7 @@
     { href: '/profilo', nome: 'profilo', testo: 'Profilo' }
   ]
   function attiva(href) {
+    if (href === '/chat' && router.percorso === '/amici') return true
     return href === '/' ? router.percorso === '/' : router.percorso.startsWith(href)
   }
 </script>

@@ -17,7 +17,6 @@
   import ChatPartita from './pages/ChatPartita.svelte'
   import Profilo from './pages/Profilo.svelte'
   import Giocate from './pages/Giocate.svelte'
-  import Amici from './pages/Amici.svelte'
   import Novita from './components/Novita.svelte'
   import Avvio from './components/Avvio.svelte'
   import Admin from './pages/Admin.svelte'
@@ -36,7 +35,7 @@
     { pattern: '/profilo', componente: Profilo, privata: true },
     { pattern: '/profilo/modifica', componente: CompletaProfilo, privata: true },
     { pattern: '/giocate', componente: Giocate, privata: true },
-    { pattern: '/amici', componente: Amici, privata: true },
+    { pattern: '/amici', componente: Chat, privata: true },
     { pattern: '/admin', componente: Admin, privata: true }
   ]
 

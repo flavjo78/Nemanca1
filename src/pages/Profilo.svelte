@@ -16,11 +16,6 @@
   let voti = $state(null)
   let storico = $state([])
   let caricato = $state(false)
-  let richiesteAmici = $state(0)
-  onMount(async () => {
-    const { data } = await supabase.rpc('miei_amici')
-    richiesteAmici = (data ?? []).filter((a) => a.stato === 'ricevuta').length
-  })
 
   const p = $derived(auth.profilo)
   const giocate = $derived(storico.filter((s) => s.stato === 'giocata').length)
@@ -133,16 +128,6 @@
       <Icona nome="avanti" dimensione={18} />
     </button>
     {#if vediNovita}<Novita apriSempre chiudiFuori={() => (vediNovita = false)} />{/if}
-
-    <a class="card riga" href="/amici" style="text-decoration:none">
-      <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="utenti" dimensione={20} /></div>
-      <div class="riempi">
-        <div class="nome">Amici</div>
-        <div class="sotto taglia">{richiesteAmici ? `${richiesteAmici} ${richiesteAmici === 1 ? 'richiesta' : 'richieste'} da accettare` : 'Aggiungi amici e invitali alle tue partite'}</div>
-      </div>
-      {#if richiesteAmici}<span class="chip avviso">{richiesteAmici}</span>{/if}
-      <Icona nome="avanti" dimensione={18} />
-    </a>
 
     <a class="card riga" href="/giocate" style="text-decoration:none">
       <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="orologio" dimensione={20} /></div>

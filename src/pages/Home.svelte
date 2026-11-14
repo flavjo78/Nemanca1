@@ -11,6 +11,7 @@
   import Icona from '../components/Icona.svelte'
   import Avatar from '../components/Avatar.svelte'
   import RaggioKm from '../components/RaggioKm.svelte'
+  import DaComune from '../components/DaComune.svelte'
   import InstallaApp from '../components/InstallaApp.svelte'
   import { salvaCercami, salvaAvvisi } from '../lib/preferenze.js'
   import Foglio from '../components/Foglio.svelte'
@@ -253,14 +254,12 @@
           <span>{senzaPosizione ? 'Partite con posti liberi' : 'Serve un giocatore vicino a te'}</span>
           {#if senzaPosizione}<a href="/campi">Campi</a>{/if}
         </div>
-        {#if !senzaPosizione}
-          <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-            <RaggioKm cambiato={() => caricaVicine().catch(() => {})} />
-            <span class="aiuto">dal tuo comune</span>
-          </div>
-        {/if}
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+          {#if !senzaPosizione}<RaggioKm cambiato={() => caricaVicine().catch(() => {})} />{/if}
+          <DaComune cambiato={() => caricaVicine().catch(() => {})} />
+        </div>
         {#if senzaPosizione}
-          <p class="aiuto">Imposta il tuo comune nel <a href="/profilo">profilo</a> per vedere solo le partite vicine.</p>
+          <p class="aiuto">Scegli da dove parti (qui sopra) per vedere solo le partite vicine.</p>
         {/if}
         {#if vicine.length}
           {#each vicine as p (p.id)}

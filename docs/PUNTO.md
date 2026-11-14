@@ -1,6 +1,6 @@
 # Il punto della situazione – Ne manca 1
 
-Aggiornato: 13 novembre 2026, sera. Tutto quello che è nella sezione "Fatto" è online su **www.nemanca1.com**.
+Aggiornato: 14 novembre 2026. Tutto quello che è nella sezione "Fatto" è online su **www.nemanca1.com**.
 Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 ## Fatto (online su www)
@@ -34,7 +34,7 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 **App**
 - [x] Scheda **"Metti l'app sulla schermata Home"** (un tocco su Android, istruzioni su iPhone)
-- [x] **Video di apertura** (5 s, ~0,5 MB) che sfuma nel colore dell'app, con "Salta" (14/11)
+- [x] **Video di apertura** (5 s, ~0,5 MB) che sfuma nel colore dell'app, con "Salta" (14/11); le richieste di posizione e notifiche arrivano solo dopo il video
 - [x] Riquadro **"Novità"** dopo ogni aggiornamento e avviso "versione nuova: tocca per aggiornare"
 - [x] **Area amministratore** con numeri e termometro dello spazio (500 MB)
 - [x] "Aiuto e supporto" → `supporto@nemanca1.com` (inoltro alla Gmail di Flavio)
@@ -70,4 +70,4 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 - La chat si chiude solo quando la partita va in archivio (il giorno dopo)
 - Le notifiche non si possono accendere senza il "Consenti" del telefono: l'app lo chiede subito e si spengono dal Profilo
 - Può invitare amici anche chi gioca; nelle partite "decido io" l'invito diventa una candidatura
-- A ogni "unisci" Claude aggiorna la lista delle Novità mostrata agli utenti
+- Novità per gli utenti: Claude propone il testo in chat e lo pubblica solo dopo l'ok di Flavio; mai per l'area amministratore o ritocchi interni
