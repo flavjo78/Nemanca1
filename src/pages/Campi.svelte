@@ -10,6 +10,7 @@
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
   import RaggioKm from '../components/RaggioKm.svelte'
+  import DaComune from '../components/DaComune.svelte'
 
   let campi = $state([])
   let caricamento = $state(true)
@@ -65,12 +66,11 @@
       <button type="button" role="tab" class="scelta" class:attiva={vista === 'lista'} aria-selected={vista === 'lista'} onclick={() => scegliVista('lista')}>Lista</button>
       <button type="button" role="tab" class="scelta" class:attiva={vista === 'mappa'} aria-selected={vista === 'mappa'} onclick={() => scegliVista('mappa')}>Mappa</button>
     </div>
-    {#if auth.profilo?.lat != null}
-      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap">
-        <RaggioKm cambiato={carica} />
-        <span class="aiuto">{caricamento ? '' : conDistanza ? 'dal tuo comune' : 'Nessun campo in questo raggio: ecco tutti i campi'}</span>
-      </div>
-    {/if}
+    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
+      {#if auth.profilo?.lat != null}<RaggioKm cambiato={carica} />{/if}
+      <DaComune cambiato={carica} />
+    </div>
+    {#if auth.profilo?.lat != null && !caricamento && !conDistanza}<p class="aiuto">Nessun campo in questo raggio: ecco tutti i campi.</p>{/if}
 
     {#if caricamento}
       <Caricamento />

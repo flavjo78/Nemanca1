@@ -2,7 +2,7 @@
   // Primo accesso: nome e comune (serve per "partite vicino a te")
   import { supabase } from '../lib/supabase.js'
   import { auth, caricaProfilo } from '../lib/auth.svelte.js'
-  import { cercaComune } from '../lib/geo.js'
+  import ScegliComune from '../components/ScegliComune.svelte'
   import { naviga, router } from '../lib/router.svelte.js'
   import { RUOLI } from '../lib/formato.js'
   import { notifiche, attivaNotifiche } from '../lib/notifiche.svelte.js'
@@ -31,23 +31,11 @@
   let nome = $state(auth.profilo?.nome ?? '')
   // il nome si sceglie una volta sola (lo blocca anche il database)
   const nomeBloccato = !!auth.profilo?.nome?.trim()
-  let comuneTesto = $state(auth.profilo?.comune ?? '')
   let comuneScelto = $state(auth.profilo?.comune ? { comune: auth.profilo.comune, lat: auth.profilo.lat, lng: auth.profilo.lng } : null)
-  let suggerimenti = $state([])
+  let campoComune = $state(null)
   let ruoli = $state([...(auth.profilo?.ruoli_preferiti ?? [])])
   let errore = $state('')
   let occupato = $state(false)
-  let timer
-
-  function cambiaComune(e) {
-    comuneTesto = e.target.value
-    comuneScelto = null
-    clearTimeout(timer)
-    timer = setTimeout(async () => {
-      try { suggerimenti = await cercaComune(comuneTesto) } catch { suggerimenti = [] }
-    }, 500)
-  }
-  function scegli(s) { comuneScelto = s; comuneTesto = s.comune; suggerimenti = [] }
   function alternaRuolo(r) { ruoli = ruoli.includes(r) ? ruoli.filter((x) => x !== r) : [...ruoli, r] }
 
   async function salva(e) {
@@ -59,8 +47,11 @@
     occupato = true
     const dati = { id: auth.utente.id, ruoli_preferiti: ruoli }
     if (!nomeBloccato) dati.nome = nome.trim()
-    if (comuneScelto) { dati.comune = comuneScelto.comune; dati.lat = comuneScelto.lat; dati.lng = comuneScelto.lng }
-    else if (!comuneTesto.trim()) { dati.comune = null; dati.lat = null; dati.lng = null }
+    // il comune si chiede solo alla prima iscrizione (dopo si cambia da Campi o Home: "da …")
+    if (!nomeBloccato) {
+      const c = await campoComune?.conferma()
+      if (c) { dati.comune = c.comune; dati.lat = c.lat; dati.lng = c.lng }
+    }
     const { error } = await supabase.from('profili').upsert(dati)
     occupato = false
     if (error) { errore = error.message; return }
@@ -96,18 +87,9 @@
       <input id="nome" class="input" type="text" autocomplete="name" required bind:value={nome} placeholder="Marco Rizzo" readonly={nomeBloccato} style={nomeBloccato ? 'background: var(--neutro); color: var(--testo-2)' : ''} />
       <p class="aiuto">{nomeBloccato ? 'Il nome non si può cambiare. Se è sbagliato scrivi a supporto@nemanca1.com.' : 'Scrivi nome e cognome veri: dopo non si potranno più cambiare.'}</p>
     </div>
-    <div class="campo-form">
-      <label for="comune">Il tuo comune</label>
-      <input id="comune" class="input" type="text" value={comuneTesto} oninput={cambiaComune} placeholder="Galatina" autocomplete="off" />
-      {#if suggerimenti.length}
-        <div class="suggerimenti">
-          {#each suggerimenti as s}
-            <button type="button" onclick={() => scegli(s)}>{s.comune}{s.provincia ? ` · ${s.provincia}` : ''}</button>
-          {/each}
-        </div>
-      {/if}
-      <p class="aiuto">{comuneScelto ? `Scelto: ${comuneScelto.comune}` : 'Serve per mostrarti le partite vicine. Scegli dall\'elenco.'}</p>
-    </div>
+    {#if !nomeBloccato}
+      <ScegliComune bind:this={campoComune} bind:scelto={comuneScelto} aiuto="Serve per mostrarti le partite e i campi vicini. Potrai cambiarlo dalla pagina Campi." />
+    {/if}
     <div class="campo-form">
       <span class="aiuto" style="font-weight:600">Dove giochi di solito?</span>
       <div class="scelte">

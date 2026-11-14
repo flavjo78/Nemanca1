@@ -1,14 +1,12 @@
 <script>
-  // Lista amici: richieste ricevute, amici, richieste inviate, ricerca per nome e compagni di gioco.
+  // Lista amici (dentro la Chat, scheda "Amici"): richieste ricevute, amici, richieste inviate, ricerca per nome e compagni di gioco.
   // Si diventa amici solo se l'altro accetta; poi l'organizzatore può invitarli direttamente alle partite.
   import { onMount } from 'svelte'
   import { supabase } from '../lib/supabase.js'
-  import { naviga } from '../lib/router.svelte.js'
   import { etichettaRuolo } from '../lib/formato.js'
   import Avatar from '../components/Avatar.svelte'
   import Icona from '../components/Icona.svelte'
   import Caricamento from '../components/Caricamento.svelte'
-  import BarraInferiore from '../components/BarraInferiore.svelte'
 
   let elenco = $state([])
   let compagni = $state([])
@@ -62,13 +60,7 @@
   function sotto(g) { return [g.comune, (g.ruoli_preferiti ?? []).map(etichettaRuolo).join(', ')].filter(Boolean).join(' · ') }
 </script>
 
-<div class="pagina">
-  <header class="intestazione">
-    <button type="button" class="btn-tondo" aria-label="Indietro" onclick={() => history.length > 1 ? history.back() : naviga('/profilo')}><Icona nome="indietro" /></button>
-    <div class="centro"><h1 style="font-size:26px">Amici</h1><div class="sotto">Per invitarli direttamente alle tue partite</div></div>
-  </header>
-
-  <div class="contenuto con-barra">
+<div class="elenco-amici-pagina">
     {#if errore}<div class="errore">{errore}</div>{/if}
     {#if avviso}<div class="ok">{avviso}</div>{/if}
 
@@ -138,8 +130,6 @@
         </section>
       {/if}
     {/if}
-  </div>
-  <BarraInferiore />
 </div>
 
 {#snippet riga(g, stato, testoSotto = '')}
@@ -159,5 +149,6 @@
 {/snippet}
 
 <style>
+  .elenco-amici-pagina { display: flex; flex-direction: column; gap: 14px; }
   .link-piccolo { background: none; border: none; color: var(--testo-2); text-decoration: underline; font-size: 13px; min-height: 44px; padding: 0 6px; }
 </style>

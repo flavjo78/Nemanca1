@@ -655,7 +655,7 @@
       {@const invitabili = amici.filter((a) => !giaInPartita(a.id))}
       <Foglio aperto titolo="Invita amici" sotto={approvazione && !sonoTitolare ? "Ricevono una notifica; se accettano, l'organizzatore decide se farli giocare." : "Ricevono una notifica; chi accetta va nel primo posto libero adatto ai suoi ruoli."} chiudi={() => (foglio = null)}>
         {#if !amici.length}
-          <p class="aiuto">Non hai ancora amici. Aggiungili dalla pagina <a href="/amici">Amici</a> (Profilo → Amici) o toccando un giocatore sul campo.</p>
+          <p class="aiuto">Non hai ancora amici. Aggiungili da <a href="/amici">Chat → Amici</a> o toccando un giocatore sul campo.</p>
         {:else}
           <div class="elenco-amici">
             {#each amici as a (a.id)}
