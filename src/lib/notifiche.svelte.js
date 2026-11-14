@@ -1,3 +1,4 @@
+import { naviga } from './router.svelte.js'
 import { dopoAvvio } from './avvio.js'
 // Notifiche push con OneSignal (web push).
 // L'App ID è pubblico per design; si può cambiare con VITE_ONESIGNAL_APP_ID.
@@ -28,6 +29,18 @@ function statoIniziale() {
   return null
 }
 
+function apriDaNotifica(e) {
+  try {
+    const n = e?.notification ?? {}
+    let percorso = n.additionalData?.percorso
+    if (!percorso) {
+      const url = e?.result?.url || n.launchURL
+      if (url) { const u = new URL(url, location.origin); if (u.origin === location.origin) percorso = u.pathname + u.search }
+    }
+    if (percorso && percorso.startsWith('/') && percorso !== location.pathname + location.search) naviga(percorso)
+  } catch { /* niente */ }
+}
+
 /** Carica l'SDK di OneSignal (una volta sola) e restituisce l'oggetto OneSignal. */
 function carica() {
   if (promessa) return promessa
@@ -38,6 +51,8 @@ function carica() {
         await OneSignal.init({ appId: APP_ID })
         OneSignal.User.PushSubscription.addEventListener('change', () => aggiorna(OneSignal))
         OneSignal.Notifications.addEventListener('permissionChange', () => aggiorna(OneSignal))
+        // tocco su una notifica: apri la pagina giusta (su iPhone il telefono apre l'app ma non la pagina)
+        OneSignal.Notifications.addEventListener('click', (e) => apriDaNotifica(e))
         risolvi(OneSignal)
       } catch (e) { rifiuta(e) }
     })
