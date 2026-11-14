@@ -19,6 +19,7 @@
   import Giocate from './pages/Giocate.svelte'
   import Amici from './pages/Amici.svelte'
   import Novita from './components/Novita.svelte'
+  import Avvio from './components/Avvio.svelte'
   import Admin from './pages/Admin.svelte'
 
   // privata = serve il login; pubblica = visibile anche dal QR senza account
@@ -58,6 +59,8 @@
 </script>
 
 <svelte:document onclick={gestisciClickLink} />
+
+<Avvio />
 
 <div class="cornice">
   {#if !supabaseConfigurato}

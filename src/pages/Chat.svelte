@@ -64,5 +64,4 @@
 
 <style>
   .conta-nuovi { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: #D93025; color: #fff; font-size: 12px; font-weight: 700; line-height: 22px; text-align: center; flex: 0 0 auto; }
-  .pallino-nuovo { width: 10px; height: 10px; border-radius: 5px; background: var(--da-confermare); flex: 0 0 10px; }
 </style>
