@@ -20,6 +20,7 @@
   import Novita from './components/Novita.svelte'
   import Avvio from './components/Avvio.svelte'
   import MigliorInCampo from './components/MigliorInCampo.svelte'
+  import BarraEntraCome from './components/BarraEntraCome.svelte'
   import Admin from './pages/Admin.svelte'
 
   // privata = serve il login; pubblica = visibile anche dal QR senza account
@@ -64,6 +65,7 @@
 <Avvio />
 
 <div class="cornice">
+  <BarraEntraCome />
   {#if !supabaseConfigurato}
     <Configurazione />
   {:else if !auth.pronto}

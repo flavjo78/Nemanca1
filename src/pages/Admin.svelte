@@ -7,6 +7,22 @@
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
+  import { entraCome, creaGiocatoreProva } from '../lib/entracome.svelte.js'
+
+  let entrando = $state(false)
+  async function entra(u) {
+    if (!u.di_prova && !confirm(`Entrare come ${u.nome ?? u.email}? È un account vero: vedrai le sue chat e i suoi dati. L'accesso viene registrato.`)) return
+    entrando = true; errore = ''
+    try { await entraCome(u) } catch (e) { errore = e.message; entrando = false }
+  }
+  let nomeProva = $state('')
+  async function creaProva(e) {
+    e.preventDefault()
+    if (!nomeProva.trim()) return
+    entrando = true; errore = ''
+    try { await creaGiocatoreProva(nomeProva.trim()); nomeProva = ''; await carica() } catch (er) { errore = er.message }
+    finally { entrando = false }
+  }
 
   let numeri = $state(null)
   let spazio = $state(null)
@@ -124,6 +140,15 @@
       {/if}
 
       <section class="sezione">
+        <div class="sezione-titolo">Giocatori di prova</div>
+        <form class="card" style="gap:8px" onsubmit={creaProva}>
+          <div class="sotto">Crea un giocatore finto per provare l'app (non riceve email). Poi tocca "Entra come" per usarlo; in alto avrai "Torna amministratore".</div>
+          <div style="display:flex; gap:8px">
+            <input class="input" type="text" maxlength="40" placeholder="Nome e cognome (es. Prova Uno)" bind:value={nomeProva} aria-label="Nome del giocatore di prova" style="flex:1; min-width:0" />
+            <button type="submit" class="btn piccolo" style="width:auto; flex:0 0 auto" disabled={entrando || !nomeProva.trim()}>Crea</button>
+          </div>
+        </form>
+
         <div class="sezione-titolo">
           <span>Ultimi iscritti {#if nuovi}<span class="chip avviso" style="margin-left:6px">{nuovi} {nuovi === 1 ? 'nuovo' : 'nuovi'}</span>{/if}</span>
           {#if nuovi}<button type="button" class="chip" style="border:none" onclick={segnaVisti}>Segna come visti</button>{/if}
@@ -132,10 +157,13 @@
           <div class="card riga" style={new Date(u.creato_il).getTime() > ultimaVisita ? 'border: 2px solid var(--portiere)' : ''}>
             <div class="avatar" class:verde={u.admin}>{iniziali(u)}</div>
             <div class="riempi">
-              <div class="nome taglia">{u.nome ?? 'Profilo da completare'}{u.admin ? ' · admin' : ''}</div>
+              <div class="nome taglia">{u.nome ?? 'Profilo da completare'}{u.admin ? ' · admin' : ''}{u.di_prova ? ' · prova' : ''}</div>
               <div class="sotto taglia">{u.email}{u.comune ? ` · ${u.comune}` : ''}</div>
               <div class="sotto" style="font-size:12px">Iscritto il {dataBreve(u.creato_il)}{u.ultimo_accesso ? ` · ultimo accesso ${dataBreve(u.ultimo_accesso)}` : ''}</div>
             </div>
+            {#if u.id !== auth.utente?.id}
+              <button type="button" class="btn piccolo bianco" style="width:auto; flex:0 0 auto" disabled={entrando} onclick={() => entra(u)}>Entra come</button>
+            {/if}
           </div>
         {:else}
           <div class="vuoto">Nessun iscritto.</div>
