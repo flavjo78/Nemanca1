@@ -3,6 +3,17 @@
 // "id" deve essere unico e crescente (data + lettera). Testi brevi, per i giocatori.
 export const NOVITA = [
   {
+    id: '2026-11-16a',
+    titolo: 'Novità: amici e liste',
+    punti: [
+      'Nella Chat ora trovi Partite, Amici e Liste',
+      'Gli amici si aggiungono subito, senza conferma, e chi gioca con te diventa tuo amico da solo',
+      'Crea liste di giocatori e invitale intere alle tue partite',
+      'Chi viene invitato riceve anche un\'email con il link alla partita',
+      'In Campi e Home scegli da dove contare i km: dal tuo comune o "da questa posizione"'
+    ]
+  },
+  {
     id: '2026-11-14a',
     titolo: 'Novità: nuova apertura',
     punti: [
