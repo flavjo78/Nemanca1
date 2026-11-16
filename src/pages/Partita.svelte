@@ -49,6 +49,14 @@
   // amici: chiedere l'amicizia a un giocatore e invitare gli amici alla partita
   let amici = $state([])
   let invitaScelti = $state([])
+  let liste = $state([])
+  // una lista è "scelta" se tutti i suoi membri invitabili sono scelti; toccarla li sceglie o li toglie tutti
+  const membriInvitabili = (l) => l.membri.map((m) => m.id).filter((x) => !giaInPartita(x))
+  const listaScelta = (l) => { const m = membriInvitabili(l); return m.length > 0 && m.every((x) => invitaScelti.includes(x)) }
+  function alternaLista(l) {
+    const m = membriInvitabili(l)
+    invitaScelti = listaScelta(l) ? invitaScelti.filter((x) => !m.includes(x)) : [...new Set([...invitaScelti, ...m])]
+  }
   async function chiediAmicizia(g) {
     errore = ''; avviso = ''
     const { data, error } = await supabase.rpc('chiedi_amicizia', { p_altro: g.id })
@@ -58,9 +66,10 @@
   }
   async function apriInvitaAmici() {
     errore = ''
-    const { data, error } = await supabase.rpc('miei_amici')
+    const [{ data, error }, { data: l }] = await Promise.all([supabase.rpc('miei_amici'), supabase.rpc('mie_liste')])
     if (error) { errore = error.message; return }
     amici = (data ?? []).filter((a) => a.stato === 'amico')
+    liste = (l ?? []).filter((x) => x.membri.length)
     invitaScelti = []
     foglio = { tipo: 'invita-amici' }
   }
@@ -653,10 +662,19 @@
       </Foglio>
     {:else if foglio?.tipo === 'invita-amici'}
       {@const invitabili = amici.filter((a) => !giaInPartita(a.id))}
-      <Foglio aperto titolo="Invita amici" sotto={approvazione && !sonoTitolare ? "Ricevono una notifica; se accettano, l'organizzatore decide se farli giocare." : "Ricevono una notifica; chi accetta va nel primo posto libero adatto ai suoi ruoli."} chiudi={() => (foglio = null)}>
+      <Foglio aperto titolo="Invita amici" sotto={approvazione && !sonoTitolare ? "Ricevono una notifica e un'email; se accettano, l'organizzatore decide se farli giocare." : "Ricevono una notifica e un'email con il link; chi accetta va nel primo posto libero adatto ai suoi ruoli."} chiudi={() => (foglio = null)}>
         {#if !amici.length}
           <p class="aiuto">Non hai ancora amici. Aggiungili da <a href="/amici">Chat → Amici</a> o toccando un giocatore sul campo.</p>
         {:else}
+          {#if liste.length}
+            <span class="aiuto" style="font-weight:600">Le tue liste</span>
+            <div class="scelte">
+              {#each liste as l (l.id)}
+                <button type="button" class="scelta" class:attiva={listaScelta(l)} disabled={!membriInvitabili(l).length} onclick={() => alternaLista(l)}>{l.nome} · {membriInvitabili(l).length}</button>
+              {/each}
+            </div>
+            <span class="aiuto" style="font-weight:600">Amici</span>
+          {/if}
           <div class="elenco-amici">
             {#each amici as a (a.id)}
               {@const dentro = giaInPartita(a.id)}

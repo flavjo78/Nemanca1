@@ -44,6 +44,7 @@ function rispondi(url, metodo) {
     { amicizia_id: 'f1', id: 'u-LC', nome: 'Luca C', iniziali: 'LC', comune: 'Galatina', ruoli_preferiti: ['difesa'], stato: 'amico' },
     { amicizia_id: 'f2', id: 'u-NV', nome: 'Nino Valente', iniziali: 'NV', comune: 'Lecce', ruoli_preferiti: ['portiere'], stato: 'amico' },
     { amicizia_id: 'f3', id: 'u-XP', nome: 'Xenia Puce', iniziali: 'XP', stato: 'ricevuta' }]
+  if (p.endsWith('/rpc/mie_liste')) return [{ id: 'l1', nome: 'Calcetto giovedì', membri: [{ id: 'u-LC', nome: 'Luca C', iniziali: 'LC' }, { id: 'u-NV', nome: 'Nino Valente', iniziali: 'NV' }] }]
   if (p.endsWith('/rpc/compagni_di_gioco')) return [{ id: 'u-FS', nome: 'Fabio S', iniziali: 'FS', partite: 3, stato: null }]
   if (p.endsWith('/rpc/crea_partita')) return PARTITA
   const tabella = p.split('/rest/v1/')[1]
@@ -110,6 +111,7 @@ function rispondi(url, metodo) {
   await page.goto(base + `/campo/${CAMPO}?nuovo=1`); await page.waitForSelector('img[alt^="QR code"]'); await foto('campo-qr')
   await page.goto(base + '/profilo'); await page.waitForSelector('text=Come ti valutano'); await foto('profilo')
   await page.click('text=Novità dell\'app'); await page.waitForSelector('text=Ho capito'); await foto('novita'); await page.click('text=Ho capito')
+  await page.goto(base + '/liste'); await page.waitForSelector('text=Calcetto giovedì'); await page.click('text=Calcetto giovedì'); await page.waitForSelector('text=Aggiungi giocatori'); await foto('liste')
   await page.goto(base + '/amici'); await page.waitForSelector('text=Richieste da accettare'); await page.waitForSelector('text=Hai giocato con'); await foto('amici')
   await page.goto(base + '/profilo/modifica'); await page.waitForSelector('text=Il tuo profilo'); await foto('profilo-modifica')
   await page.goto(base + '/'); await page.waitForSelector('text=Cercami per le partite'); await page.click('.riga-avvisi'); await page.waitForSelector('text=Quando vuoi essere chiamato'); await foto('home-avvisi'); await page.keyboard.press('Escape'); await page.click('.chip-km'); await page.waitForSelector('text=Fino a quanti km vai a giocare?'); await page.click('.foglio >> text=30 km'); await foto('home-raggio')

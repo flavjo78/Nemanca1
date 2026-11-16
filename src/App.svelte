@@ -36,6 +36,7 @@
     { pattern: '/profilo/modifica', componente: CompletaProfilo, privata: true },
     { pattern: '/giocate', componente: Giocate, privata: true },
     { pattern: '/amici', componente: Chat, privata: true },
+    { pattern: '/liste', componente: Chat, privata: true },
     { pattern: '/admin', componente: Admin, privata: true }
   ]
 
