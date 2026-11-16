@@ -10,6 +10,7 @@
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
   import Avatar from '../components/Avatar.svelte'
+  import Coppa from '../components/Coppa.svelte'
   import RaggioKm from '../components/RaggioKm.svelte'
   import DaComune from '../components/DaComune.svelte'
   import InstallaApp from '../components/InstallaApp.svelte'
@@ -142,7 +143,7 @@
       <div class="sotto">{dataEstesa()}</div>
       <h1 style="font-size: 26px; letter-spacing: -0.5px">Ciao {primoNome}</h1>
     </div>
-    <a href="/profilo" aria-label="Apri il profilo" style="text-decoration:none"><Avatar profilo={auth.profilo} dimensione={44} classe="verde" /></a>
+    <a href="/profilo" aria-label="Apri il profilo" style="text-decoration:none; position:relative; display:inline-flex"><Avatar profilo={auth.profilo} dimensione={44} classe="verde" /><Coppa n={auth.profilo?.coppe ?? 0} /></a>
   </header>
 
   <div class="contenuto con-barra">

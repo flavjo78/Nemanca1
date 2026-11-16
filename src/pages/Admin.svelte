@@ -7,6 +7,53 @@
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
+  import { entraCome, creaGiocatoreProva } from '../lib/entracome.svelte.js'
+  import Foglio from '../components/Foglio.svelte'
+  import { cercaIndirizzo } from '../lib/geo.js'
+  const caricaMappaPunto = () => import('../components/MappaPunto.svelte')
+
+  // modifica di un campo (nome, indirizzo, posizione)
+  let modifica = $state(null)
+  let salvando = $state(false)
+  let cercoIndirizzo = $state(false)
+  function apriModifica(c) { modifica = { id: c.id, nome: c.nome, indirizzo: c.indirizzo, lat: c.lat, lng: c.lng } }
+  async function trovaIndirizzo() {
+    cercoIndirizzo = true; errore = ''
+    try {
+      const r = await cercaIndirizzo(modifica.indirizzo, 1)
+      if (r[0]) { modifica.lat = +r[0].lat.toFixed(6); modifica.lng = +r[0].lng.toFixed(6) } else errore = 'Indirizzo non trovato: sposta il segnaposto a mano.'
+    } catch { errore = 'Ricerca non riuscita.' } finally { cercoIndirizzo = false }
+  }
+  async function salvaCampo() {
+    salvando = true; errore = ''
+    const { error } = await supabase.rpc('admin_modifica_campo', { p_campo: modifica.id, p_nome: modifica.nome, p_indirizzo: modifica.indirizzo, p_lat: Number(modifica.lat), p_lng: Number(modifica.lng) })
+    salvando = false
+    if (error) { errore = error.message; return }
+    modifica = null
+    await carica()
+  }
+  async function eliminaUtente(u) {
+    if (!confirm(`ELIMINARE l'account di ${u.nome ?? u.email}? Spariscono profilo, amicizie e liste, e le partite che organizzava. I suoi posti nelle altre partite tornano liberi. Non si può annullare.`)) return
+    errore = ''
+    const { error } = await supabase.rpc('admin_elimina_utente', { p_utente: u.id })
+    if (error) { errore = error.message; return }
+    await carica()
+  }
+
+  let entrando = $state(false)
+  async function entra(u) {
+    if (!u.di_prova && !confirm(`Entrare come ${u.nome ?? u.email}? È un account vero: vedrai le sue chat e i suoi dati. L'accesso viene registrato.`)) return
+    entrando = true; errore = ''
+    try { await entraCome(u) } catch (e) { errore = e.message; entrando = false }
+  }
+  let nomeProva = $state('')
+  async function creaProva(e) {
+    e.preventDefault()
+    if (!nomeProva.trim()) return
+    entrando = true; errore = ''
+    try { await creaGiocatoreProva(nomeProva.trim()); nomeProva = ''; await carica() } catch (er) { errore = er.message }
+    finally { entrando = false }
+  }
 
   let numeri = $state(null)
   let spazio = $state(null)
@@ -58,16 +105,23 @@
     if (error) { errore = error.message; return }
     await carica()
   }
+  async function eliminaPartita(p) {
+    if (!confirm(`ELIMINARE la partita di ${etichettaDataOra(p.data_ora)} al ${p.campo?.nome}? Spariscono anche formazione e chat. Non si può annullare.`)) return
+    const { error } = await supabase.rpc('admin_elimina_partita', { p_partita: p.id })
+    if (error) { errore = error.message; return }
+    await carica()
+  }
   async function alternaVerificato(c) {
-    const { error } = await supabase.from('campi').update({ verificato: !c.verificato }).eq('id', c.id)
+    const { error } = await supabase.rpc('admin_verifica_campo', { p_campo: c.id, p_si: !c.verificato })
     if (error) { errore = error.message; return }
     await carica()
   }
   async function eliminaCampo(c) {
     const n = c.partite?.[0]?.count ?? 0
-    if (n > 0) { errore = `Il campo "${c.nome}" ha ${n} partite: non si può eliminare. Puoi togliergli la spunta "verificato" o annullare le partite.`; return }
-    if (!confirm(`Eliminare il campo "${c.nome}"? Non si può annullare.`)) return
-    const { error } = await supabase.from('campi').delete().eq('id', c.id)
+    if (!confirm(n > 0
+      ? `Il campo "${c.nome}" ha ${n} ${n === 1 ? 'partita' : 'partite'}: eliminandolo spariscono anche quelle (con formazioni e chat). Continuare?`
+      : `Eliminare il campo "${c.nome}"? Non si può annullare.`)) return
+    const { error } = await supabase.rpc('admin_elimina_campo', { p_campo: c.id })
     if (error) { errore = error.message; return }
     await carica()
   }
@@ -117,6 +171,15 @@
       {/if}
 
       <section class="sezione">
+        <div class="sezione-titolo">Giocatori di prova</div>
+        <form class="card" style="gap:8px" onsubmit={creaProva}>
+          <div class="sotto">Crea un giocatore finto per provare l'app (non riceve email). Poi tocca "Entra come" per usarlo; in alto avrai "Torna amministratore".</div>
+          <div style="display:flex; gap:8px">
+            <input class="input" type="text" maxlength="40" placeholder="Nome e cognome (es. Prova Uno)" bind:value={nomeProva} aria-label="Nome del giocatore di prova" style="flex:1; min-width:0" />
+            <button type="submit" class="btn piccolo" style="width:auto; flex:0 0 auto" disabled={entrando || !nomeProva.trim()}>Crea</button>
+          </div>
+        </form>
+
         <div class="sezione-titolo">
           <span>Ultimi iscritti {#if nuovi}<span class="chip avviso" style="margin-left:6px">{nuovi} {nuovi === 1 ? 'nuovo' : 'nuovi'}</span>{/if}</span>
           {#if nuovi}<button type="button" class="chip" style="border:none" onclick={segnaVisti}>Segna come visti</button>{/if}
@@ -125,15 +188,18 @@
           <div class="card riga" style={new Date(u.creato_il).getTime() > ultimaVisita ? 'border: 2px solid var(--portiere)' : ''}>
             <div class="avatar" class:verde={u.admin}>{iniziali(u)}</div>
             <div class="riempi">
-              <div class="nome taglia">{u.nome ?? 'Profilo da completare'}{u.admin ? ' · admin' : ''}</div>
+              <div class="nome taglia">{u.nome ?? 'Profilo da completare'}{u.admin ? ' · admin' : ''}{u.di_prova ? ' · prova' : ''}</div>
               <div class="sotto taglia">{u.email}{u.comune ? ` · ${u.comune}` : ''}</div>
               <div class="sotto" style="font-size:12px">Iscritto il {dataBreve(u.creato_il)}{u.ultimo_accesso ? ` · ultimo accesso ${dataBreve(u.ultimo_accesso)}` : ''}</div>
             </div>
+            {#if u.id !== auth.utente?.id}
+              <button type="button" class="btn piccolo bianco" style="width:auto; flex:0 0 auto" disabled={entrando} onclick={() => entra(u)}>Entra come</button>
+              {#if !u.admin}<button type="button" class="btn-tondo piccolo bordo" style="color: var(--errore)" aria-label={`Elimina ${u.nome ?? 'utente'}`} onclick={() => eliminaUtente(u)}><Icona nome="cestino" dimensione={18} spessore={2} /></button>{/if}
+            {/if}
           </div>
         {:else}
           <div class="vuoto">Nessun iscritto.</div>
         {/each}
-        <p class="aiuto">Per eliminare un account: pannello Supabase → Authentication → Users.</p>
       </section>
 
       <section class="sezione">
@@ -147,8 +213,9 @@
             </div>
             <span class="chip {p.stato === 'annullata' ? 'neutro' : p.stato === 'completa' ? 'portiere' : 'leggero'}">{p.stato}</span>
             {#if p.stato === 'aperta' || p.stato === 'completa'}
-              <button type="button" class="btn-tondo piccolo bordo" aria-label="Annulla partita" onclick={(e) => { e.preventDefault(); annullaPartita(p) }}><Icona nome="x" dimensione={18} spessore={2.2} /></button>
+              <button type="button" class="btn-tondo piccolo bordo" aria-label="Annulla partita" title="Annulla (resta nell'archivio)" onclick={(e) => { e.preventDefault(); annullaPartita(p) }}><Icona nome="x" dimensione={18} spessore={2.2} /></button>
             {/if}
+            <button type="button" class="btn-tondo piccolo bordo" style="color: var(--errore)" aria-label="Elimina partita" title="Elimina del tutto" onclick={(e) => { e.preventDefault(); eliminaPartita(p) }}><Icona nome="cestino" dimensione={18} spessore={2} /></button>
           </a>
         {:else}
           <div class="vuoto">Nessuna partita in programma.</div>
@@ -163,8 +230,9 @@
               <a href={`/campo/${c.id}`} class="nome taglia" style="text-decoration:none; color:inherit">{c.nome}</a>
               <div class="sotto taglia">{c.indirizzo} · {c.partite?.[0]?.count ?? 0} partite</div>
             </div>
-            <button type="button" class="chip" class:bianco-su-verde={!c.verificato} class:portiere={c.verificato} style="border:none" onclick={() => alternaVerificato(c)}>{c.verificato ? 'Verificato' : 'Verifica'}</button>
-            <button type="button" class="btn-tondo piccolo bordo" aria-label="Elimina campo" onclick={() => eliminaCampo(c)}><Icona nome="x" dimensione={18} spessore={2.2} /></button>
+            <button type="button" class="btn-tondo piccolo bordo" aria-label={`Modifica ${c.nome}`} onclick={() => apriModifica(c)}><Icona nome="matita" dimensione={18} /></button>
+            <button type="button" class="chip" class:bianco-su-verde={!c.verificato} class:portiere={c.verificato} style="border:none" onclick={() => alternaVerificato(c)}>{c.verificato ? 'Confermato' : 'Conferma'}</button>
+            <button type="button" class="btn-tondo piccolo bordo" style="color: var(--errore)" aria-label="Elimina campo" onclick={() => eliminaCampo(c)}><Icona nome="cestino" dimensione={18} spessore={2} /></button>
           </div>
         {:else}
           <div class="vuoto">Nessun campo.</div>
@@ -174,3 +242,18 @@
   </div>
   <BarraInferiore />
 </div>
+
+{#if modifica}
+  <Foglio aperto titolo="Modifica campo" sotto="Trascina il segnaposto sul campo vero, o tocca la mappa." chiudi={() => (modifica = null)}>
+    <input class="input" type="text" bind:value={modifica.nome} aria-label="Nome del campo" placeholder="Nome del campo" />
+    <div style="display:flex; gap:8px">
+      <input class="input" type="text" bind:value={modifica.indirizzo} aria-label="Indirizzo" placeholder="Indirizzo" style="flex:1; min-width:0" />
+      <button type="button" class="btn piccolo bianco" style="width:auto; flex:0 0 auto" disabled={cercoIndirizzo} onclick={trovaIndirizzo}>Cerca</button>
+    </div>
+    {#await caricaMappaPunto() then m}
+      <m.default bind:lat={modifica.lat} bind:lng={modifica.lng} />
+    {/await}
+    <p class="aiuto">Posizione: {Number(modifica.lat).toFixed(5)}, {Number(modifica.lng).toFixed(5)}</p>
+    <button type="button" class="btn" disabled={salvando || !modifica.nome?.trim()} onclick={salvaCampo}>{salvando ? 'Salvataggio…' : 'Salva il campo'}</button>
+  </Foglio>
+{/if}

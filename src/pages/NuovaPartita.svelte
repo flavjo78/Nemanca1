@@ -14,6 +14,8 @@
   let dataOra = $state(perInputDataOra(prossimaOraTonda()))
   let descrizione = $state('')
   let quota = $state('')
+  let durata = $state(60)
+  const DURATE = [60, 90, 120]
   let squadra = $state('A')
   let ruolo = $state(auth.profilo?.ruoli_preferiti?.[0] ?? 'attacco')
   let giocoAnchio = $state(true)
@@ -50,6 +52,7 @@
     errore = ''
     const quando = new Date(dataOra)
     if (isNaN(quando) || quando < new Date()) { errore = 'Scegli una data e un\'ora future.'; return }
+    if (!(Number(durata) >= 15 && Number(durata) <= 300)) { errore = 'La durata va da 15 a 300 minuti.'; return }
     if (mancano !== 0) { errore = `Completa il modulo: servono ${movimento} giocatori più il portiere.`; return }
     occupato = true
     const { data, error } = await supabase.rpc('crea_partita', {
@@ -65,6 +68,10 @@
       p_panchina: panchina,
       p_modulo: moduloPerDb({ difesa, centro, attacco })
     })
+    if (!error && Number(durata) !== 60) {
+      const r = await supabase.rpc('imposta_durata', { p_partita: data, p_minuti: Math.round(Number(durata)) })
+      if (r.error) { occupato = false; errore = r.error.message; return }
+    }
     occupato = false
     if (error) { errore = error.message; return }
     naviga(`/partita/${data}?nuova=1`, { sostituisci: true })
@@ -111,6 +118,16 @@
     <div class="campo-form">
       <label for="quando">Giorno e ora</label>
       <input id="quando" class="input" type="datetime-local" required bind:value={dataOra} />
+    </div>
+    <div class="campo-form">
+      <label for="durata">Durata (minuti)</label>
+      <div class="scelte">
+        {#each DURATE as d}
+          <button type="button" class="scelta" class:attiva={Number(durata) === d} onclick={() => (durata = d)}>{d} min</button>
+        {/each}
+      </div>
+      <input id="durata" class="input" type="number" inputmode="numeric" min="15" max="300" step="5" bind:value={durata} />
+      <p class="aiuto">Alla fine della partita i giocatori votano il migliore in campo.</p>
     </div>
     <div class="campo-form">
       <label for="quota">Quota a testa (€)</label>

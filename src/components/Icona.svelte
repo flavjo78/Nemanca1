@@ -25,6 +25,7 @@
     formazione: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M4 12h16"/><circle cx="12" cy="12" r="2.5"/><path d="M9 3v3h6V3M9 21v-3h6v3"/>',
     invia: '<path d="M4 12l16-8-6 16-3-7z"/><path d="M11 13l9-9"/>',
     campanella: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
+    cestino: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
     ricarica: '<path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/>'
   }
 </script>

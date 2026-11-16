@@ -28,7 +28,7 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 - [x] **Notifiche automatiche** (OneSignal): candidature, accettazioni, inviti, messaggi, cambi di ruolo, amicizie, nuovi iscritti (solo a Flavio); proposte da subito, si spengono dal Profilo; dal 14/11 priorità alta (Android con app chiusa) e il tocco apre la pagina giusta anche su iPhone
 
 **Amici e social**
-- [~] 16/11, in anteprima: **Chat con Partite · Amici · Liste**; **amici senza conferma** e automatici tra chi ha giocato insieme; **liste** da invitare intere; **email con il link alla partita** quando si viene invitati (serve la chiave Resend nel Vault: `resend_api_key`)
+- [x] 16/11, su www: **Chat con Partite · Amici · Liste**; **amici senza conferma** e automatici tra chi ha giocato insieme; **liste** da invitare intere; **email con il link alla partita** quando si viene invitati (chiave Resend nel Vault `resend_api_key`, mittente `invito@nemanca1.com`, email di prova arrivata)
 - [x] **Lista amici** (si diventa amici solo se l'altro accetta), ricerca per nome, "Hai giocato con"; dal 14/11 è nella **Chat**, scheda "Amici"
 - [x] **Invita amici / Invita tutti** dalla partita, anche per chi gioca e non organizza (nelle partite "decido io" decide sempre l'organizzatore)
 - [x] **"Cercami per le partite"** in Home, **acceso di default** (13/11, migrazione 0026: acceso anche per gli iscritti attuali); si spegne dalla Home
@@ -50,10 +50,12 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 
 1. [x] **Tappa 4 – "Cerca chi manca"** (13/11, su www): bottone nella partita per chi gioca o è in tribuna; avvisa chi ha "Cercami" acceso entro i suoi km, per i suoi ruoli o anche per altri (lo sceglie lui), negli orari che imposta in Home; precedenza a chi ha già giocato su quel campo; limiti anti-fastidio. **Tolte su decisione di Flavio**: chat 1-a-1 e "blocca"
    - [ ] *Da decidere*: avviso **automatico** (es. quando qualcuno si toglie entro 24 ore, o 24 e 3 ore prima se mancano giocatori)
-2. [ ] **Tappa 5 – Dopo la partita**: risultato (andrà anche nell'archivio), recensioni anonime su 4 categorie, voti nel profilo, storico
+2. [~] **Tappa 5 – Dopo la partita** (16/11, in anteprima: durata, ospiti, migliore in campo obbligatorio con coppa, voti ad almeno un compagno; resta il **risultato**): risultato (andrà anche nell'archivio), recensioni anonime su 4 categorie, voti nel profilo, storico
 3. [ ] **Tappa 6**: QR stampabili (versione da stampare con logo), prova con 10 persone su un campo vero
 4. [ ] **Entra con Google**
 5. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
+
+- [~] **Pannello amministratore** (16/11, in anteprima): elimina partite e campi, conferma campi, **entra come** utente (serve la chiave `supabase_secret_key` nel Vault) e giocatori di prova
 
 ## Facoltativi
 

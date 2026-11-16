@@ -104,6 +104,11 @@
       : 'In questo momento non ci sono giocatori disponibili in zona. Prova a invitare i tuoi amici.'
   }
 
+  // ospiti senza app
+  let nomeOspite = $state('')
+  const mettiOspite = (p) => esegui('metti_ospite', { p_posizione: p.id, p_nome: nomeOspite }, `Posto occupato da ${nomeOspite.trim()} (ospite).`).then((ok) => { if (ok) nomeOspite = '' })
+  const togliOspite = (p) => esegui('togli_ospite', { p_posizione: p.id }, 'Ospite tolto: il posto è di nuovo libero.')
+
   // divise
   let divisaSquadra = $state('A')
   let divisaNuova = $state({ maglia: 'bianco', pantaloncini: 'nero' })
@@ -126,6 +131,8 @@
   const appenaCreata = $derived(router.query.get('nuova') === '1')
   const uid = $derived(auth.utente?.id ?? null)
   const posizioni = $derived(partita?.posizioni ?? [])
+  const fine = $derived(partita ? new Date(new Date(partita.data_ora).getTime() + (partita.durata_min ?? 60) * 60000) : null)
+  const oraFine = $derived(fine ? `${String(fine.getHours()).padStart(2, '0')}:${String(fine.getMinutes()).padStart(2, '0')}` : '')
   const numeri = $derived(conta(posizioni))
   const chip = $derived(chipPosti(posizioni))
   const sonoTitolare = $derived(!!uid && partita?.organizzatore_id === uid)
@@ -149,7 +156,7 @@
   })
   const invitoPer = (giocatoreId) => inviti.find((i) => i.a_id === giocatoreId) ?? null
   const richiesteDaApprovare = $derived(sonoOrganizzatore ? richieste : [])
-  const modificabile = $derived(partita && ['aperta', 'completa'].includes(partita.stato) && new Date(partita.data_ora) > new Date(Date.now() - 3600 * 1000))
+  const modificabile = $derived(partita && ['aperta', 'completa'].includes(partita.stato) && fine > new Date())
 
   onMount(async () => {
     await carica()
@@ -174,6 +181,13 @@
       .eq('id', id).maybeSingle()
     if (error || !data) { errore = 'Partita non trovata.'; return }
     data.posizioni.sort((a, b) => a.squadra.localeCompare(b.squadra) || a.y - b.y || a.x - b.x || a.creato_il.localeCompare(b.creato_il))
+    // ospiti senza app: un "giocatore" con solo il nome, per mostrarli sul campo
+    for (const p of data.posizioni) {
+      if (p.ospite_nome && !p.giocatore) {
+        const parti = p.ospite_nome.trim().split(/\s+/)
+        p.giocatore = { nome: p.ospite_nome, iniziali: (parti[0][0] + (parti[1]?.[0] ?? '')).toUpperCase(), ospite: true }
+      }
+    }
     partita = data
     const { data: v } = await supabase.from('vice').select('giocatore_id, squadra').eq('partita_id', id)
     vice = v ?? []
@@ -215,6 +229,7 @@
     ruoloScelto = null
     if (p.giocatore_id === uid) foglio = { tipo: 'mio-posto', posizione: p }
     else if (p.stato === 'libera') foglio = { tipo: 'posto-libero', posizione: p }
+    else if (p.ospite_nome) foglio = { tipo: 'ospite', posizione: p }
     else foglio = { tipo: 'posto-occupato', posizione: p }
   }
 
@@ -288,7 +303,7 @@
         <Icona nome="indietro" dimensione={20} spessore={2.4} />
       </button>
       <div class="centro">
-        <h1>{etichettaDataOra(partita.data_ora)} · {etichettaFormato(partita.formato)}</h1>
+        <h1>{etichettaDataOra(partita.data_ora)}–{oraFine} · {etichettaFormato(partita.formato)}</h1>
         <a href={`/campo/${partita.campo_id}`} class="sotto" style="text-decoration:none">{partita.campo.nome} · organizza {nomeBreve(partita.organizzatore)}</a>
       </div>
       {#if mioPosto || sonoOrganizzatore || sonoInTribuna}
@@ -444,6 +459,9 @@
             <button type="button" class="btn bianco piccolo" onclick={() => { ruoloScelto = 'panchina'; squadraScelta = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'aggiungi' } }}>
               <Icona nome="piu" dimensione={18} spessore={2.4} /> Aggiungi una riserva in panchina
             </button>
+            <button type="button" class="btn bianco piccolo" onclick={() => { nomeOspite = ''; foglio = { tipo: 'ospite-nuovo' } }}>
+              <Icona nome="profilo" dimensione={18} /> Posto per un amico senza app
+            </button>
             {#if sonoTitolare}
               <p class="aiuto">Tocca un giocatore per spostarlo o per dargli il permesso di gestire la formazione.</p>
               <button type="button" class="btn bianco piccolo" style="color: var(--errore)" onclick={annulla}>Annulla la partita</button>
@@ -502,6 +520,15 @@
         {:else}
           <button type="button" class="btn" disabled={occupato} onclick={() => prendi(p)}>{mioPosto ? 'Spostati qui' : 'Posizionati qui'}</button>
         {/if}
+        {#if gestisco(p.squadra)}
+          <div class="campo-form" style="margin-top: 6px">
+            <span class="aiuto" style="font-weight:600">Gioca qui qualcuno senza l'app?</span>
+            <div style="display:flex; gap:8px">
+              <input class="input" type="text" maxlength="40" placeholder="Nome dell'ospite" bind:value={nomeOspite} aria-label="Nome dell'ospite" style="flex:1; min-width:0" />
+              <button type="button" class="btn piccolo" style="width:auto; flex:0 0 auto" disabled={occupato || !nomeOspite.trim()} onclick={() => mettiOspite(p)}>Occupa</button>
+            </div>
+          </div>
+        {/if}
         {#if gestisco(p.squadra) && disponibili.length}
           <div class="campo-form" style="margin-top: 6px">
             <span class="aiuto" style="font-weight:600">Chiedi a qualcuno di giocare qui</span>
@@ -525,6 +552,24 @@
           {#if p.ruolo === 'panchina'}
             <button type="button" class="btn bianco" style="color: var(--errore)" disabled={occupato} onclick={() => rimuovi(p)}>Togli questo posto dalla panchina</button>
           {/if}
+        {/if}
+      </Foglio>
+    {:else if foglio?.tipo === 'ospite-nuovo'}
+      {@const liberiMiei = posizioni.filter((x) => x.stato === 'libera' && gestisco(x.squadra))}
+      <Foglio aperto titolo="Posto per un amico senza app" sotto="Scrivi il suo nome, poi scegli il posto. Non riceve notifiche e non vota." chiudi={() => (foglio = null)}>
+        <input class="input" type="text" maxlength="40" placeholder="Nome (es. Zio Pino)" bind:value={nomeOspite} aria-label="Nome dell'amico senza app" />
+        {#if !liberiMiei.length}
+          <p class="aiuto">Non ci sono posti liberi {sonoTitolare ? '' : `nella squadra ${miaViceSquadra}`}: aggiungi una riserva in panchina o libera un posto.</p>
+        {/if}
+        <button type="button" class="btn" disabled={!nomeOspite.trim() || !liberiMiei.length}
+          onclick={() => apriScelta(`Dove gioca ${nomeOspite.trim()}?`, 'Scegli il posto libero.', liberiMiei, (p) => mettiOspite(p))}>Scegli il posto</button>
+      </Foglio>
+    {:else if foglio?.tipo === 'ospite'}
+      {@const p = foglio.posizione}
+      <Foglio aperto titolo={p.ospite_nome} sotto={`Ospite senza app · ${etichettaRuolo(p.ruolo)} · squadra ${p.squadra}`} chiudi={() => (foglio = null)}>
+        <p class="aiuto">Questo posto è occupato da una persona che non usa l'app: non riceve notifiche e non vota.</p>
+        {#if gestisco(p.squadra)}
+          <button type="button" class="btn bianco" style="color: var(--errore)" disabled={occupato} onclick={() => togliOspite(p)}>Togli l'ospite e libera il posto</button>
         {/if}
       </Foglio>
     {:else if foglio?.tipo === 'posto-occupato'}
