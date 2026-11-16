@@ -8,6 +8,7 @@
   import BarraInferiore from '../components/BarraInferiore.svelte'
   import Icona from '../components/Icona.svelte'
   import Avatar from '../components/Avatar.svelte'
+  import Coppa from '../components/Coppa.svelte'
   import InstallaApp from '../components/InstallaApp.svelte'
   import Novita from '../components/Novita.svelte'
   let vediNovita = $state(false)
@@ -62,7 +63,7 @@
 
   <div class="contenuto con-barra">
     <div class="card riga" style="padding: 16px">
-      <a href="/profilo/modifica" aria-label="Cambia la foto" style="text-decoration:none"><Avatar profilo={p} dimensione={56} classe="verde" /></a>
+      <a href="/profilo/modifica" aria-label="Cambia la foto" style="text-decoration:none; position:relative; display:inline-flex"><Avatar profilo={p} dimensione={56} classe="verde" /><Coppa n={p?.coppe ?? 0} /></a>
       <div class="riempi">
         <div class="nome" style="font-size:18px; font-family: var(--font-titoli)">{p?.nome ?? 'Giocatore'}</div>
         <div class="sotto">{[p?.comune, (p?.ruoli_preferiti ?? []).map(etichettaRuolo).join(', '), p?.comune ? `entro ${p?.raggio_km ?? 20} km` : ''].filter(Boolean).join(' · ')}{p?.comune || p?.ruoli_preferiti?.length ? ' · ' : ''}dal {anno}</div>

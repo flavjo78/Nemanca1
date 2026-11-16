@@ -58,16 +58,23 @@
     if (error) { errore = error.message; return }
     await carica()
   }
+  async function eliminaPartita(p) {
+    if (!confirm(`ELIMINARE la partita di ${etichettaDataOra(p.data_ora)} al ${p.campo?.nome}? Spariscono anche formazione e chat. Non si può annullare.`)) return
+    const { error } = await supabase.rpc('admin_elimina_partita', { p_partita: p.id })
+    if (error) { errore = error.message; return }
+    await carica()
+  }
   async function alternaVerificato(c) {
-    const { error } = await supabase.from('campi').update({ verificato: !c.verificato }).eq('id', c.id)
+    const { error } = await supabase.rpc('admin_verifica_campo', { p_campo: c.id, p_si: !c.verificato })
     if (error) { errore = error.message; return }
     await carica()
   }
   async function eliminaCampo(c) {
     const n = c.partite?.[0]?.count ?? 0
-    if (n > 0) { errore = `Il campo "${c.nome}" ha ${n} partite: non si può eliminare. Puoi togliergli la spunta "verificato" o annullare le partite.`; return }
-    if (!confirm(`Eliminare il campo "${c.nome}"? Non si può annullare.`)) return
-    const { error } = await supabase.from('campi').delete().eq('id', c.id)
+    if (!confirm(n > 0
+      ? `Il campo "${c.nome}" ha ${n} ${n === 1 ? 'partita' : 'partite'}: eliminandolo spariscono anche quelle (con formazioni e chat). Continuare?`
+      : `Eliminare il campo "${c.nome}"? Non si può annullare.`)) return
+    const { error } = await supabase.rpc('admin_elimina_campo', { p_campo: c.id })
     if (error) { errore = error.message; return }
     await carica()
   }
@@ -147,8 +154,9 @@
             </div>
             <span class="chip {p.stato === 'annullata' ? 'neutro' : p.stato === 'completa' ? 'portiere' : 'leggero'}">{p.stato}</span>
             {#if p.stato === 'aperta' || p.stato === 'completa'}
-              <button type="button" class="btn-tondo piccolo bordo" aria-label="Annulla partita" onclick={(e) => { e.preventDefault(); annullaPartita(p) }}><Icona nome="x" dimensione={18} spessore={2.2} /></button>
+              <button type="button" class="btn-tondo piccolo bordo" aria-label="Annulla partita" title="Annulla (resta nell'archivio)" onclick={(e) => { e.preventDefault(); annullaPartita(p) }}><Icona nome="x" dimensione={18} spessore={2.2} /></button>
             {/if}
+            <button type="button" class="btn-tondo piccolo bordo" style="color: var(--errore)" aria-label="Elimina partita" title="Elimina del tutto" onclick={(e) => { e.preventDefault(); eliminaPartita(p) }}><Icona nome="cestino" dimensione={18} spessore={2} /></button>
           </a>
         {:else}
           <div class="vuoto">Nessuna partita in programma.</div>
@@ -163,8 +171,8 @@
               <a href={`/campo/${c.id}`} class="nome taglia" style="text-decoration:none; color:inherit">{c.nome}</a>
               <div class="sotto taglia">{c.indirizzo} · {c.partite?.[0]?.count ?? 0} partite</div>
             </div>
-            <button type="button" class="chip" class:bianco-su-verde={!c.verificato} class:portiere={c.verificato} style="border:none" onclick={() => alternaVerificato(c)}>{c.verificato ? 'Verificato' : 'Verifica'}</button>
-            <button type="button" class="btn-tondo piccolo bordo" aria-label="Elimina campo" onclick={() => eliminaCampo(c)}><Icona nome="x" dimensione={18} spessore={2.2} /></button>
+            <button type="button" class="chip" class:bianco-su-verde={!c.verificato} class:portiere={c.verificato} style="border:none" onclick={() => alternaVerificato(c)}>{c.verificato ? 'Confermato' : 'Conferma'}</button>
+            <button type="button" class="btn-tondo piccolo bordo" style="color: var(--errore)" aria-label="Elimina campo" onclick={() => eliminaCampo(c)}><Icona nome="cestino" dimensione={18} spessore={2} /></button>
           </div>
         {:else}
           <div class="vuoto">Nessun campo.</div>

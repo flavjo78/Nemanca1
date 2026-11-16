@@ -19,6 +19,7 @@
   import Giocate from './pages/Giocate.svelte'
   import Novita from './components/Novita.svelte'
   import Avvio from './components/Avvio.svelte'
+  import MigliorInCampo from './components/MigliorInCampo.svelte'
   import Admin from './pages/Admin.svelte'
 
   // privata = serve il login; pubblica = visibile anche dal QR senza account
@@ -78,6 +79,7 @@
       <corrente.componente {...corrente.parametri} />
     {/key}
     <Novita />
+    <MigliorInCampo />
   {/if}
 </div>
 
