@@ -459,6 +459,9 @@
             <button type="button" class="btn bianco piccolo" onclick={() => { ruoloScelto = 'panchina'; squadraScelta = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'aggiungi' } }}>
               <Icona nome="piu" dimensione={18} spessore={2.4} /> Aggiungi una riserva in panchina
             </button>
+            <button type="button" class="btn bianco piccolo" onclick={() => { nomeOspite = ''; foglio = { tipo: 'ospite-nuovo' } }}>
+              <Icona nome="profilo" dimensione={18} /> Posto per un amico senza app
+            </button>
             {#if sonoTitolare}
               <p class="aiuto">Tocca un giocatore per spostarlo o per dargli il permesso di gestire la formazione.</p>
               <button type="button" class="btn bianco piccolo" style="color: var(--errore)" onclick={annulla}>Annulla la partita</button>
@@ -550,6 +553,16 @@
             <button type="button" class="btn bianco" style="color: var(--errore)" disabled={occupato} onclick={() => rimuovi(p)}>Togli questo posto dalla panchina</button>
           {/if}
         {/if}
+      </Foglio>
+    {:else if foglio?.tipo === 'ospite-nuovo'}
+      {@const liberiMiei = posizioni.filter((x) => x.stato === 'libera' && gestisco(x.squadra))}
+      <Foglio aperto titolo="Posto per un amico senza app" sotto="Scrivi il suo nome, poi scegli il posto. Non riceve notifiche e non vota." chiudi={() => (foglio = null)}>
+        <input class="input" type="text" maxlength="40" placeholder="Nome (es. Zio Pino)" bind:value={nomeOspite} aria-label="Nome dell'amico senza app" />
+        {#if !liberiMiei.length}
+          <p class="aiuto">Non ci sono posti liberi {sonoTitolare ? '' : `nella squadra ${miaViceSquadra}`}: aggiungi una riserva in panchina o libera un posto.</p>
+        {/if}
+        <button type="button" class="btn" disabled={!nomeOspite.trim() || !liberiMiei.length}
+          onclick={() => apriScelta(`Dove gioca ${nomeOspite.trim()}?`, 'Scegli il posto libero.', liberiMiei, (p) => mettiOspite(p))}>Scegli il posto</button>
       </Foglio>
     {:else if foglio?.tipo === 'ospite'}
       {@const p = foglio.posizione}
