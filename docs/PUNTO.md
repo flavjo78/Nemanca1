@@ -25,9 +25,10 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 **Chat e notifiche**
 - [x] **Chat** di ogni partita in tempo reale, con card Accetta/Rifiuta; si chiude solo quando la partita va in archivio
 - [x] **Numero dei messaggi da leggere** sull'icona Chat (lampeggia piano se più di uno)
-- [x] **Notifiche automatiche** (OneSignal): candidature, accettazioni, inviti, messaggi, cambi di ruolo, amicizie, nuovi iscritti (solo a Flavio); proposte da subito, si spengono dal Profilo
+- [x] **Notifiche automatiche** (OneSignal): candidature, accettazioni, inviti, messaggi, cambi di ruolo, amicizie, nuovi iscritti (solo a Flavio); proposte da subito, si spengono dal Profilo; dal 14/11 priorità alta (Android con app chiusa) e il tocco apre la pagina giusta anche su iPhone
 
 **Amici e social**
+- [~] 16/11, in anteprima: **Chat con Partite · Amici · Liste**; **amici senza conferma** e automatici tra chi ha giocato insieme; **liste** da invitare intere; **email con il link alla partita** quando si viene invitati (serve la chiave Resend nel Vault: `resend_api_key`)
 - [x] **Lista amici** (si diventa amici solo se l'altro accetta), ricerca per nome, "Hai giocato con"; dal 14/11 è nella **Chat**, scheda "Amici"
 - [x] **Invita amici / Invita tutti** dalla partita, anche per chi gioca e non organizza (nelle partite "decido io" decide sempre l'organizzatore)
 - [x] **"Cercami per le partite"** in Home, **acceso di default** (13/11, migrazione 0026: acceso anche per gli iscritti attuali); si spegne dalla Home

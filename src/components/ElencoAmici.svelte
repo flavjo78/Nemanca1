@@ -1,5 +1,6 @@
 <script>
-  // Lista amici (dentro la Chat, scheda "Amici"): richieste ricevute, amici, richieste inviate, ricerca per nome e compagni di gioco.
+  // Lista amici (dentro la Chat, scheda "Amici"): niente conferma, "Aggiungi" rende subito amici;
+  // chi gioca nella stessa partita diventa amico da solo. Ricerca per nome e compagni di gioco.
   // Si diventa amici solo se l'altro accetta; poi l'organizzatore può invitarli direttamente alle partite.
   import { onMount } from 'svelte'
   import { supabase } from '../lib/supabase.js'
@@ -53,7 +54,7 @@
     await carica()
   }
   const aggiungi = (g) => azione(g.id, 'chiedi_amicizia', { p_altro: g.id },
-    (r) => r === 'accettata' ? `Tu e ${g.nome} ora siete amici.` : r === 'gia_amici' ? `Siete già amici.` : `Richiesta inviata a ${g.nome}: quando accetta lo trovi tra gli amici.`)
+    (r) => r === 'accettata' ? `Tu e ${g.nome} ora siete amici.` : r === 'gia_amici' ? `Siete già amici.` : `${g.nome} è tra i tuoi amici.`)
   const rispondi = (a, si) => azione(a.id, 'rispondi_amicizia', { p_amicizia: a.amicizia_id, p_accetta: si }, si ? `Tu e ${a.nome} ora siete amici.` : 'Richiesta rifiutata.')
   const togli = (a, testoAvviso) => azione(a.id, 'togli_amicizia', { p_altro: a.id }, testoAvviso)
 

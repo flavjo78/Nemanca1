@@ -8,12 +8,13 @@
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
   import ElencoAmici from '../components/ElencoAmici.svelte'
+  import ElencoListe from '../components/ElencoListe.svelte'
   import { router, naviga } from '../lib/router.svelte.js'
 
   // due schede: le chat delle partite e gli amici (anche da /amici)
-  const scheda = $derived(router.percorso === '/amici' ? 'amici' : 'partite')
+  const scheda = $derived(router.percorso === '/amici' ? 'amici' : router.percorso === '/liste' ? 'liste' : 'partite')
   let richiesteAmici = $state(0)
-  function vai(s) { naviga(s === 'amici' ? '/amici' : '/chat', { sostituisci: true }) }
+  function vai(s) { naviga(s === 'partite' ? '/chat' : `/${s}`, { sostituisci: true }) }
 
   let chat = $state([])
   let caricamento = $state(true)
@@ -36,16 +37,19 @@
 </script>
 
 <div class="pagina">
-  <header class="intestazione"><div class="centro"><h1 style="font-size:26px">Chat</h1><div class="sotto">{scheda === 'amici' ? 'I tuoi amici, da invitare alle partite' : 'Le chat delle tue partite'}</div></div></header>
+  <header class="intestazione"><div class="centro"><h1 style="font-size:26px">Chat</h1><div class="sotto">{scheda === 'amici' ? 'I tuoi amici, da invitare alle partite' : scheda === 'liste' ? 'Gruppi di giocatori da invitare insieme' : 'Le chat delle tue partite'}</div></div></header>
   <div class="contenuto con-barra">
     <div class="scelte" role="tablist" aria-label="Chat e amici">
       <button type="button" role="tab" class="scelta" class:attiva={scheda === 'partite'} aria-selected={scheda === 'partite'} onclick={() => vai('partite')}>Partite</button>
       <button type="button" role="tab" class="scelta" class:attiva={scheda === 'amici'} aria-selected={scheda === 'amici'} onclick={() => vai('amici')}>
         Amici{#if richiesteAmici} <span class="conta-nuovi" style="margin-left:4px">{richiesteAmici}</span>{/if}
       </button>
+      <button type="button" role="tab" class="scelta" class:attiva={scheda === 'liste'} aria-selected={scheda === 'liste'} onclick={() => vai('liste')}>Liste</button>
     </div>
     {#if scheda === 'amici'}
       <ElencoAmici />
+    {:else if scheda === 'liste'}
+      <ElencoListe />
     {:else if caricamento}
       <Caricamento />
     {:else if errore}
