@@ -3,6 +3,16 @@
 // "id" deve essere unico e crescente (data + lettera). Testi brevi, per i giocatori.
 export const NOVITA = [
   {
+    id: '2026-11-16b',
+    titolo: 'Novità: migliore in campo',
+    punti: [
+      'Quando crei una partita scegli anche la durata',
+      'Puoi occupare un posto per un amico che non ha l\'app',
+      'A fine partita votate il migliore in campo: chi vince riceve una coppa',
+      'Dai i voti ai compagni: le medie compaiono nel profilo'
+    ]
+  },
+  {
     id: '2026-11-16a',
     titolo: 'Novità: amici e liste',
     punti: [
