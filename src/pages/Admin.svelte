@@ -8,6 +8,37 @@
   import Caricamento from '../components/Caricamento.svelte'
   import Icona from '../components/Icona.svelte'
   import { entraCome, creaGiocatoreProva } from '../lib/entracome.svelte.js'
+  import Foglio from '../components/Foglio.svelte'
+  import { cercaIndirizzo } from '../lib/geo.js'
+  const caricaMappaPunto = () => import('../components/MappaPunto.svelte')
+
+  // modifica di un campo (nome, indirizzo, posizione)
+  let modifica = $state(null)
+  let salvando = $state(false)
+  let cercoIndirizzo = $state(false)
+  function apriModifica(c) { modifica = { id: c.id, nome: c.nome, indirizzo: c.indirizzo, lat: c.lat, lng: c.lng } }
+  async function trovaIndirizzo() {
+    cercoIndirizzo = true; errore = ''
+    try {
+      const r = await cercaIndirizzo(modifica.indirizzo, 1)
+      if (r[0]) { modifica.lat = +r[0].lat.toFixed(6); modifica.lng = +r[0].lng.toFixed(6) } else errore = 'Indirizzo non trovato: sposta il segnaposto a mano.'
+    } catch { errore = 'Ricerca non riuscita.' } finally { cercoIndirizzo = false }
+  }
+  async function salvaCampo() {
+    salvando = true; errore = ''
+    const { error } = await supabase.rpc('admin_modifica_campo', { p_campo: modifica.id, p_nome: modifica.nome, p_indirizzo: modifica.indirizzo, p_lat: Number(modifica.lat), p_lng: Number(modifica.lng) })
+    salvando = false
+    if (error) { errore = error.message; return }
+    modifica = null
+    await carica()
+  }
+  async function eliminaUtente(u) {
+    if (!confirm(`ELIMINARE l'account di ${u.nome ?? u.email}? Spariscono profilo, amicizie e liste, e le partite che organizzava. I suoi posti nelle altre partite tornano liberi. Non si può annullare.`)) return
+    errore = ''
+    const { error } = await supabase.rpc('admin_elimina_utente', { p_utente: u.id })
+    if (error) { errore = error.message; return }
+    await carica()
+  }
 
   let entrando = $state(false)
   async function entra(u) {
@@ -163,12 +194,12 @@
             </div>
             {#if u.id !== auth.utente?.id}
               <button type="button" class="btn piccolo bianco" style="width:auto; flex:0 0 auto" disabled={entrando} onclick={() => entra(u)}>Entra come</button>
+              {#if !u.admin}<button type="button" class="btn-tondo piccolo bordo" style="color: var(--errore)" aria-label={`Elimina ${u.nome ?? 'utente'}`} onclick={() => eliminaUtente(u)}><Icona nome="cestino" dimensione={18} spessore={2} /></button>{/if}
             {/if}
           </div>
         {:else}
           <div class="vuoto">Nessun iscritto.</div>
         {/each}
-        <p class="aiuto">Per eliminare un account: pannello Supabase → Authentication → Users.</p>
       </section>
 
       <section class="sezione">
@@ -199,6 +230,7 @@
               <a href={`/campo/${c.id}`} class="nome taglia" style="text-decoration:none; color:inherit">{c.nome}</a>
               <div class="sotto taglia">{c.indirizzo} · {c.partite?.[0]?.count ?? 0} partite</div>
             </div>
+            <button type="button" class="btn-tondo piccolo bordo" aria-label={`Modifica ${c.nome}`} onclick={() => apriModifica(c)}><Icona nome="matita" dimensione={18} /></button>
             <button type="button" class="chip" class:bianco-su-verde={!c.verificato} class:portiere={c.verificato} style="border:none" onclick={() => alternaVerificato(c)}>{c.verificato ? 'Confermato' : 'Conferma'}</button>
             <button type="button" class="btn-tondo piccolo bordo" style="color: var(--errore)" aria-label="Elimina campo" onclick={() => eliminaCampo(c)}><Icona nome="cestino" dimensione={18} spessore={2} /></button>
           </div>
@@ -210,3 +242,18 @@
   </div>
   <BarraInferiore />
 </div>
+
+{#if modifica}
+  <Foglio aperto titolo="Modifica campo" sotto="Trascina il segnaposto sul campo vero, o tocca la mappa." chiudi={() => (modifica = null)}>
+    <input class="input" type="text" bind:value={modifica.nome} aria-label="Nome del campo" placeholder="Nome del campo" />
+    <div style="display:flex; gap:8px">
+      <input class="input" type="text" bind:value={modifica.indirizzo} aria-label="Indirizzo" placeholder="Indirizzo" style="flex:1; min-width:0" />
+      <button type="button" class="btn piccolo bianco" style="width:auto; flex:0 0 auto" disabled={cercoIndirizzo} onclick={trovaIndirizzo}>Cerca</button>
+    </div>
+    {#await caricaMappaPunto() then m}
+      <m.default bind:lat={modifica.lat} bind:lng={modifica.lng} />
+    {/await}
+    <p class="aiuto">Posizione: {Number(modifica.lat).toFixed(5)}, {Number(modifica.lng).toFixed(5)}</p>
+    <button type="button" class="btn" disabled={salvando || !modifica.nome?.trim()} onclick={salvaCampo}>{salvando ? 'Salvataggio…' : 'Salva il campo'}</button>
+  </Foglio>
+{/if}
