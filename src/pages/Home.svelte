@@ -14,6 +14,7 @@
   import RaggioKm from '../components/RaggioKm.svelte'
   import DaComune from '../components/DaComune.svelte'
   import InstallaApp from '../components/InstallaApp.svelte'
+  import InvitaApp from '../components/InvitaApp.svelte'
   import { salvaCercami, salvaAvvisi } from '../lib/preferenze.js'
   import Foglio from '../components/Foglio.svelte'
 
@@ -282,6 +283,8 @@
       <button type="button" class="btn tratteggiato" onclick={() => naviga('/campi?organizza=1')}>
         <Icona nome="piu" dimensione={18} spessore={2.4} /> Organizza una partita
       </button>
+
+      <InvitaApp />
     {/if}
   </div>
   <BarraInferiore />

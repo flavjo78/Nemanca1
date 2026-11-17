@@ -112,7 +112,7 @@
           {/if}
           <p class="aiuto" style="word-break: break-all">{urlCampo}</p>
           <div class="no-stampa" style="display:flex; gap:10px; width:100%">
-            <button type="button" class="btn bianco piccolo" onclick={() => window.print()}><Icona nome="stampa" dimensione={18} /> Stampa</button>
+            <a class="btn bianco piccolo" href={`/campo/${id}/stampa`} style="text-decoration:none"><Icona nome="stampa" dimensione={18} /> QR da stampare</a>
             <button type="button" class="btn bianco piccolo" onclick={condividi}><Icona nome="condividi" dimensione={18} /> Condividi</button>
           </div>
         </div>

@@ -109,6 +109,8 @@ function rispondi(url, metodo) {
   await page.click('.pin'); await page.waitForSelector('text=Apri il campo'); await foto('campi-mappa-popup')
   await page.click('role=tab[name="Lista"]')
   await page.goto(base + `/campo/${CAMPO}?nuovo=1`); await page.waitForSelector('img[alt^="QR code"]'); await foto('campo-qr')
+  await page.goto(base + `/campo/${CAMPO}/stampa`); await page.waitForSelector('text=Il QR si stampa quando sei al campo'); await foto('campo-stampa-lontano')
+  await page.goto(base + '/'); await page.click('text=Fai conoscere Ne manca 1'); await page.waitForSelector('img[alt="QR code dell\'app Ne manca 1"]'); await foto('home-invita-app'); await page.keyboard.press('Escape')
   await page.goto(base + '/profilo'); await page.waitForSelector('text=Come ti valutano'); await foto('profilo')
   await page.click('text=Novità dell\'app'); await page.waitForSelector('text=Ho capito'); await foto('novita'); await page.click('text=Ho capito')
   await page.goto(base + '/liste'); await page.waitForSelector('text=Calcetto giovedì'); await page.click('text=Calcetto giovedì'); await page.waitForSelector('text=Aggiungi giocatori'); await foto('liste')
