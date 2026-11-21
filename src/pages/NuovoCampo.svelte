@@ -5,7 +5,7 @@
   import { cercaIndirizzo, posizioneAttuale } from '../lib/geo.js'
   import Intestazione from '../components/Intestazione.svelte'
   import Icona from '../components/Icona.svelte'
-  import { sport as sportScelto } from '../lib/sport.svelte.js'
+  import { sportPredefinito } from '../lib/sport.svelte.js'
 
   const SPORT = [
     { chiave: 'calcio', testo: 'Calcio' },
@@ -16,7 +16,7 @@
   let indirizzoTesto = $state('')
   let scelto = $state(null)
   let suggerimenti = $state([])
-  let sport = $state([sportScelto.attuale])
+  let sport = $state([sportPredefinito()])
   let errore = $state('')
   let occupato = $state(false)
   let cercando = $state(false)

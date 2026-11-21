@@ -10,13 +10,16 @@
   import ElencoAmici from '../components/ElencoAmici.svelte'
   import ElencoListe from '../components/ElencoListe.svelte'
   import { router, naviga } from '../lib/router.svelte.js'
+  import { sport, NOMI_SPORT, passaFiltro, classeSport } from '../lib/sport.svelte.js'
 
   // due schede: le chat delle partite e gli amici (anche da /amici)
   const scheda = $derived(router.percorso === '/amici' ? 'amici' : router.percorso === '/liste' ? 'liste' : 'partite')
   let richiesteAmici = $state(0)
   function vai(s) { naviga(s === 'partite' ? '/chat' : `/${s}`, { sostituisci: true }) }
 
-  let chat = $state([])
+  let tutteChat = $state([])
+  // con uno sport scelto si vedono solo le chat delle sue partite
+  const chat = $derived(tutteChat.filter((c) => passaFiltro(c.sport)))
   let caricamento = $state(true)
   let errore = $state('')
 
@@ -25,7 +28,7 @@
     supabase.rpc('miei_amici').then(({ data }) => { richiesteAmici = (data ?? []).filter((a) => a.stato === 'ricevuta').length })
     const { data, error } = await supabase.rpc('mie_chat')
     if (error) errore = error.message
-    chat = data ?? []
+    tutteChat = data ?? []
     caricamento = false
   })
 
@@ -57,7 +60,7 @@
     {:else if !chat.length}
       <div class="vuoto" style="display:flex; flex-direction:column; align-items:center; gap:10px; padding: 36px 16px">
         <span style="color: var(--verde)"><Icona nome="chat" dimensione={36} /></span>
-        <strong style="color: var(--testo)">Ancora nessuna chat</strong>
+        <strong style="color: var(--testo)">Ancora nessuna chat{sport.attuale === 'tutti' ? '' : ` di ${NOMI_SPORT[sport.attuale].toLowerCase()}`}</strong>
         Ogni partita in cui giochi, organizzi o sei in tribuna ha la sua chat. La trovi qui.
         <a href="/campi">Trova una partita</a>
       </div>
@@ -66,7 +69,7 @@
         {#each chat as c (c.partita_id)}
           {@const quanti = nonLetti.perPartita[c.partita_id] ?? 0}
           {@const nuovo = quanti > 0}
-          <a href={`/chat/${c.partita_id}`} class="card riga" style={c.stato === 'annullata' || !c.attiva ? 'opacity:.7' : ''}>
+          <a href={`/chat/${c.partita_id}`} class="card riga {classeSport(c.sport)}" style={c.stato === 'annullata' || !c.attiva ? 'opacity:.7' : ''}>
             <div class="data-box"><div class="g">{giornoBreve(c.data_ora)}</div><div class="n">{giornoNumero(c.data_ora)}</div></div>
             <div class="riempi">
               <div class="nome taglia">{c.campo_nome} · {ora(c.data_ora)}{#if !c.attiva}<span class="chip neutro" style="margin-left:6px; font-size:11px; padding:2px 8px">Archivio</span>{/if}</div>

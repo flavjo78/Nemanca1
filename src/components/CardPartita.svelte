@@ -1,6 +1,7 @@
 <script>
   // Card di una partita nell'elenco del campo (dal mockup campo.html)
   import { etichettaDataOra, etichettaFormato, nomeBreve, chipPosti } from '../lib/formato.js'
+  import { classeSport } from '../lib/sport.svelte.js'
   let { partita, evidenziata = false } = $props()
   const posizioni = $derived((partita.posizioni ?? []).filter((p) => p.ruolo !== 'panchina'))
   const totale = $derived(posizioni.length || partita.formato * 2)
@@ -13,7 +14,7 @@
   const percentuale = $derived(totale ? Math.round((occupati / totale) * 100) : 0)
 </script>
 
-<a href={`/partita/${partita.id}`} class="card" class:evidenziata>
+<a href={`/partita/${partita.id}`} class="card {classeSport(partita.sport)}" class:evidenziata>
   <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px">
     <div style="display:flex; flex-direction:column; gap:2px; min-width:0">
       <div class="titolo">{etichettaDataOra(partita.data_ora)}</div>

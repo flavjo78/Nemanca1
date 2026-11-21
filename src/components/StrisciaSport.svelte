@@ -6,11 +6,11 @@
 
 <div class="striscia no-stampa" role="status" aria-live="polite">
   <Icona nome={sport.attuale} dimensione={16} spessore={2} />
-  <span>Stai guardando: <strong>{NOMI_SPORT[sport.attuale]}</strong></span>
+  <span>Stai guardando: <strong>{sport.attuale === 'tutti' ? 'tutti gli sport' : NOMI_SPORT[sport.attuale]}</strong></span>
   <span class="suggerimento">cambia col tasto in basso</span>
 </div>
 {#if sport.appenaCambiato}
-  {#key sport.attuale}<div class="lampo no-stampa" aria-hidden="true">Ora sei su {NOMI_SPORT[sport.attuale]}</div>{/key}
+  {#key sport.attuale}<div class="lampo no-stampa" aria-hidden="true">{sport.attuale === 'tutti' ? 'Tutti gli sport' : `Ora sei su ${NOMI_SPORT[sport.attuale]}`}</div>{/key}
 {/if}
 
 <style>

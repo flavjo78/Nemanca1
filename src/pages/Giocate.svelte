@@ -6,10 +6,12 @@
   import { naviga } from '../lib/router.svelte.js'
   import { etichettaFormato, etichettaRuolo, giornoBreve, giornoNumero, ora } from '../lib/formato.js'
   import Caricamento from '../components/Caricamento.svelte'
+  import { passaFiltro, classeSport } from '../lib/sport.svelte.js'
   import Icona from '../components/Icona.svelte'
 
   let scheda = $state(new URLSearchParams(location.search).get('vista') === 'archivio' ? 'archivio' : 'giocate')
-  let elenco = $state([])
+  let tutte = $state([])
+  const elenco = $derived(tutte.filter((p) => passaFiltro(p.sport)))
   let caricamento = $state(true)
   let errore = $state('')
 
@@ -17,7 +19,7 @@
     caricamento = true; errore = ''
     const { data, error } = await supabase.rpc('mie_partite_passate', { p_archiviate: scheda === 'archivio' })
     if (error) errore = error.message
-    elenco = data ?? []
+    tutte = data ?? []
     caricamento = false
   }
   onMount(carica)
@@ -65,7 +67,7 @@
     {:else}
       <div class="sezione">
         {#each elenco as p (p.partita_id)}
-          <a href={`/partita/${p.partita_id}`} class="card riga" style={p.stato === 'annullata' ? 'opacity:.7' : ''}>
+          <a href={`/partita/${p.partita_id}`} class="card riga {classeSport(p.sport)}" style={p.stato === 'annullata' ? 'opacity:.7' : ''}>
             <div class="data-box"><div class="g">{giornoBreve(p.data_ora)}</div><div class="n">{giornoNumero(p.data_ora)}</div></div>
             <div class="riempi">
               <div class="nome taglia">{etichettaFormato(p.formato, p.sport)} · {p.campo_nome}</div>

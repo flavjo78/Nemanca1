@@ -128,12 +128,14 @@ function rispondi(url, metodo) {
   await page.goto(base + '/campi/nuovo'); await page.waitForSelector('text=Nome del campo'); await foto('nuovo-campo')
   // tennis e padel: tasto dello sport nella barra, campo da padel, organizza padel
   await page.goto(base + `/partita/${PARTITA3}`); await page.waitForSelector('.campo.padel'); await page.waitForSelector('text=Destra libero'); await foto('partita-padel')
-  await page.goto(base + '/'); await page.waitForSelector('text=Ciao Marco'); await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Tennis: serve un giocatore vicino a te'); await page.waitForSelector('text=Ora sei su Tennis'); await foto('home-tennis')
+  await page.goto(base + '/'); await page.waitForSelector('text=Ciao Marco'); await page.waitForSelector('text=Stai guardando: tutti gli sport'); await foto('home-tutti')
+  await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Calcio: serve un giocatore vicino a te')
+  await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Tennis: serve un giocatore vicino a te'); await page.waitForSelector('text=Ora sei su Tennis'); await page.waitForSelector('text=Nessuna partita di tennis con posti liberi'); await foto('home-tennis')
   await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Padel: serve un giocatore vicino a te')
   await page.goto(base + '/profilo'); await page.waitForSelector('text=Storico · Padel'); await foto('profilo-padel')
   await page.goto(base + `/campo/${CAMPO}/nuova`); await page.waitForSelector('text=Destra e sinistra'); await foto('nuova-partita-padel')
   await page.click('.barra-inferiore .sport').catch(() => {})
-  await page.goto(base + '/'); await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Calcio: serve un giocatore vicino a te')
+  await page.goto(base + '/'); await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Stai guardando: tutti gli sport')
 
   // senza login: login e campo pubblico
   const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 })

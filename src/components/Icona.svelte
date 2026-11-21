@@ -27,6 +27,7 @@
     campanella: '<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 21h4"/>',
     cestino: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>',
     ricarica: '<path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/>',
+    tutti: '<circle cx="7" cy="7" r="3.5"/><circle cx="17" cy="7" r="3.5"/><circle cx="7" cy="17" r="3.5"/><circle cx="17" cy="17" r="3.5"/>',
     calcio: '<circle cx="12" cy="12" r="9"/><path d="M12 7.5l4.3 3.1-1.6 5h-5.4l-1.6-5z"/><path d="M12 7.5V3.2M16.3 10.6l4.2-1.4M14.7 15.6l2.6 3.6M9.3 15.6l-2.6 3.6M7.7 10.6L3.5 9.2"/>',
     tennis: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6a9 9 0 0 1 0 12.8M18.4 5.6a9 9 0 0 0 0 12.8"/>',
     padel: '<path d="M10.5 3.5a6 6 0 0 1 8.5 8.5l-3.6 3.6a2 2 0 0 1-2.8 0L9 12a2 2 0 0 1 0-2.8z"/><path d="M10.8 14.9L5 20.7M3.3 19l1.7 1.7"/><circle cx="13" cy="7.5" r=".6"/><circle cx="16" cy="10.5" r=".6"/><circle cx="12.5" cy="11" r=".6"/>'

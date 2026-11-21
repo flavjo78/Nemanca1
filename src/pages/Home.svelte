@@ -17,7 +17,7 @@
   import InvitaApp from '../components/InvitaApp.svelte'
   import { salvaCercami, salvaAvvisi } from '../lib/preferenze.js'
   import Foglio from '../components/Foglio.svelte'
-  import { sport, NOMI_SPORT } from '../lib/sport.svelte.js'
+  import { sport, NOMI_SPORT, filtroSport, passaFiltro, classeSport } from '../lib/sport.svelte.js'
 
   let prossima = $state(null)
   let daApprovare = $state([])
@@ -32,7 +32,11 @@
   onMount(carica)
   // cambiando sport dalla barra in basso si ricaricano le partite vicine
   let sportCaricato = sport.attuale
-  $effect(() => { if (sport.attuale !== sportCaricato) { sportCaricato = sport.attuale; caricaVicine().catch(() => {}) } })
+  $effect(() => { if (sport.attuale !== sportCaricato) { sportCaricato = sport.attuale; caricaProssima().catch(() => {}); caricaVicine().catch(() => {}) } })
+  // con uno sport scelto si vedono solo le sue partite (con "Tutti" tutte, colorate per sport)
+  const inviti_ = $derived(inviti.filter((i) => passaFiltro(i.partita?.sport)))
+  const daApprovare_ = $derived(daApprovare.filter((r) => passaFiltro(r.partita?.sport)))
+  const titoloSport = $derived(sport.attuale === 'tutti' ? '' : `${NOMI_SPORT[sport.attuale]}: `)
 
   async function carica() {
     caricamento = true
@@ -54,16 +58,18 @@
     ])
     const ids = [...new Set([...(mie ?? []).map((x) => x.partita_id), ...(org ?? []).map((x) => x.id)])]
     if (!ids.length) { prossima = null; return }
-    const { data, error } = await supabase
+    let q = supabase
       .from('partite')
       .select('*, campo:campi(id, nome, indirizzo), posizioni(id, stato, ruolo, giocatore_id, giocatore:profili(nome, iniziali, foto_url))')
+    if (filtroSport()) q = q.eq('sport', filtroSport())
+    const { data, error } = await q
       .in('id', ids)
       .in('stato', ['aperta', 'completa'])
       .gte('data_ora', new Date(Date.now() - 3600 * 1000).toISOString())
       .order('data_ora')
-      .limit(1)
+      .limit(5)
     if (error) throw error
-    prossima = data?.[0] ?? null
+    prossima = (data ?? []).find((x) => passaFiltro(x.sport)) ?? null
   }
 
   async function caricaDaApprovare() {
@@ -92,9 +98,11 @@
     if (lat == null) {
       senzaPosizione = true
       // fallback: le prossime partite aperte ovunque
-      const { data, error } = await supabase
+      let q = supabase
         .from('partite').select('id, formato, sport, data_ora, quota, campo:campi(id, nome), posizioni(stato, ruolo)')
-        .eq('stato', 'aperta').eq('sport', sport.attuale).gte('data_ora', new Date().toISOString()).order('data_ora').limit(10)
+        .eq('stato', 'aperta')
+      if (filtroSport()) q = q.eq('sport', filtroSport())
+      const { data, error } = await q.gte('data_ora', new Date().toISOString()).order('data_ora').limit(10)
       if (error) throw error
       vicine = (data ?? []).map((p) => {
         const liberi = p.posizioni.filter((x) => x.stato === 'libera')
@@ -103,9 +111,9 @@
       }).filter((p) => p.posti_liberi > 0)
       return
     }
-    const { data, error } = await supabase.rpc('partite_vicine', { p_lat: lat, p_lng: lng, p_raggio_km: auth.profilo?.raggio_km ?? 20, p_limite: 10, p_sport: sport.attuale })
+    const { data, error } = await supabase.rpc('partite_vicine', { p_lat: lat, p_lng: lng, p_raggio_km: auth.profilo?.raggio_km ?? 20, p_limite: 10, p_sport: filtroSport() })
     if (error) throw error
-    vicine = (data ?? []).filter((p) => p.organizzatore_id !== auth.utente.id)
+    vicine = (data ?? []).filter((p) => p.organizzatore_id !== auth.utente.id && passaFiltro(p.sport))
   }
 
   let salvandoCercami = $state(false)
@@ -162,7 +170,7 @@
         <div class="sezione-titolo">La tua prossima partita</div>
         {#if prossima}
           {@const chip = chipPosti(prossima.posizioni)}
-          <a href={`/partita/${prossima.id}`} class="card verde">
+          <a href={`/partita/${prossima.id}`} class="card verde forte-{prossima.sport ?? 'calcio'}">
             <div style="display:flex; justify-content:space-between; align-items:center">
               <div class="titolo" style="color:#fff">{etichettaProssima(prossima.data_ora)}</div>
               <span class="chip bianco-su-verde">{etichettaFormato(prossima.formato, prossima.sport)}</span>
@@ -188,15 +196,15 @@
             </div>
           </a>
         {:else}
-          <div class="vuoto">Nessuna partita in programma. Trova un campo e organizzane una.</div>
+          <div class="vuoto">Nessuna partita{sport.attuale === 'tutti' ? '' : ` di ${NOMI_SPORT[sport.attuale].toLowerCase()}`} in programma. Trova un campo e organizzane una.</div>
         {/if}
       </section>
 
-      {#if inviti.length}
+      {#if inviti_.length}
         <section class="sezione">
           <div class="sezione-titolo">Ti chiedono di giocare</div>
-          {#each inviti as i (i.id)}
-            <a href={`/partita/${i.partita.id}`} class="card riga" style="border: 2px solid var(--portiere)">
+ {#each inviti_ as i (i.id)}
+            <a href={`/partita/${i.partita.id}`} class="card riga {classeSport(i.partita.sport)}" style="border: 2px solid var(--portiere)">
               <div class="data-box"><div class="g">{giornoBreve(i.partita.data_ora)}</div><div class="n">{giornoNumero(i.partita.data_ora)}</div></div>
               <div class="riempi">
                 <div class="nome taglia">{nomeBreve(i.da)} ti vuole in campo</div>
@@ -208,11 +216,11 @@
         </section>
       {/if}
 
-      {#if daApprovare.length}
+      {#if daApprovare_.length}
         <section class="sezione">
           <div class="sezione-titolo">Da approvare</div>
-          {#each daApprovare as r (r.id)}
-            <div class="card riga">
+          {#each daApprovare_ as r (r.id)}
+            <div class="card riga {classeSport(r.partita.sport)}">
               <div class="avatar">{iniziali(r.giocatore)}</div>
               <div class="riempi">
                 <div class="nome">{nomeBreve(r.giocatore)} vuole entrare</div>
@@ -257,7 +265,7 @@
 
       <section class="sezione">
         <div class="sezione-titolo">
-          <span>{senzaPosizione ? `${NOMI_SPORT[sport.attuale]}: partite con posti liberi` : `${NOMI_SPORT[sport.attuale]}: serve un giocatore vicino a te`}</span>
+          <span>{titoloSport}{senzaPosizione ? 'partite con posti liberi' : 'serve un giocatore vicino a te'}</span>
           {#if senzaPosizione}<a href="/campi">Campi</a>{/if}
         </div>
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
@@ -270,7 +278,7 @@
         {#if vicine.length}
           {#each vicine as p (p.id)}
             {@const chip = chipPostiDaConteggio(p.posti_liberi, p.ruoli_liberi)}
-            <a href={`/partita/${p.id}`} class="card riga">
+            <a href={`/partita/${p.id}`} class="card riga {classeSport(p.sport)}">
               <div class="data-box"><div class="g">{giornoBreve(p.data_ora)}</div><div class="n">{giornoNumero(p.data_ora)}</div></div>
               <div class="riempi">
                 <div class="nome">{etichettaFormato(p.formato, p.sport)} · {ora(p.data_ora)}</div>
@@ -280,7 +288,7 @@
             </a>
           {/each}
         {:else}
-          <div class="vuoto">Nessuna partita di {NOMI_SPORT[sport.attuale].toLowerCase()} con posti liberi al momento.</div>
+          <div class="vuoto">Nessuna partita{sport.attuale === 'tutti' ? '' : ` di ${NOMI_SPORT[sport.attuale].toLowerCase()}`} con posti liberi al momento.</div>
         {/if}
       </section>
 

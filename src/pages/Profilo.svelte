@@ -13,13 +13,14 @@
   import Novita from '../components/Novita.svelte'
   let vediNovita = $state(false)
   import { notifiche, attivaNotifiche, disattivaNotifiche } from '../lib/notifiche.svelte.js'
-  import { sport, scegliSport, ORDINE_SPORT, NOMI_SPORT, racchetta } from '../lib/sport.svelte.js'
+  import { sport, scegliSport, ORDINE_SPORT, NOMI_SPORT, racchetta, passaFiltro, classeSport } from '../lib/sport.svelte.js'
 
   // profilo unico, statistiche separate per sport (segue il tasto dello sport nella barra)
   let tuttiVoti = $state([])
   let tuttoStorico = $state([])
-  const voti = $derived(tuttiVoti.find((v) => v.sport === sport.attuale) ?? null)
-  const storico = $derived(tuttoStorico.filter((s) => (s.sport ?? 'calcio') === sport.attuale))
+  // "Tutti": voti del calcio (gli unici che esistono) e tutte le partite
+  const voti = $derived(tuttiVoti.find((v) => v.sport === (sport.attuale === 'tutti' ? 'calcio' : sport.attuale)) ?? null)
+  const storico = $derived(tuttoStorico.filter((s) => passaFiltro(s.sport)))
   let caricato = $state(false)
 
   const p = $derived(auth.profilo)
@@ -105,12 +106,12 @@
     {/if}
 
     <section class="sezione">
-      <div class="sezione-titolo">Storico · {NOMI_SPORT[sport.attuale]}</div>
+      <div class="sezione-titolo">Storico{sport.attuale === 'tutti' ? '' : ` · ${NOMI_SPORT[sport.attuale]}`}</div>
       {#if !caricato}
         <div class="vuoto">Caricamento…</div>
       {:else if storico.length}
         {#each storico.slice(0, 20) as s (s.partita_id)}
-          <a href={`/partita/${s.partita_id}`} class="card riga">
+          <a href={`/partita/${s.partita_id}`} class="card riga {classeSport(s.sport)}">
             <div class="data-box" style={s.esito === 'vinta' ? 'background: var(--verde-chiaro); color: var(--verde-scuro)' : s.esito ? '' : 'background: var(--neutro); color: var(--testo-3)'}>
               <div class="n" style="font-size:15px">{risultato(s)}</div>
             </div>
@@ -122,7 +123,7 @@
           </a>
         {/each}
       {:else}
-        <div class="vuoto">Le partite di {NOMI_SPORT[sport.attuale].toLowerCase()} a cui partecipi compariranno qui.</div>
+        <div class="vuoto">Le partite{sport.attuale === 'tutti' ? '' : ` di ${NOMI_SPORT[sport.attuale].toLowerCase()}`} a cui partecipi compariranno qui.</div>
       {/if}
     </section>
 

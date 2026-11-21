@@ -7,13 +7,13 @@
   import Intestazione from '../components/Intestazione.svelte'
   import { PREDEFINITI, testoModulo, moduloPerDb } from '../lib/formazione.js'
   import Contatori from '../components/Contatori.svelte'
-  import { sport as sportScelto, NOMI_SPORT, FORMATI, racchetta, scegliSport } from '../lib/sport.svelte.js'
+  import { NOMI_SPORT, FORMATI, racchetta, sportPredefinito } from '../lib/sport.svelte.js'
 
   let { id } = $props()
   let campo = $state(null)
-  let sport = $state(sportScelto.attuale)
+  let sport = $state(sportPredefinito())
   const conRacchetta = $derived(racchetta(sport))
-  let formato = $state(racchetta(sportScelto.attuale) ? 2 : 5)
+  let formato = $state(racchetta(sportPredefinito()) ? 2 : 5)
   let lati = $state(true)        // 2 contro 2: ruoli destra/sinistra (facoltativi)
   let lato = $state('destra')
   const sportCampo = $derived((campo?.sport ?? []).filter((s) => FORMATI[s]))
@@ -84,7 +84,6 @@
     }
     occupato = false
     if (error) { errore = error.message; return }
-    scegliSport(sport)
     naviga(`/partita/${data}?nuova=1`, { sostituisci: true })
   }
 </script>
