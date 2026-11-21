@@ -6,7 +6,8 @@
   import { disponi, moduloDi, ruoloDaAltezza } from '../lib/formazione.js'
   import Divisa from './Divisa.svelte'
   import { testoMaglia, testoDivisa } from '../lib/divise.js'
-  let { posizioni = [], mioId = null, alClick = null, evidenzia = null, trascinabile = null, alTrascina = null, divise = null } = $props()
+  let { posizioni = [], mioId = null, alClick = null, evidenzia = null, trascinabile = null, alTrascina = null, divise = null, sport = 'calcio' } = $props()
+  const conRacchetta = $derived(sport === 'tennis' || sport === 'padel')
 
   // ogni tanto, al posto del modulo, compare il colore della maglia da portare
   let mostraMaglia = $state(false)
@@ -66,7 +67,7 @@
   }
   function tocco(p) { if (!appenaTrascinato) alClick?.(p) }
 
-  const coordinate = $derived(disponi(posizioni))
+  const coordinate = $derived(disponi(posizioni, sport))
   const inCampo = $derived(posizioni.filter((p) => p.ruolo !== 'panchina'))
   const panchinaA = $derived(posizioni.filter((p) => p.ruolo === 'panchina' && p.squadra === 'A'))
   const panchinaB = $derived(posizioni.filter((p) => p.ruolo === 'panchina' && p.squadra === 'B'))
@@ -89,7 +90,7 @@
   function etichetta(p) {
     if (p.ruolo === 'panchina') return p.stato === 'libera' ? 'Libero' : (p.giocatore_id === mioId ? 'Tu' : nomeCampo(p.giocatore))
     if (trascinato?.id === p.id && p.ruolo !== 'portiere') return `→ ${etichettaRuolo(ruoloDaAltezza(trascinato.y))}`
-    if (p.stato === 'libera') return `${etichettaRuolo(p.ruolo)} libero`
+    if (p.stato === 'libera') return p.ruolo === 'singolo' ? 'Posto libero' : `${etichettaRuolo(p.ruolo)} libero`
     // posto occupato: cognome e iniziale del nome (il ruolo si capisce dalla posizione)
     return p.giocatore_id === mioId ? 'Tu' : nomeCampo(p.giocatore)
   }
@@ -130,7 +131,14 @@
 
 <div class="insieme" class:con-panchine={conPanchine}>
 {#if conPanchine}<div class="area-pA">{@render panchina(panchinaA, 'A')}</div>{/if}
-<div class="campo" role="group" aria-label="Formazione delle due squadre" bind:this={campoEl} class:trascinando={!!trascinato}>
+<div class="campo {sport}" role="group" aria-label="Formazione delle due squadre" bind:this={campoEl} class:trascinando={!!trascinato} class:racchetta={conRacchetta}>
+  {#if conRacchetta}
+    <!-- campo da tennis o da padel: rete al centro, righe del servizio -->
+    <div class="riga-lato sx"></div><div class="riga-lato dx"></div>
+    <div class="riga-servizio alto"></div><div class="riga-servizio basso"></div>
+    <div class="riga-centrale"></div>
+    <div class="rete"></div>
+  {:else}
   {#if trascinato}
     <div class="fascia" style="top:{5 + (47 / 2) * 0.9}%"></div><div class="fascia" style="top:{5 + (73 / 2) * 0.9}%"></div>
     <div class="fascia" style="top:{95 - (47 / 2) * 0.9}%"></div><div class="fascia" style="top:{95 - (73 / 2) * 0.9}%"></div>
@@ -139,9 +147,10 @@
   <div class="cerchio"></div>
   <div class="area alto"></div>
   <div class="area basso"></div>
+  {/if}
   <div class="nome-squadra alto">SQUADRA A</div>
   <div class="nome-squadra basso">SQUADRA B</div>
-  {#each ['A', 'B'] as sq}
+  {#each conRacchetta ? [] : ['A', 'B'] as sq}
     <div class="modulo {sq === 'A' ? 'alto' : 'basso'}" aria-label={`Squadra ${sq}: modulo ${moduloDi(posizioni, sq)}${divise?.[sq] ? ', ' + testoDivisa(divise[sq]) : ''}`}>
       {#if divise?.[sq]}<Divisa maglia={divise[sq].maglia} pantaloncini={divise[sq].pantaloncini} dimensione={16} />{/if}
       <span aria-hidden="true">{mostraMaglia && divise?.[sq] ? `Porta la ${testoMaglia(divise[sq])}` : moduloDi(posizioni, sq)}</span>
@@ -172,6 +181,21 @@
     background: repeating-linear-gradient(180deg, var(--campo) 0px, var(--campo) 12.5%, var(--campo-2) 12.5%, var(--campo-2) 25%);
     border: 3px solid #fff; overflow: hidden;
   }
+  /* tennis (terra rossa) e padel (blu, con le pareti) */
+  .campo.racchetta { aspect-ratio: 10 / 17; }
+  .campo.tennis { background: #C4673E; }
+  .campo.padel { background: #2D6FA6; border: 5px solid #CFE3F2; }
+  .riga-lato { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px solid rgba(255,255,255,.9); }
+  .tennis .riga-lato.sx { left: 12%; } .tennis .riga-lato.dx { right: 12%; }
+  .padel .riga-lato { display: none; }
+  .riga-servizio { position: absolute; height: 0; border-top: 2px solid rgba(255,255,255,.9); }
+  .tennis .riga-servizio { left: 12%; right: 12%; } .padel .riga-servizio { left: 0; right: 0; }
+  .riga-servizio.alto { top: 24%; } .riga-servizio.basso { bottom: 24%; }
+  .padel .riga-servizio.alto { top: 15%; } .padel .riga-servizio.basso { bottom: 15%; }
+  .riga-centrale { position: absolute; left: 50%; top: 24%; bottom: 24%; border-left: 2px solid rgba(255,255,255,.9); }
+  .padel .riga-centrale { top: 15%; bottom: 15%; }
+  .rete { position: absolute; left: -2%; right: -2%; top: 50%; height: 6px; transform: translateY(-50%);
+    background: repeating-linear-gradient(90deg, rgba(20,32,26,.75) 0 2px, rgba(255,255,255,.35) 2px 5px); border-top: 2px solid #fff; }
   .meta { position: absolute; left: 0; right: 0; top: 50%; height: 2px; background: rgba(255,255,255,0.85); }
   .cerchio { position: absolute; left: 50%; top: 50%; width: 26%; aspect-ratio: 1; transform: translate(-50%, -50%); border: 2px solid rgba(255,255,255,0.85); border-radius: 50%; }
   .area { position: absolute; left: 50%; width: 46%; height: 11%; transform: translateX(-50%); border: 2px solid rgba(255,255,255,0.85); }

@@ -11,6 +11,7 @@
   import Icona from '../components/Icona.svelte'
   import RaggioKm from '../components/RaggioKm.svelte'
   import DaComune from '../components/DaComune.svelte'
+  import { sport, NOMI_SPORT } from '../lib/sport.svelte.js'
 
   let campi = $state([])
   let caricamento = $state(true)
@@ -30,6 +31,9 @@
   }))
 
   onMount(carica)
+  // cambiando sport dalla barra in basso si vedono solo i campi di quello sport
+  let sportCaricato = sport.attuale
+  $effect(() => { if (sport.attuale !== sportCaricato) { sportCaricato = sport.attuale; carica() } })
 
   async function carica() {
     caricamento = true
@@ -38,10 +42,10 @@
     let lat = auth.profilo?.lat, lng = auth.profilo?.lng
     if (lat == null) { try { ({ lat, lng } = await posizioneAttuale()) } catch { /* niente */ } }
     if (lat != null) {
-      const { data, error } = await supabase.rpc('campi_vicini', { p_lat: lat, p_lng: lng, p_raggio_km: auth.profilo?.raggio_km ?? 20, p_limite: 50 })
+      const { data, error } = await supabase.rpc('campi_vicini', { p_lat: lat, p_lng: lng, p_raggio_km: auth.profilo?.raggio_km ?? 20, p_limite: 50, p_sport: sport.attuale })
       if (!error && data?.length) { campi = data; conDistanza = true; caricamento = false; return }
     }
-    const { data, error } = await supabase.from('campi').select('*').order('nome').limit(100)
+    const { data, error } = await supabase.from('campi').select('*').contains('sport', [sport.attuale]).order('nome').limit(100)
     if (error) errore = error.message
     campi = data ?? []
     caricamento = false
@@ -51,8 +55,8 @@
 <div class="pagina">
   <header class="intestazione" style="justify-content: space-between">
     <div class="centro">
-      <h1 style="font-size: 26px">{perOrganizzare ? 'Dove si gioca?' : 'Campi'}</h1>
-      <div class="sotto">{perOrganizzare ? 'Scegli il campo per la tua partita' : conDistanza ? 'Dal più vicino a te' : 'Tutti i campi registrati'}</div>
+      <h1 style="font-size: 26px">{perOrganizzare ? 'Dove si gioca?' : `Campi da ${NOMI_SPORT[sport.attuale].toLowerCase()}`}</h1>
+      <div class="sotto">{perOrganizzare ? `Scegli il campo per la tua partita di ${NOMI_SPORT[sport.attuale].toLowerCase()}` : conDistanza ? 'Dal più vicino a te' : 'Tutti i campi registrati'}</div>
     </div>
     <a href="/campi/nuovo" class="btn-tondo verde" aria-label="Registra un nuovo campo"><Icona nome="piu" dimensione={20} spessore={2.4} /></a>
   </header>
@@ -89,13 +93,13 @@
       {/await}
     {:else if !filtrati.length}
       <div class="vuoto">
-        {campi.length ? 'Nessun campo corrisponde alla ricerca.' : 'Non c\'è ancora nessun campo. Registra il primo!'}
+        {campi.length ? 'Nessun campo corrisponde alla ricerca.' : `Non c'è ancora nessun campo da ${NOMI_SPORT[sport.attuale].toLowerCase()}. Registra il primo!`}
       </div>
     {:else}
       <div class="sezione">
         {#each filtrati as c (c.id)}
           <a href={`/campo/${c.id}${perOrganizzare ? '?organizza=1' : ''}`} class="card riga">
-            <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome="campi" dimensione={22} /></div>
+            <div class="avatar" style="border-radius:12px; background: var(--verde-chiaro); color: var(--verde-scuro)"><Icona nome={sport.attuale} dimensione={22} /></div>
             <div class="riempi">
               <div class="nome taglia">{c.nome}</div>
               <div class="sotto taglia">{c.indirizzo}{c.distanza_km != null ? ` · ${km(c.distanza_km)}` : ''}</div>

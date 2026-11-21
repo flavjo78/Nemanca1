@@ -52,8 +52,9 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
    - [ ] *Da decidere*: avviso **automatico** (es. quando qualcuno si toglie entro 24 ore, o 24 e 3 ore prima se mancano giocatori)
 2. [~] **Tappa 5 – Dopo la partita** (16/11, su www: durata, ospiti, migliore in campo obbligatorio con coppa, voti ad almeno un compagno; resta il **risultato**): risultato (andrà anche nell'archivio), recensioni anonime su 4 categorie, voti nel profilo, storico
 3. [~] **Tappa 6**: **QR del campo da stampare** (A4 o adesivo, sponsor facoltativo, solo da chi è al campo o dall'amministratore) e **QR dell'app in Home** in anteprima dal 17/11; resta la prova con 10 persone su un campo vero
-4. [ ] **Entra con Google**
-5. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
+4. [~] **Tennis e padel** (anteprima dal 21/11): pallone al centro della barra in basso che cambia sport (calcio → tennis → padel); Home, Campi e mappa mostrano solo partite e campi di quello sport; tennis e padel 1 contro 1 o 2 contro 2, ruoli facoltativi (destra/sinistra), campo disegnato (terra rossa / padel blu), niente modulo, divise e "migliore in campo"; panchina possibile ma di default nessuna; profilo unico con statistiche e storico separati per sport; l'amministratore sceglie gli sport di ogni campo
+5. [ ] **Entra con Google**
+6. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
 
 - [x] **Pannello amministratore** (16/11, su www): elimina partite, campi e utenti, conferma e modifica campi (posizione sulla mappa), **entra come** utente (chiave `supabase_secret_key` nel Vault, provato) e giocatori di prova
 

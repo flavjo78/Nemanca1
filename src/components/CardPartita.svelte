@@ -17,7 +17,7 @@
   <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px">
     <div style="display:flex; flex-direction:column; gap:2px; min-width:0">
       <div class="titolo">{etichettaDataOra(partita.data_ora)}</div>
-      <div class="sotto taglia">{etichettaFormato(partita.formato)} · organizza {nomeBreve(partita.organizzatore)}</div>
+      <div class="sotto taglia">{etichettaFormato(partita.formato, partita.sport)} · organizza {nomeBreve(partita.organizzatore)}</div>
     </div>
     <span class="chip {chip.classe}">{chip.testo}</span>
   </div>

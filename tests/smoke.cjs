@@ -12,7 +12,7 @@ const PARTITA2 = 'cccccccc-cccc-cccc-cccc-cccccccccccc'
 const oggi = new Date(Date.now() + 3 * 3600000); oggi.setMinutes(0, 0, 0) // sempre nel futuro: la prova non dipende dall'ora
 const giovedi = new Date(Date.now() + 2 * 86400000); giovedi.setHours(20, 30, 0, 0)
 const io = { id: UID, cercami: true, avvisi_ruoli: 'miei', avvisi_dalle: 9, avvisi_alle: 22, nome: 'Marco Rizzo', iniziali: 'MR', comune: 'Galatina', lat: 40.17, lng: 18.17, ruoli_preferiti: ['attacco'], creato_il: '2026-01-01' }
-const campo = { id: CAMPO, nome: 'Campo San Rocco', indirizzo: 'Via dei Pini 12, Galatina', lat: 40.17, lng: 18.17, sport: ['calcio'], verificato: true, sponsor_nome: 'Bar Centrale', sponsor_testo: 'Terzo tempo offerto da Bar Centrale', creato_da: UID }
+const campo = { id: CAMPO, nome: 'Campo San Rocco', indirizzo: 'Via dei Pini 12, Galatina', lat: 40.17, lng: 18.17, sport: ['calcio', 'padel'], verificato: true, sponsor_nome: 'Bar Centrale', sponsor_testo: 'Terzo tempo offerto da Bar Centrale', creato_da: UID }
 const nomi = [['Giulia P','GP'],['Luca C','LC'],['Anna D','AD'],['Marco Rizzo','MR'],['Fabio S','FS'],['Dario N','DN'],['Paolo L','PL'],['Sara T','ST'],['Rita B','RB']]
 const schema5 = [['portiere',50,10],['difesa',30,40],['difesa',70,40],['attacco',30,75],['attacco',70,75]]
 const posizioni = []
@@ -30,6 +30,13 @@ const partita = { id: PARTITA, campo_id: CAMPO, organizzatore_id: UID, sport: 'c
 const partita2 = { id: PARTITA2, campo_id: CAMPO, organizzatore_id: 'u-PL', formato: 8, data_ora: giovedi.toISOString(), quota: 5, stato: 'aperta',
   organizzatore: { id: 'u-PL', nome: 'Pino Lauro', iniziali: 'PL' }, campo: { id: CAMPO, nome: campo.nome },
   posizioni: Array.from({ length: 16 }, (_, i) => ({ id: `q${i}`, stato: i < 13 ? 'occupata' : 'libera', ruolo: i < 13 ? 'difesa' : 'centro', giocatore_id: i < 13 ? `z${i}` : null })) }
+
+// partita di padel 2 contro 2 con destra e sinistra
+const PARTITA3 = 'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+const partita3 = { id: PARTITA3, campo_id: CAMPO, organizzatore_id: UID, sport: 'padel', formato: 2, data_ora: giovedi.toISOString(), quota: 8, stato: 'aperta', modalita: 'libera',
+  campo: { id: CAMPO, nome: campo.nome, indirizzo: campo.indirizzo }, organizzatore: io,
+  posizioni: [['A','destra',30,UID,'Marco Rizzo','MR'],['A','sinistra',70,'u-LC','Luca C','LC'],['B','destra',30,null],['B','sinistra',70,'u-AD','Anna D','AD']]
+    .map(([squadra, ruolo, x, gid, nome, ini], i) => ({ id: `t${i}`, partita_id: PARTITA3, squadra, ruolo, x, y: 60, creato_il: '2026-01-01', stato: gid ? 'occupata' : 'libera', giocatore_id: gid, giocatore: gid ? { id: gid, nome, iniziali: ini } : null })) }
 
 function rispondi(url, metodo) {
   const u = new URL(url)
@@ -57,10 +64,11 @@ function rispondi(url, metodo) {
     case 'partite': {
       const id = (u.searchParams.get('id') || '').replace('eq.', '')
       if (id.startsWith('in.')) return [partita, partita2]
-      if (id) return id === PARTITA2 ? partita2 : partita
+      if (id) return id === PARTITA2 ? partita2 : id === PARTITA3 ? partita3 : partita
       return [partita, partita2]
     }
     case 'profili_voti': return null
+    case 'profili_voti_sport': return []
     case 'storico_partite': return []
   }
   return []
@@ -118,6 +126,14 @@ function rispondi(url, metodo) {
   await page.goto(base + '/profilo/modifica'); await page.waitForSelector('text=Il tuo profilo'); await foto('profilo-modifica')
   await page.goto(base + '/'); await page.waitForSelector('text=Cercami per le partite'); await page.click('.riga-avvisi'); await page.waitForSelector('text=Quando vuoi essere chiamato'); await foto('home-avvisi'); await page.keyboard.press('Escape'); await page.click('.chip-km'); await page.waitForSelector('text=Fino a quanti km vai a giocare?'); await page.click('.foglio >> text=30 km'); await foto('home-raggio')
   await page.goto(base + '/campi/nuovo'); await page.waitForSelector('text=Nome del campo'); await foto('nuovo-campo')
+  // tennis e padel: tasto dello sport nella barra, campo da padel, organizza padel
+  await page.goto(base + `/partita/${PARTITA3}`); await page.waitForSelector('.campo.padel'); await page.waitForSelector('text=Destra libero'); await foto('partita-padel')
+  await page.goto(base + '/'); await page.waitForSelector('text=Ciao Marco'); await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Tennis: serve un giocatore vicino a te'); await foto('home-tennis')
+  await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Padel: serve un giocatore vicino a te')
+  await page.goto(base + '/profilo'); await page.waitForSelector('text=Storico · Padel'); await foto('profilo-padel')
+  await page.goto(base + `/campo/${CAMPO}/nuova`); await page.waitForSelector('text=Destra e sinistra'); await foto('nuova-partita-padel')
+  await page.click('.barra-inferiore .sport').catch(() => {})
+  await page.goto(base + '/'); await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Calcio: serve un giocatore vicino a te')
 
   // senza login: login e campo pubblico
   const ctx2 = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 })

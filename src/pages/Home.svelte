@@ -17,6 +17,7 @@
   import InvitaApp from '../components/InvitaApp.svelte'
   import { salvaCercami, salvaAvvisi } from '../lib/preferenze.js'
   import Foglio from '../components/Foglio.svelte'
+  import { sport, NOMI_SPORT } from '../lib/sport.svelte.js'
 
   let prossima = $state(null)
   let daApprovare = $state([])
@@ -29,6 +30,9 @@
   const primoNome = $derived((auth.profilo?.nome ?? '').split(' ')[0] || 'ciao')
 
   onMount(carica)
+  // cambiando sport dalla barra in basso si ricaricano le partite vicine
+  let sportCaricato = sport.attuale
+  $effect(() => { if (sport.attuale !== sportCaricato) { sportCaricato = sport.attuale; caricaVicine().catch(() => {}) } })
 
   async function carica() {
     caricamento = true
@@ -65,7 +69,7 @@
   async function caricaDaApprovare() {
     const { data, error } = await supabase
       .from('richieste')
-      .select('*, giocatore:profili(id, nome, iniziali, foto_url), partita:partite!inner(id, organizzatore_id, data_ora, formato)')
+      .select('*, giocatore:profili(id, nome, iniziali, foto_url), partita:partite!inner(id, organizzatore_id, data_ora, formato, sport)')
       .eq('stato', 'in_attesa')
       .eq('partita.organizzatore_id', auth.utente.id)
       .order('creato_il')
@@ -75,7 +79,7 @@
 
   async function caricaInviti() {
     const { data } = await supabase.from('inviti')
-      .select('*, da:profili!inviti_da_id_fkey(nome, iniziali), posizione:posizioni(ruolo, squadra), partita:partite(id, data_ora, formato, stato, campo:campi(nome))')
+      .select('*, da:profili!inviti_da_id_fkey(nome, iniziali), posizione:posizioni(ruolo, squadra), partita:partite(id, data_ora, formato, sport, stato, campo:campi(nome))')
       .eq('a_id', auth.utente.id).eq('stato', 'in_attesa').order('creato_il', { ascending: false })
     inviti = (data ?? []).filter((i) => i.partita && ['aperta', 'completa'].includes(i.partita.stato))
   }
@@ -89,17 +93,17 @@
       senzaPosizione = true
       // fallback: le prossime partite aperte ovunque
       const { data, error } = await supabase
-        .from('partite').select('id, formato, data_ora, quota, campo:campi(id, nome), posizioni(stato, ruolo)')
-        .eq('stato', 'aperta').gte('data_ora', new Date().toISOString()).order('data_ora').limit(10)
+        .from('partite').select('id, formato, sport, data_ora, quota, campo:campi(id, nome), posizioni(stato, ruolo)')
+        .eq('stato', 'aperta').eq('sport', sport.attuale).gte('data_ora', new Date().toISOString()).order('data_ora').limit(10)
       if (error) throw error
       vicine = (data ?? []).map((p) => {
         const liberi = p.posizioni.filter((x) => x.stato === 'libera')
-        return { id: p.id, formato: p.formato, data_ora: p.data_ora, campo_nome: p.campo?.nome, distanza_km: null,
+        return { id: p.id, formato: p.formato, sport: p.sport, data_ora: p.data_ora, campo_nome: p.campo?.nome, distanza_km: null,
           posti_liberi: liberi.length, ruoli_liberi: [...new Set(liberi.map((x) => x.ruolo))] }
       }).filter((p) => p.posti_liberi > 0)
       return
     }
-    const { data, error } = await supabase.rpc('partite_vicine', { p_lat: lat, p_lng: lng, p_raggio_km: auth.profilo?.raggio_km ?? 20, p_limite: 10 })
+    const { data, error } = await supabase.rpc('partite_vicine', { p_lat: lat, p_lng: lng, p_raggio_km: auth.profilo?.raggio_km ?? 20, p_limite: 10, p_sport: sport.attuale })
     if (error) throw error
     vicine = (data ?? []).filter((p) => p.organizzatore_id !== auth.utente.id)
   }
@@ -161,7 +165,7 @@
           <a href={`/partita/${prossima.id}`} class="card verde">
             <div style="display:flex; justify-content:space-between; align-items:center">
               <div class="titolo" style="color:#fff">{etichettaProssima(prossima.data_ora)}</div>
-              <span class="chip bianco-su-verde">{etichettaFormato(prossima.formato)}</span>
+              <span class="chip bianco-su-verde">{etichettaFormato(prossima.formato, prossima.sport)}</span>
             </div>
             <div class="sotto" style="font-size:15px">{prossima.campo?.nome}{prossima.campo?.indirizzo ? ` · ${prossima.campo.indirizzo.split(',').pop().trim()}` : ''}</div>
             <div style="display:flex; justify-content:space-between; align-items:center; gap:8px">
@@ -212,7 +216,7 @@
               <div class="avatar">{iniziali(r.giocatore)}</div>
               <div class="riempi">
                 <div class="nome">{nomeBreve(r.giocatore)} vuole entrare</div>
-                <div class="sotto taglia">{r.ruolo_richiesto ? etichettaRuolo(r.ruolo_richiesto) : 'Qualsiasi ruolo'}{r.squadra_preferita ? ` · squadra ${r.squadra_preferita}` : ''} · {etichettaFormato(r.partita.formato)} {ora(r.partita.data_ora)}</div>
+                <div class="sotto taglia">{r.ruolo_richiesto ? etichettaRuolo(r.ruolo_richiesto) : 'Qualsiasi ruolo'}{r.squadra_preferita ? ` · squadra ${r.squadra_preferita}` : ''} · {etichettaFormato(r.partita.formato, r.partita.sport)} {ora(r.partita.data_ora)}</div>
               </div>
               <button type="button" class="btn-tondo piccolo bordo" aria-label="Rifiuta" onclick={() => rispondi(r, 'rifiutata')}><Icona nome="x" dimensione={18} spessore={2.2} /></button>
               <button type="button" class="btn-tondo piccolo verde" aria-label="Accetta" onclick={() => rispondi(r, 'accettata')}><Icona nome="spunta" dimensione={18} spessore={2.4} /></button>
@@ -253,7 +257,7 @@
 
       <section class="sezione">
         <div class="sezione-titolo">
-          <span>{senzaPosizione ? 'Partite con posti liberi' : 'Serve un giocatore vicino a te'}</span>
+          <span>{senzaPosizione ? `${NOMI_SPORT[sport.attuale]}: partite con posti liberi` : `${NOMI_SPORT[sport.attuale]}: serve un giocatore vicino a te`}</span>
           {#if senzaPosizione}<a href="/campi">Campi</a>{/if}
         </div>
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap">
@@ -269,14 +273,14 @@
             <a href={`/partita/${p.id}`} class="card riga">
               <div class="data-box"><div class="g">{giornoBreve(p.data_ora)}</div><div class="n">{giornoNumero(p.data_ora)}</div></div>
               <div class="riempi">
-                <div class="nome">{etichettaFormato(p.formato)} · {ora(p.data_ora)}</div>
+                <div class="nome">{etichettaFormato(p.formato, p.sport)} · {ora(p.data_ora)}</div>
                 <div class="sotto taglia">{p.campo_nome}{p.distanza_km != null ? ` · ${km(p.distanza_km)}` : ''}</div>
               </div>
               <span class="chip {chip.classe}">{chip.testo}</span>
             </a>
           {/each}
         {:else}
-          <div class="vuoto">Nessuna partita con posti liberi al momento.</div>
+          <div class="vuoto">Nessuna partita di {NOMI_SPORT[sport.attuale].toLowerCase()} con posti liberi al momento.</div>
         {/if}
       </section>
 

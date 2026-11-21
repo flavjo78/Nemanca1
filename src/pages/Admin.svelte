@@ -16,7 +16,8 @@
   let modifica = $state(null)
   let salvando = $state(false)
   let cercoIndirizzo = $state(false)
-  function apriModifica(c) { modifica = { id: c.id, nome: c.nome, indirizzo: c.indirizzo, lat: c.lat, lng: c.lng } }
+  function apriModifica(c) { modifica = { id: c.id, nome: c.nome, indirizzo: c.indirizzo, lat: c.lat, lng: c.lng, sport: [...(c.sport ?? ['calcio'])], sportPrima: (c.sport ?? ['calcio']).join() } }
+  const alternaSportCampo = (s) => { modifica.sport = modifica.sport.includes(s) ? modifica.sport.filter((x) => x !== s) : [...modifica.sport, s] }
   async function trovaIndirizzo() {
     cercoIndirizzo = true; errore = ''
     try {
@@ -26,7 +27,8 @@
   }
   async function salvaCampo() {
     salvando = true; errore = ''
-    const { error } = await supabase.rpc('admin_modifica_campo', { p_campo: modifica.id, p_nome: modifica.nome, p_indirizzo: modifica.indirizzo, p_lat: Number(modifica.lat), p_lng: Number(modifica.lng) })
+    let { error } = await supabase.rpc('admin_modifica_campo', { p_campo: modifica.id, p_nome: modifica.nome, p_indirizzo: modifica.indirizzo, p_lat: Number(modifica.lat), p_lng: Number(modifica.lng) })
+    if (!error && modifica.sport.join() !== modifica.sportPrima) ({ error } = await supabase.rpc('admin_sport_campo', { p_campo: modifica.id, p_sport: modifica.sport }))
     salvando = false
     if (error) { errore = error.message; return }
     modifica = null
@@ -208,7 +210,7 @@
           {@const occ = p.posizioni.filter((x) => x.stato !== 'libera').length}
           <a href={`/partita/${p.id}`} class="card riga">
             <div class="riempi">
-              <div class="nome taglia">{etichettaDataOra(p.data_ora)} · {etichettaFormato(p.formato)}</div>
+              <div class="nome taglia">{etichettaDataOra(p.data_ora)} · {etichettaFormato(p.formato, p.sport)}</div>
               <div class="sotto taglia">{p.campo?.nome} · organizza {nomeBreve(p.organizzatore)} · {occ}/{p.posizioni.length}</div>
             </div>
             <span class="chip {p.stato === 'annullata' ? 'neutro' : p.stato === 'completa' ? 'portiere' : 'leggero'}">{p.stato}</span>
@@ -254,6 +256,12 @@
       <m.default bind:lat={modifica.lat} bind:lng={modifica.lng} />
     {/await}
     <p class="aiuto">Posizione: {Number(modifica.lat).toFixed(5)}, {Number(modifica.lng).toFixed(5)}</p>
-    <button type="button" class="btn" disabled={salvando || !modifica.nome?.trim()} onclick={salvaCampo}>{salvando ? 'Salvataggio…' : 'Salva il campo'}</button>
+    <span class="aiuto" style="font-weight:600">Sport del campo</span>
+    <div class="scelte">
+      {#each [['calcio', 'Calcio'], ['tennis', 'Tennis'], ['padel', 'Padel']] as [s, t]}
+        <button type="button" class="scelta" class:attiva={modifica.sport.includes(s)} onclick={() => alternaSportCampo(s)}>{t}</button>
+      {/each}
+    </div>
+    <button type="button" class="btn" disabled={salvando || !modifica.nome?.trim() || !modifica.sport.length} onclick={salvaCampo}>{salvando ? 'Salvataggio…' : 'Salva il campo'}</button>
   </Foglio>
 {/if}

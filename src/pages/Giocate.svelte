@@ -68,7 +68,7 @@
           <a href={`/partita/${p.partita_id}`} class="card riga" style={p.stato === 'annullata' ? 'opacity:.7' : ''}>
             <div class="data-box"><div class="g">{giornoBreve(p.data_ora)}</div><div class="n">{giornoNumero(p.data_ora)}</div></div>
             <div class="riempi">
-              <div class="nome taglia">{etichettaFormato(p.formato)} · {p.campo_nome}</div>
+              <div class="nome taglia">{etichettaFormato(p.formato, p.sport)} · {p.campo_nome}</div>
               <div class="sotto taglia">{giornoNumero(p.data_ora)} {mese(p.data_ora)} · {ora(p.data_ora)}{mioRuolo(p) ? ` · ${mioRuolo(p)}` : ''}</div>
               <div class="sotto taglia">{risultato(p)} · {p.giocatori} giocatori{p.in_tribuna ? ` · ${p.in_tribuna} in tribuna` : ''}</div>
             </div>
