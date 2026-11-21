@@ -23,6 +23,9 @@
   import MigliorInCampo from './components/MigliorInCampo.svelte'
   import BarraEntraCome from './components/BarraEntraCome.svelte'
   import Admin from './pages/Admin.svelte'
+  import StrisciaSport from './components/StrisciaSport.svelte'
+  // pagine con la barra in basso: lì si mostra in che sport si è
+  const CON_BARRA = ['/', '/campi', '/chat', '/amici', '/liste', '/profilo']
 
   // privata = serve il login; pubblica = visibile anche dal QR senza account
   const rotte = [
@@ -79,6 +82,7 @@
   {:else if auth.utente && profiloIncompleto() && corrente.pattern !== '/profilo/modifica'}
     <CompletaProfilo />
   {:else}
+    {#if CON_BARRA.includes(router.percorso)}<StrisciaSport />{/if}
     {#key router.percorso}
       <corrente.componente {...corrente.parametri} />
     {/key}

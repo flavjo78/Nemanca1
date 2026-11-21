@@ -54,10 +54,10 @@
   /* tasto dello sport al centro: a ogni tocco calcio → tennis → padel */
   .sport {
     display: flex; flex-direction: column; align-items: center; gap: 2px; justify-content: center; min-height: 44px;
-    background: none; border: none; padding: 0; font: inherit; font-size: 11px; font-weight: 700; color: var(--verde); cursor: pointer;
+    background: none; border: none; padding: 0; font: inherit; font-size: 11px; font-weight: 700; color: var(--sport); cursor: pointer;
   }
   .sport .tondo {
-    width: 46px; height: 46px; margin-top: -22px; border-radius: 50%; background: var(--verde); color: #fff;
+    width: 46px; height: 46px; margin-top: -22px; border-radius: 50%; background: var(--sport); color: #fff; transition: background-color .4s;
     display: flex; align-items: center; justify-content: center; border: 3px solid var(--superficie);
     box-shadow: 0 2px 8px rgba(20, 32, 26, .25); animation: gira .35s ease-out;
   }

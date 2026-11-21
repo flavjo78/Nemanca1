@@ -28,7 +28,11 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: var(--sfondo); }
+/* lo sfondo cambia appena con lo sport scelto (tasto al centro della barra), così si capisce dove si è */
+:root { --sport: #1E7B4E; --sport-chiaro: #DCEFE3; }
+:root[data-sport="tennis"] { --sfondo: #F7F0EA; --sport: #B5562F; --sport-chiaro: #F3DCCF; }
+:root[data-sport="padel"] { --sfondo: #EDF3F9; --sport: #2D6FA6; --sport-chiaro: #D3E4F3; }
+html, body { margin: 0; padding: 0; background: var(--sfondo); transition: background-color .4s; }
 body {
   font-family: var(--font);
   color: var(--testo);

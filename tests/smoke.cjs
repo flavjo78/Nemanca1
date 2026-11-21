@@ -128,7 +128,7 @@ function rispondi(url, metodo) {
   await page.goto(base + '/campi/nuovo'); await page.waitForSelector('text=Nome del campo'); await foto('nuovo-campo')
   // tennis e padel: tasto dello sport nella barra, campo da padel, organizza padel
   await page.goto(base + `/partita/${PARTITA3}`); await page.waitForSelector('.campo.padel'); await page.waitForSelector('text=Destra libero'); await foto('partita-padel')
-  await page.goto(base + '/'); await page.waitForSelector('text=Ciao Marco'); await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Tennis: serve un giocatore vicino a te'); await foto('home-tennis')
+  await page.goto(base + '/'); await page.waitForSelector('text=Ciao Marco'); await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Tennis: serve un giocatore vicino a te'); await page.waitForSelector('text=Ora sei su Tennis'); await foto('home-tennis')
   await page.click('.barra-inferiore .sport'); await page.waitForSelector('text=Padel: serve un giocatore vicino a te')
   await page.goto(base + '/profilo'); await page.waitForSelector('text=Storico · Padel'); await foto('profilo-padel')
   await page.goto(base + `/campo/${CAMPO}/nuova`); await page.waitForSelector('text=Destra e sinistra'); await foto('nuova-partita-padel')
