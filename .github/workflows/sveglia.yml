@@ -1,0 +1,25 @@
+# Sveglia del database: Supabase (piano gratuito) mette in pausa il progetto dopo 7 giorni senza attività.
+# Ogni giorno questa azione apre il sito, legge la chiave pubblica (publishable) dal file dell'app
+# e fa una piccola lettura sul database, così risulta sempre attivo. Nessuna chiave salvata nel repository.
+name: Sveglia database
+
+on:
+  schedule:
+    - cron: '17 4 * * *'   # ogni giorno alle 4:17 UTC
+  workflow_dispatch: {}
+
+jobs:
+  sveglia:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lettura leggera dal database
+        run: |
+          set -euo pipefail
+          js=$(curl -fsS https://www.nemanca1.com/ | grep -o 'assets/index-[^"]*\.js' | head -1)
+          corpo=$(curl -fsS "https://www.nemanca1.com/$js")
+          url=$(grep -o 'https://[a-z0-9]*\.supabase\.co' <<< "$corpo" | head -1)
+          chiave=$(grep -oE 'sb_publishable_[A-Za-z0-9_-]{20,}' <<< "$corpo" | head -1)
+          [ -n "$url" ] && [ -n "$chiave" ] || { echo "Non trovo indirizzo o chiave pubblica nel sito"; exit 1; }
+          codice=$(curl -s -o /dev/null -w '%{http_code}' "$url/rest/v1/campi?select=id&limit=1" -H "apikey: $chiave")
+          echo "Risposta del database: $codice"
+          [ "$codice" = "200" ]
