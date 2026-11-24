@@ -13,9 +13,14 @@
   import Novita from '../components/Novita.svelte'
   let vediNovita = $state(false)
   import { notifiche, attivaNotifiche, disattivaNotifiche } from '../lib/notifiche.svelte.js'
+  import { sport, scegliSport, ORDINE_SPORT, NOMI_SPORT, racchetta, passaFiltro, classeSport } from '../lib/sport.svelte.js'
 
-  let voti = $state(null)
-  let storico = $state([])
+  // profilo unico, statistiche separate per sport (segue il tasto dello sport nella barra)
+  let tuttiVoti = $state([])
+  let tuttoStorico = $state([])
+  // "Tutti": voti del calcio (gli unici che esistono) e tutte le partite
+  const voti = $derived(tuttiVoti.find((v) => v.sport === (sport.attuale === 'tutti' ? 'calcio' : sport.attuale)) ?? null)
+  const storico = $derived(tuttoStorico.filter((s) => passaFiltro(s.sport)))
   let caricato = $state(false)
 
   const p = $derived(auth.profilo)
@@ -28,11 +33,11 @@
 
   onMount(async () => {
     const [{ data: v }, { data: s }] = await Promise.all([
-      supabase.from('profili_voti').select('*').eq('profilo_id', auth.utente.id).maybeSingle(),
-      supabase.from('storico_partite').select('*').eq('giocatore_id', auth.utente.id).order('data_ora', { ascending: false }).limit(20)
+      supabase.from('profili_voti_sport').select('*').eq('profilo_id', auth.utente.id),
+      supabase.from('storico_partite').select('*').eq('giocatore_id', auth.utente.id).order('data_ora', { ascending: false }).limit(100)
     ])
-    voti = v
-    storico = s ?? []
+    tuttiVoti = v ?? []
+    tuttoStorico = s ?? []
     caricato = true
   })
 
@@ -70,8 +75,14 @@
       </div>
     </div>
 
-    <div style="display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
-      {#each [[virgola(voti?.complessivo), 'Voto'], [giocate, 'Partite'], [vinte, 'Vinte']] as [n, t]}
+    <div class="scelte" role="tablist" aria-label="Statistiche per sport">
+      {#each ORDINE_SPORT as s}
+        <button type="button" role="tab" class="scelta" class:attiva={sport.attuale === s} aria-selected={sport.attuale === s} onclick={() => scegliSport(s)}>{NOMI_SPORT[s]}</button>
+      {/each}
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat({racchetta(sport.attuale) ? 2 : 3}, minmax(0, 1fr)); gap: 10px">
+      {#each racchetta(sport.attuale) ? [[giocate, 'Partite'], [vinte, 'Vinte']] : [[virgola(voti?.complessivo), 'Voto'], [giocate, 'Partite'], [vinte, 'Vinte']] as [n, t]}
         <div class="card" style="align-items:center; gap:2px; padding: 14px 8px">
           <div style="font-family: var(--font-titoli); font-size: 26px; font-weight: 700">{n}</div>
           <div class="sotto" style="text-transform: uppercase; letter-spacing: .6px; font-size: 11px; font-weight: 600">{t}</div>
@@ -79,6 +90,7 @@
       {/each}
     </div>
 
+    {#if !racchetta(sport.attuale)}
     <section class="sezione">
       <div class="sezione-titolo">Come ti valutano</div>
       <div class="card" style="gap: 12px">
@@ -91,26 +103,27 @@
         <p class="aiuto">{voti ? `Media di ${voti.n_recensioni} recensioni anonime` : 'Ancora nessuna recensione: arrivano dopo le prime partite giocate.'}</p>
       </div>
     </section>
+    {/if}
 
     <section class="sezione">
-      <div class="sezione-titolo">Storico partite</div>
+      <div class="sezione-titolo">Storico{sport.attuale === 'tutti' ? '' : ` · ${NOMI_SPORT[sport.attuale]}`}</div>
       {#if !caricato}
         <div class="vuoto">Caricamento…</div>
       {:else if storico.length}
-        {#each storico as s (s.partita_id)}
-          <a href={`/partita/${s.partita_id}`} class="card riga">
+        {#each storico.slice(0, 20) as s (s.partita_id)}
+          <a href={`/partita/${s.partita_id}`} class="card riga {classeSport(s.sport)}">
             <div class="data-box" style={s.esito === 'vinta' ? 'background: var(--verde-chiaro); color: var(--verde-scuro)' : s.esito ? '' : 'background: var(--neutro); color: var(--testo-3)'}>
               <div class="n" style="font-size:15px">{risultato(s)}</div>
             </div>
             <div class="riempi">
-              <div class="nome">{esitoTesto(s)} · {etichettaFormato(s.formato)}</div>
+              <div class="nome">{esitoTesto(s)} · {etichettaFormato(s.formato, s.sport)}</div>
               <div class="sotto taglia">{s.campo_nome} · {dataBreve(s.data_ora)}</div>
             </div>
             <Icona nome="avanti" dimensione={18} />
           </a>
         {/each}
       {:else}
-        <div class="vuoto">Le partite a cui partecipi compariranno qui.</div>
+        <div class="vuoto">Le partite{sport.attuale === 'tutti' ? '' : ` di ${NOMI_SPORT[sport.attuale].toLowerCase()}`} a cui partecipi compariranno qui.</div>
       {/if}
     </section>
 

@@ -42,7 +42,7 @@
 
   async function carica() {
     const [{ data: p }, { data: part }, { data: gest }] = await Promise.all([
-      supabase.from('partite').select('id, data_ora, formato, stato, archiviata, organizzatore_id, campo:campi(nome)').eq('id', id).maybeSingle(),
+      supabase.from('partite').select('id, data_ora, formato, sport, stato, archiviata, organizzatore_id, campo:campi(nome)').eq('id', id).maybeSingle(),
       supabase.rpc('partecipa', { p_partita: id }),
       supabase.rpc('e_organizzatore', { p_partita: id })
     ])
@@ -138,7 +138,7 @@
     <div class="centro">
       {#if partita}
         <h1>{partita.campo?.nome}</h1>
-        <div class="sotto">{etichettaDataOra(partita.data_ora)} · {etichettaFormato(partita.formato)}{partita.stato === 'annullata' ? ' · annullata' : ''}</div>
+        <div class="sotto">{etichettaDataOra(partita.data_ora)} · {etichettaFormato(partita.formato, partita.sport)}{partita.stato === 'annullata' ? ' · annullata' : ''}</div>
       {:else}
         <h1>Chat</h1>
       {/if}

@@ -12,9 +12,17 @@ export const RUOLI = {
   attacco: 'Attacco'
 }
 
-export function etichettaRuolo(r) { return r === 'panchina' ? 'Panchina' : (RUOLI[r] ?? r) }
+// tennis e padel: ruoli facoltativi (nel 2 contro 2 destra/sinistra, altrimenti "giocatore")
+export const RUOLI_RACCHETTA = { singolo: 'Giocatore', destra: 'Destra', sinistra: 'Sinistra' }
 
-export function etichettaFormato(f) { return `Calcio a ${f}` }
+export function etichettaRuolo(r) { return r === 'panchina' ? 'Panchina' : (RUOLI[r] ?? RUOLI_RACCHETTA[r] ?? r) }
+
+/** "Calcio a 5" · "Tennis 1 contro 1" · "Padel 2 contro 2" */
+export function etichettaFormato(f, sport) {
+  if (sport === 'tennis' || sport === 'padel') return `${sport === 'tennis' ? 'Tennis' : 'Padel'} ${f} contro ${f}`
+  if (!sport && f <= 2) return `${f} contro ${f}`
+  return `Calcio a ${f}`
+}
 
 export function ora(d) {
   d = new Date(d)

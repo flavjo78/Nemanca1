@@ -28,7 +28,21 @@
 }
 
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: var(--sfondo); }
+/* lo sfondo cambia appena con lo sport scelto (tasto al centro della barra), così si capisce dove si è */
+:root { --sport: #1E7B4E; --sport-chiaro: #DCEFE3; }
+:root[data-sport="tutti"] { --sfondo: #FFFFFF; --sport: #14201A; --sport-chiaro: #EEF1EE; }
+:root[data-sport="tutti"] .card:not(.card-sport) { border: 1px solid #E3E8E4; }
+/* card colorate per sport: verde calcio, terra tennis, azzurro padel */
+.card.sport-calcio { background: #E4F3EA; }
+.card.sport-tennis { background: #F8E6DC; }
+.card.sport-padel { background: #DFEBF7; }
+.card.sport-calcio-tennis { background: linear-gradient(110deg, #E4F3EA 50%, #F8E6DC 50%); }
+.card.sport-calcio-padel { background: linear-gradient(110deg, #E4F3EA 50%, #DFEBF7 50%); }
+.card.sport-tennis-padel { background: linear-gradient(110deg, #F8E6DC 50%, #DFEBF7 50%); }
+.card.sport-calcio-tennis-padel { background: linear-gradient(110deg, #E4F3EA 33%, #F8E6DC 33% 66%, #DFEBF7 66%); }
+:root[data-sport="tennis"] { --sfondo: #F7F0EA; --sport: #B5562F; --sport-chiaro: #F3DCCF; }
+:root[data-sport="padel"] { --sfondo: #EDF3F9; --sport: #2D6FA6; --sport-chiaro: #D3E4F3; }
+html, body { margin: 0; padding: 0; background: var(--sfondo); transition: background-color .4s; }
 body {
   font-family: var(--font);
   color: var(--testo);
@@ -86,6 +100,10 @@ p { margin: 0; }
 .card.evidenziata { border: 2px solid var(--verde); }
 .card.verde { background: var(--verde); color: #fff; padding: 18px; }
 .card.verde .sotto { color: var(--verde-testo-chiaro); }
+.card.verde.forte-tennis { background: #B5562F; }
+.card.verde.forte-tennis .sotto { color: #F8E6DC; }
+.card.verde.forte-padel { background: #2D6FA6; }
+.card.verde.forte-padel .sotto { color: #DFEBF7; }
 .card .titolo { font-family: var(--font-titoli); font-size: 20px; font-weight: 700; }
 .card .sotto { font-size: 13px; color: var(--testo-2); }
 .card .riempi { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 3px; }

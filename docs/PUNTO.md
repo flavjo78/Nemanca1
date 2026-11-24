@@ -51,9 +51,10 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 1. [x] **Tappa 4 – "Cerca chi manca"** (13/11, su www): bottone nella partita per chi gioca o è in tribuna; avvisa chi ha "Cercami" acceso entro i suoi km, per i suoi ruoli o anche per altri (lo sceglie lui), negli orari che imposta in Home; precedenza a chi ha già giocato su quel campo; limiti anti-fastidio. **Tolte su decisione di Flavio**: chat 1-a-1 e "blocca"
    - [ ] *Da decidere*: avviso **automatico** (es. quando qualcuno si toglie entro 24 ore, o 24 e 3 ore prima se mancano giocatori)
 2. [~] **Tappa 5 – Dopo la partita** (16/11, su www: durata, ospiti, migliore in campo obbligatorio con coppa, voti ad almeno un compagno; resta il **risultato**): risultato (andrà anche nell'archivio), recensioni anonime su 4 categorie, voti nel profilo, storico
-3. [ ] **Tappa 6**: QR stampabili (versione da stampare con logo), prova con 10 persone su un campo vero
-4. [ ] **Entra con Google**
-5. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
+3. [~] **Tappa 6**: **QR del campo da stampare** (A4 o adesivo, sponsor facoltativo, solo da chi è al campo o dall'amministratore) e **QR dell'app in Home** su www dal 24/11; resta la prova con 10 persone su un campo vero
+4. [x] **Tennis e padel** (su www dal 24/11): tasto al centro della barra in basso che cambia sport (tutti → calcio → tennis → padel; con "Tutti" sfondo bianco e card colorate per sport, con uno sport solo le sue partite); Home, Campi e mappa mostrano solo partite e campi di quello sport; tennis e padel 1 contro 1 o 2 contro 2, ruoli facoltativi (destra/sinistra), campo disegnato (terra rossa / padel blu), niente modulo, divise e "migliore in campo"; panchina possibile ma di default nessuna; profilo unico con statistiche e storico separati per sport; l'amministratore sceglie gli sport di ogni campo; sfondo leggermente colorato per sport, striscia "Stai guardando: …" e avviso "Ora sei su …" al cambio
+5. [ ] **Entra con Google**
+6. [ ] **Sicurezza, per ultima**: revocare il primo token Supabase e rigenerare la chiave Resend (finiti in screenshot)
 
 - [x] **Pannello amministratore** (16/11, su www): elimina partite, campi e utenti, conferma e modifica campi (posizione sulla mappa), **entra come** utente (chiave `supabase_secret_key` nel Vault, provato) e giocatori di prova
 

@@ -15,6 +15,7 @@
   import Divisa from '../components/Divisa.svelte'
   import Avatar from '../components/Avatar.svelte'
   import { COLORI, divisaDi, testoDivisa, testoPorta } from '../lib/divise.js'
+  import { racchetta, NOMI_SPORT } from '../lib/sport.svelte.js'
 
   let { id } = $props()
   let partita = $state(null)
@@ -29,7 +30,7 @@
     scelta = { titolo, sotto, posti, azione, squadra: squadre.length === 1 ? squadre[0] : null, ruolo: null }
     foglio = { tipo: 'scegli' }
   }
-  const ORDINE_RUOLI = ['portiere', 'difesa', 'centro', 'attacco', 'panchina']
+  const ORDINE_RUOLI = ['portiere', 'difesa', 'centro', 'attacco', 'singolo', 'destra', 'sinistra', 'panchina']
   // etichetta del cerchio: lato del campo (dai cerchi come sono disegnati) o numero di panchina
   function lato(p) {
     if (p.ruolo === 'panchina') {
@@ -90,8 +91,9 @@
   // "Serve un portiere vicino a te": avviso ai giocatori della zona
   const NOMI_RUOLO = { portiere: 'portiere', difesa: 'difensore', centro: 'centrocampista', attacco: 'attaccante' }
   const PLURALI_RUOLO = { portiere: 'portieri', difesa: 'difensori', centro: 'centrocampisti', attacco: 'attaccanti' }
+  // nel tennis e nel padel si cerca "un giocatore" (i ruoli del profilo sono del calcio)
   const ruoliMancanti = $derived(Object.entries(posizioni.filter((p) => p.stato === 'libera' && p.ruolo !== 'panchina')
-    .reduce((acc, p) => { acc[p.ruolo] = (acc[p.ruolo] || 0) + 1; return acc }, {})))
+    .reduce((acc, p) => { const r = conRacchetta ? 'qualsiasi' : p.ruolo; acc[r] = (acc[r] || 0) + 1; return acc }, {})))
   let ruoloCercato = $state('qualsiasi')
   async function cercaChiManca() {
     occupato = true; errore = ''; avviso = ''
@@ -250,7 +252,7 @@
   // trascinamento: alla prima volta fisso anche gli altri posti della squadra dove sono, così non si rimescolano
   async function trascina(p, x, y) {
     errore = ''; avviso = ''
-    const fissi = disponi(posizioni)
+    const fissi = disponi(posizioni, partita?.sport)
     const daFissare = Object.fromEntries(posizioni.filter((q) => q.squadra === p.squadra && q.ruolo !== 'panchina' && !q.manuale && q.id !== p.id).map((q) => [q.id, fissi[q.id]]))
     if (Object.keys(daFissare).length) {
       const { error } = await supabase.rpc('fissa_posti', { p_partita: id, p_squadra: p.squadra, p_coordinate: daFissare })
@@ -270,7 +272,7 @@
     copiato = true; setTimeout(() => (copiato = false), 2500)
   }
   const altriPosti = (p) => posizioni.filter((x) => x.id !== p.id && gestisco(x.squadra)).sort((a, b) => (a.ruolo === 'panchina') - (b.ruolo === 'panchina') || a.squadra.localeCompare(b.squadra) || (a.giocatore_id ? 1 : 0) - (b.giocatore_id ? 1 : 0))
-  const coordinateCampo = $derived(disponi(posizioni))
+  const coordinateCampo = $derived(disponi(posizioni, partita?.sport))
   const postiLiberi = $derived(posizioni.filter((p) => p.stato === 'libera').sort((a, b) => (a.ruolo === 'panchina') - (b.ruolo === 'panchina') || a.squadra.localeCompare(b.squadra)))
 
   async function annulla() {
@@ -282,12 +284,16 @@
 
   async function condividi() {
     const url = `${window.location.origin}/partita/${id}`
-    const dati = { title: 'Ne manca 1 · partita di calcetto', text: `${etichettaFormato(partita.formato)} · ${etichettaDataOra(partita.data_ora)} · ${partita.campo.nome}`, url }
+    const dati = { title: `Ne manca 1 · partita di ${conRacchetta ? NOMI_SPORT[partita.sport].toLowerCase() : 'calcetto'}`, text: `${etichettaFormato(partita.formato, partita.sport)} · ${etichettaDataOra(partita.data_ora)} · ${partita.campo.nome}`, url }
     if (navigator.share) { try { await navigator.share(dati) } catch { /* annullato */ } }
     else { await navigator.clipboard.writeText(url); avviso = 'Link copiato.' }
   }
 
-  const ruoliDisponibili = $derived(Object.keys(RUOLI).filter((r) => partita?.formato !== 5 || r !== 'centro'))
+  const conRacchetta = $derived(racchetta(partita?.sport))
+  // tennis e padel: ruoli facoltativi, solo destra/sinistra se la partita li usa
+  const ruoliDisponibili = $derived(conRacchetta
+    ? [...new Set(posizioni.filter((p) => p.ruolo !== 'panchina' && p.ruolo !== 'singolo').map((p) => p.ruolo))].sort()
+    : Object.keys(RUOLI).filter((r) => partita?.formato !== 5 || r !== 'centro'))
   const ruoliCambio = $derived([...ruoliDisponibili, 'panchina'])
   const haPanchina = $derived(posizioni.some((p) => p.ruolo === 'panchina'))
 </script>
@@ -303,7 +309,7 @@
         <Icona nome="indietro" dimensione={20} spessore={2.4} />
       </button>
       <div class="centro">
-        <h1>{etichettaDataOra(partita.data_ora)}–{oraFine} · {etichettaFormato(partita.formato)}</h1>
+        <h1>{etichettaDataOra(partita.data_ora)}–{oraFine} · {etichettaFormato(partita.formato, partita.sport)}</h1>
         <a href={`/campo/${partita.campo_id}`} class="sotto" style="text-decoration:none">{partita.campo.nome} · organizza {nomeBreve(partita.organizzatore)}</a>
       </div>
       {#if mioPosto || sonoOrganizzatore || sonoInTribuna}
@@ -377,14 +383,17 @@
         </section>
       {/if}
 
-      <CampoDisegnato {posizioni} mioId={uid} alClick={modificabile ? tocca : null} divise={{ A: divisaDi(partita, 'A'), B: divisaDi(partita, 'B') }}
-        trascinabile={modificabile ? (p) => gestisco(p.squadra) : null} alTrascina={trascina} />
+      <CampoDisegnato {posizioni} mioId={uid} alClick={modificabile ? tocca : null} sport={partita.sport}
+        divise={conRacchetta ? null : { A: divisaDi(partita, 'A'), B: divisaDi(partita, 'B') }}
+        trascinabile={modificabile && !conRacchetta ? (p) => gestisco(p.squadra) : null} alTrascina={trascina} />
       {#if mioPosto && partita.stato !== 'annullata'}
-        {@const miaDivisa = divisaDi(partita, mioPosto.squadra)}
-        <div class="card riga promemoria-divisa">
-          <Divisa maglia={miaDivisa.maglia} pantaloncini={miaDivisa.pantaloncini} dimensione={30} />
-          <div class="riempi"><div class="nome">{testoPorta(miaDivisa)}</div><div class="sotto">Divisa della squadra {mioPosto.squadra}</div></div>
-        </div>
+        {#if !conRacchetta}
+          {@const miaDivisa = divisaDi(partita, mioPosto.squadra)}
+          <div class="card riga promemoria-divisa">
+            <Divisa maglia={miaDivisa.maglia} pantaloncini={miaDivisa.pantaloncini} dimensione={30} />
+            <div class="riempi"><div class="nome">{testoPorta(miaDivisa)}</div><div class="sotto">Divisa della squadra {mioPosto.squadra}</div></div>
+          </div>
+        {/if}
         {#if modificabile && !sonoTitolare}
           <button type="button" class="btn bianco" onclick={apriInvitaAmici}><Icona nome="utenti" dimensione={18} /> Invita amici a questa partita</button>
         {/if}
@@ -394,12 +403,12 @@
           <Icona nome="cerca" dimensione={18} /> Cerca chi manca tra i giocatori vicini
         </button>
       {/if}
-      {#if modificabile && sonoOrganizzatore}
+      {#if modificabile && sonoOrganizzatore && !conRacchetta}
         <p class="aiuto" style="text-align:center">Tieni premuto un cerchio e trascinalo: vicino alla porta è difesa, in mezzo centrocampo, avanti attacco. Il modulo si aggiorna da solo.</p>
       {/if}
 
       <div class="legenda">
-        <div><span class="pallino" style="background: var(--portiere)"></span>Portiere</div>
+        {#if !conRacchetta}<div><span class="pallino" style="background: var(--portiere)"></span>Portiere</div>{/if}
         <div><span class="pallino tratteggiato"></span>Posto libero</div>
         <div><span class="pallino" style="background: var(--da-confermare)"></span>Da confermare</div>
       </div>
@@ -452,10 +461,12 @@
             {#if sonoTitolare}
               <button type="button" class="btn piccolo" onclick={apriInvitaAmici}><Icona nome="utenti" dimensione={18} /> Invita amici</button>
             {/if}
-            <button type="button" class="btn bianco piccolo" onclick={() => apriModulo(sonoTitolare ? 'A' : miaViceSquadra)}>Cambia modulo</button>
-            <button type="button" class="btn bianco piccolo" onclick={() => apriDivise(sonoTitolare ? 'A' : miaViceSquadra)}>
-              <Divisa maglia={divisaDi(partita, sonoTitolare ? 'A' : miaViceSquadra).maglia} pantaloncini={divisaDi(partita, sonoTitolare ? 'A' : miaViceSquadra).pantaloncini} dimensione={18} /> Colori delle divise
-            </button>
+            {#if !conRacchetta}
+              <button type="button" class="btn bianco piccolo" onclick={() => apriModulo(sonoTitolare ? 'A' : miaViceSquadra)}>Cambia modulo</button>
+              <button type="button" class="btn bianco piccolo" onclick={() => apriDivise(sonoTitolare ? 'A' : miaViceSquadra)}>
+                <Divisa maglia={divisaDi(partita, sonoTitolare ? 'A' : miaViceSquadra).maglia} pantaloncini={divisaDi(partita, sonoTitolare ? 'A' : miaViceSquadra).pantaloncini} dimensione={18} /> Colori delle divise
+              </button>
+            {/if}
             <button type="button" class="btn bianco piccolo" onclick={() => { ruoloScelto = 'panchina'; squadraScelta = sonoTitolare ? 'A' : miaViceSquadra; foglio = { tipo: 'aggiungi' } }}>
               <Icona nome="piu" dimensione={18} spessore={2.4} /> Aggiungi una riserva in panchina
             </button>
@@ -492,7 +503,7 @@
         <button type="button" class="btn bianco" disabled={occupato} onclick={ritira}>Candidatura inviata · tocca per ritirarla</button>
       {:else}
         <button type="button" class="btn" onclick={() => { ruoloScelto = null; squadraPreferita = null; foglio = { tipo: 'candidati' } }}>
-          {numeri.liberi > 0 ? 'Candidati per un ruolo' : 'Al completo · mettiti in lista'}
+          {numeri.liberi > 0 ? (conRacchetta ? 'Candidati' : 'Candidati per un ruolo') : 'Al completo · mettiti in lista'}
         </button>
       {/if}
       <button type="button" class="btn bianco quadrato" aria-label="Copia il link della partita" onclick={copiaLink}>
@@ -624,13 +635,15 @@
           <button type="button" class="scelta" class:attiva={squadraPreferita === 'A'} onclick={() => (squadraPreferita = 'A')}>Squadra A</button>
           <button type="button" class="scelta" class:attiva={squadraPreferita === 'B'} onclick={() => (squadraPreferita = 'B')}>Squadra B</button>
         </div>
-        <span class="aiuto" style="font-weight:600">Ruolo</span>
-        <div class="scelte">
-          <button type="button" class="scelta" class:attiva={ruoloScelto === null} onclick={() => (ruoloScelto = null)}>Qualsiasi ruolo</button>
-          {#each (haPanchina ? ruoliCambio : ruoliDisponibili) as r}
-            <button type="button" class="scelta" class:attiva={ruoloScelto === r} onclick={() => (ruoloScelto = r)}>{etichettaRuolo(r)}</button>
-          {/each}
-        </div>
+        {#if ruoliDisponibili.length || haPanchina}
+          <span class="aiuto" style="font-weight:600">{conRacchetta ? 'Lato (facoltativo)' : 'Ruolo'}</span>
+          <div class="scelte">
+            <button type="button" class="scelta" class:attiva={ruoloScelto === null} onclick={() => (ruoloScelto = null)}>{conRacchetta ? 'Indifferente' : 'Qualsiasi ruolo'}</button>
+            {#each (haPanchina ? ruoliCambio : ruoliDisponibili) as r}
+              <button type="button" class="scelta" class:attiva={ruoloScelto === r} onclick={() => (ruoloScelto = r)}>{etichettaRuolo(r)}</button>
+            {/each}
+          </div>
+        {/if}
         <button type="button" class="btn" disabled={occupato} onclick={candidati}>Invia candidatura</button>
         {#if !sonoInTribuna}
           <button type="button" class="btn bianco" disabled={occupato} onclick={entraTribuna}>Solo tribuna: seguo e sto in chat</button>
@@ -696,7 +709,7 @@
       <Foglio aperto titolo="Cerca chi manca" sotto="Avvisiamo con una notifica i giocatori vicini al campo che hanno acceso &quot;Cercami&quot;, secondo i km e gli orari che hanno scelto." chiudi={() => (foglio = null)}>
         <div class="scelte">
           {#each ruoliMancanti as [ruolo, n]}
-            <button type="button" class="scelta" class:attiva={ruoloCercato === ruolo} onclick={() => (ruoloCercato = ruolo)}>{n > 1 ? `${n} ${PLURALI_RUOLO[ruolo]}` : `Un ${NOMI_RUOLO[ruolo]}`}</button>
+            <button type="button" class="scelta" class:attiva={ruoloCercato === ruolo} onclick={() => (ruoloCercato = ruolo)}>{ruolo === 'qualsiasi' ? (n > 1 ? `${n} giocatori` : 'Un giocatore') : n > 1 ? `${n} ${PLURALI_RUOLO[ruolo]}` : `Un ${NOMI_RUOLO[ruolo]}`}</button>
           {/each}
           {#if ruoliMancanti.length > 1}
             <button type="button" class="scelta" class:attiva={ruoloCercato === 'qualsiasi'} onclick={() => (ruoloCercato = 'qualsiasi')}>Qualsiasi ruolo</button>

@@ -12,7 +12,8 @@ export function ruoloDaAltezza(y) {
 
 /** Ritorna una mappa id → {x, y} (percentuali nella metà campo, y=0 porta propria).
  *  I posti spostati a mano (manuale) restano dove sono; gli altri si dispongono in righe per ruolo. */
-export function disponi(posizioni) {
+export function disponi(posizioni, sport = 'calcio') {
+  if (sport === 'tennis' || sport === 'padel') return disponiRacchetta(posizioni)
   const coordinate = {}
   for (const p of posizioni) if (p.manuale && p.ruolo !== 'panchina') coordinate[p.id] = { x: p.x, y: p.y }
   for (const squadra of ['A', 'B']) {
@@ -69,4 +70,19 @@ export function contaRuoli(posizioni, squadra) {
 /** Modulo attuale di una squadra, es. "2-2" o "1-2-1". */
 export function moduloDi(posizioni, squadra) {
   return testoModulo(contaRuoli(posizioni, squadra))
+}
+
+/** Tennis e padel: 1 giocatore al centro o 2 affiancati. La squadra A guarda in basso, quindi la sua destra è a sinistra dello schermo. */
+function disponiRacchetta(posizioni) {
+  const coordinate = {}
+  for (const squadra of ['A', 'B']) {
+    const mie = posizioni.filter((p) => p.squadra === squadra && p.ruolo !== 'panchina')
+      .sort((a, b) => a.x - b.x || a.creato_il?.localeCompare?.(b.creato_il) || 0)
+    const lato = (r) => (r === 'destra') === (squadra === 'A') ? 28 : 72
+    mie.forEach((p, i) => {
+      const x = p.ruolo === 'destra' || p.ruolo === 'sinistra' ? lato(p.ruolo) : mie.length === 1 ? 50 : [28, 72][i] ?? 50
+      coordinate[p.id] = { x, y: 50 }
+    })
+  }
+  return coordinate
 }

@@ -7,10 +7,17 @@
   import Intestazione from '../components/Intestazione.svelte'
   import { PREDEFINITI, testoModulo, moduloPerDb } from '../lib/formazione.js'
   import Contatori from '../components/Contatori.svelte'
+  import { NOMI_SPORT, FORMATI, racchetta, sportPredefinito } from '../lib/sport.svelte.js'
 
   let { id } = $props()
   let campo = $state(null)
-  let formato = $state(5)
+  let sport = $state(sportPredefinito())
+  const conRacchetta = $derived(racchetta(sport))
+  let formato = $state(racchetta(sportPredefinito()) ? 2 : 5)
+  let lati = $state(true)        // 2 contro 2: ruoli destra/sinistra (facoltativi)
+  let lato = $state('destra')
+  const sportCampo = $derived((campo?.sport ?? []).filter((s) => FORMATI[s]))
+  function cambiaSport(s) { if (s === sport) return; sport = s; formato = racchetta(s) ? 2 : 5; panchina = 0 }
   let dataOra = $state(perInputDataOra(prossimaOraTonda()))
   let descrizione = $state('')
   let quota = $state('')
@@ -24,7 +31,7 @@
   let difesa = $state(2), centro = $state(0), attacco = $state(2)
   let formatoPrecedente = 5
   $effect(() => {
-    if (formato !== formatoPrecedente) {
+    if (formato !== formatoPrecedente && PREDEFINITI[formato]) {
       formatoPrecedente = formato
       ;({ difesa, centro, attacco } = PREDEFINITI[formato])
     }
@@ -43,8 +50,11 @@
   }
 
   onMount(async () => {
-    const { data } = await supabase.from('campi').select('id, nome, indirizzo').eq('id', id).maybeSingle()
+    const { data } = await supabase.from('campi').select('id, nome, indirizzo, sport').eq('id', id).maybeSingle()
     campo = data
+    // se il campo non ha lo sport scelto, si parte dal primo che ha
+    const disponibili = (data?.sport ?? []).filter((s) => FORMATI[s])
+    if (disponibili.length && !disponibili.includes(sport)) cambiaSport(disponibili[0])
   })
 
   async function crea(e) {
@@ -53,7 +63,7 @@
     const quando = new Date(dataOra)
     if (isNaN(quando) || quando < new Date()) { errore = 'Scegli una data e un\'ora future.'; return }
     if (!(Number(durata) >= 15 && Number(durata) <= 300)) { errore = 'La durata va da 15 a 300 minuti.'; return }
-    if (mancano !== 0) { errore = `Completa il modulo: servono ${movimento} giocatori più il portiere.`; return }
+    if (!conRacchetta && mancano !== 0) { errore = `Completa il modulo: servono ${movimento} giocatori più il portiere.`; return }
     occupato = true
     const { data, error } = await supabase.rpc('crea_partita', {
       p_campo_id: id,
@@ -61,12 +71,12 @@
       p_data_ora: quando.toISOString(),
       p_descrizione: descrizione.trim() || null,
       p_quota: quota === '' ? 0 : Number(String(quota).replace(',', '.')),
-      p_sport: 'calcio',
+      p_sport: sport,
       p_squadra: squadra,
-      p_ruolo: giocoAnchio ? ruolo : null,
+      p_ruolo: !giocoAnchio ? null : conRacchetta ? (formato === 2 && lati ? lato : 'singolo') : ruolo,
       p_modalita: modalita,
       p_panchina: panchina,
-      p_modulo: moduloPerDb({ difesa, centro, attacco })
+      p_modulo: conRacchetta ? (formato === 2 && lati ? 'lati' : null) : moduloPerDb({ difesa, centro, attacco })
     })
     if (!error && Number(durata) !== 60) {
       const r = await supabase.rpc('imposta_durata', { p_partita: data, p_minuti: Math.round(Number(durata)) })
@@ -79,24 +89,56 @@
 </script>
 
 <div class="pagina">
-  <Intestazione titolo="Organizza una partita" sotto={campo ? campo.nome : ''} ritorno={`/campo/${id}`} />
+  <Intestazione titolo="Organizza una partita" sotto={campo ? `${NOMI_SPORT[sport]} · ${campo.nome}` : ''} ritorno={`/campo/${id}`} />
   <form class="contenuto" onsubmit={crea}>
-    <div class="campo-form">
-      <span class="aiuto" style="font-weight:600">Formato</span>
-      <div class="scelte">
-        {#each [5, 8, 11] as f}
-          <button type="button" class="scelta" class:attiva={formato === f} onclick={() => (formato = f)}>Calcio a {f}</button>
-        {/each}
+    {#if sportCampo.length > 1}
+      <div class="campo-form">
+        <span class="aiuto" style="font-weight:600">Sport</span>
+        <div class="scelte">
+          {#each sportCampo as s}
+            <button type="button" class="scelta" class:attiva={sport === s} onclick={() => cambiaSport(s)}>{NOMI_SPORT[s]}</button>
+          {/each}
+        </div>
       </div>
-      <p class="aiuto">{formato * 2} posti in tutto, {formato} per squadra.</p>
-    </div>
-    <div class="campo-form">
-      <span class="aiuto" style="font-weight:600">Modulo: {testoModulo({ difesa, centro, attacco })} <span style="font-weight:400">(più il portiere)</span></span>
-      <Contatori bind:difesa bind:centro bind:attacco massimo={movimento} />
-      <p class="aiuto" style={mancano ? 'color: var(--avviso-testo)' : ''}>{mancano > 0
-        ? `Mancano ${mancano} ${mancano === 1 ? 'giocatore' : 'giocatori'} per arrivare a ${movimento} più il portiere.`
-        : `${movimento} giocatori più il portiere, per entrambe le squadre. Dopo puoi cambiarlo per ciascuna.`}</p>
-    </div>
+    {/if}
+    {#if conRacchetta}
+      <div class="campo-form">
+        <span class="aiuto" style="font-weight:600">Formato</span>
+        <div class="scelte">
+          {#each [1, 2] as f}
+            <button type="button" class="scelta" class:attiva={formato === f} onclick={() => (formato = f)}>{f} contro {f}</button>
+          {/each}
+        </div>
+        <p class="aiuto">{formato === 1 ? `${NOMI_SPORT[sport]} singolo: 2 giocatori in tutto.` : `${NOMI_SPORT[sport]} in coppia: 4 giocatori in tutto, 2 per squadra.`}</p>
+      </div>
+      {#if formato === 2}
+        <div class="campo-form">
+          <span class="aiuto" style="font-weight:600">Ruoli (facoltativi)</span>
+          <div class="scelte">
+            <button type="button" class="scelta" class:attiva={lati} onclick={() => (lati = true)}>Destra e sinistra</button>
+            <button type="button" class="scelta" class:attiva={!lati} onclick={() => (lati = false)}>Senza ruoli</button>
+          </div>
+          <p class="aiuto">{lati ? 'In ogni coppia un posto a destra e uno a sinistra: ognuno sceglie il suo lato.' : 'Due posti per coppia, senza lato: vi mettete d\'accordo in campo.'}</p>
+        </div>
+      {/if}
+    {:else}
+      <div class="campo-form">
+        <span class="aiuto" style="font-weight:600">Formato</span>
+        <div class="scelte">
+          {#each [5, 8, 11] as f}
+            <button type="button" class="scelta" class:attiva={formato === f} onclick={() => (formato = f)}>Calcio a {f}</button>
+          {/each}
+        </div>
+        <p class="aiuto">{formato * 2} posti in tutto, {formato} per squadra.</p>
+      </div>
+      <div class="campo-form">
+        <span class="aiuto" style="font-weight:600">Modulo: {testoModulo({ difesa, centro, attacco })} <span style="font-weight:400">(più il portiere)</span></span>
+        <Contatori bind:difesa bind:centro bind:attacco massimo={movimento} />
+        <p class="aiuto" style={mancano ? 'color: var(--avviso-testo)' : ''}>{mancano > 0
+          ? `Mancano ${mancano} ${mancano === 1 ? 'giocatore' : 'giocatori'} per arrivare a ${movimento} più il portiere.`
+          : `${movimento} giocatori più il portiere, per entrambe le squadre. Dopo puoi cambiarlo per ciascuna.`}</p>
+      </div>
+    {/if}
     <div class="campo-form">
       <span class="aiuto" style="font-weight:600">Chi sceglie il posto?</span>
       <div class="scelte">
@@ -127,7 +169,7 @@
         {/each}
       </div>
       <input id="durata" class="input" type="number" inputmode="numeric" min="15" max="300" step="5" bind:value={durata} />
-      <p class="aiuto">Alla fine della partita i giocatori votano il migliore in campo.</p>
+      {#if !conRacchetta}<p class="aiuto">Alla fine della partita i giocatori votano il migliore in campo.</p>{/if}
     </div>
     <div class="campo-form">
       <label for="quota">Quota a testa (€)</label>
@@ -135,7 +177,7 @@
     </div>
     <div class="campo-form">
       <label for="descrizione">Descrizione (facoltativa)</label>
-      <textarea id="descrizione" class="input" bind:value={descrizione} placeholder="Partita tranquilla, livello medio. Portate maglia chiara e scura."></textarea>
+      <textarea id="descrizione" class="input" bind:value={descrizione} placeholder={conRacchetta ? 'Livello medio, le palline le porto io.' : 'Partita tranquilla, livello medio. Portate maglia chiara e scura.'}></textarea>
     </div>
     <div class="campo-form">
       <label style="display:flex; align-items:center; gap:10px; min-height:44px; font-size:15px; color: var(--testo)">
@@ -148,12 +190,20 @@
           <button type="button" class="scelta" class:attiva={squadra === 'A'} onclick={() => (squadra = 'A')}>Squadra A</button>
           <button type="button" class="scelta" class:attiva={squadra === 'B'} onclick={() => (squadra = 'B')}>Squadra B</button>
         </div>
-        <span class="aiuto" style="font-weight:600">Il tuo ruolo</span>
-        <div class="scelte">
-          {#each ruoliModulo as chiave}
-            <button type="button" class="scelta" class:attiva={ruolo === chiave} onclick={() => (ruolo = chiave)}>{RUOLI[chiave]}</button>
-          {/each}
-        </div>
+        {#if !conRacchetta}
+          <span class="aiuto" style="font-weight:600">Il tuo ruolo</span>
+          <div class="scelte">
+            {#each ruoliModulo as chiave}
+              <button type="button" class="scelta" class:attiva={ruolo === chiave} onclick={() => (ruolo = chiave)}>{RUOLI[chiave]}</button>
+            {/each}
+          </div>
+        {:else if formato === 2 && lati}
+          <span class="aiuto" style="font-weight:600">Il tuo lato</span>
+          <div class="scelte">
+            <button type="button" class="scelta" class:attiva={lato === 'destra'} onclick={() => (lato = 'destra')}>Destra</button>
+            <button type="button" class="scelta" class:attiva={lato === 'sinistra'} onclick={() => (lato = 'sinistra')}>Sinistra</button>
+          </div>
+        {/if}
       {/if}
     </div>
     {#if errore}<div class="errore">{errore}</div>{/if}

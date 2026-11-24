@@ -3,6 +3,17 @@
 // "id" deve essere unico e crescente (data + lettera). Testi brevi, per i giocatori.
 export const NOVITA = [
   {
+    id: '2026-11-24a',
+    titolo: 'Novità: tennis e padel',
+    punti: [
+      'Arrivano tennis e padel: tocca il tasto al centro della barra in basso per vedere tutti gli sport o uno solo',
+      'Tennis e padel 1 contro 1 o 2 contro 2, con destra e sinistra se vuoi',
+      'Nel profilo le tue partite sono divise per sport',
+      'Fai conoscere l\'app: in Home trovi il QR da far inquadrare agli amici',
+      'Sei al campo? Puoi stampare il QR del campo da attaccare all\'ingresso'
+    ]
+  },
+  {
     id: '2026-11-16b',
     titolo: 'Novità: migliore in campo',
     punti: [
