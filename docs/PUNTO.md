@@ -61,6 +61,7 @@ Questo file si aggiorna a ogni passaggio e si ripropone a Flavio.
 ## Facoltativi
 
 - [ ] **Scarica archivio** dalla pagina amministratore (chat, partite, utenti in un file) prima di qualsiasi pulizia
+- [x] **Sveglia giornaliera del database** (24/11): evita la pausa di Supabase dopo 7 giorni senza attività
 - [ ] **Supabase Pro** quando arrivano utenti regolari (più connessioni, niente pausa per inattività, backup giornalieri)
 - [ ] Fornitore di mappe con chiave se il traffico della mappa cresce (policy OpenStreetMap)
 - [ ] Pulizia delle chat di partite vecchie, solo se il database si avvicina ai 500 MB e dopo aver scaricato l'archivio
